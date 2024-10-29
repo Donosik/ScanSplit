@@ -3,6 +3,8 @@ from typing import Union
 
 from fastapi import FastAPI, File, UploadFile
 from PIL import Image
+
+import ReceiptReader
 import io
 
 app = FastAPI()
@@ -29,9 +31,13 @@ async def upload_photo(file: UploadFile = File(...)):
     image = image.convert("RGB")  # Convert to RGB format
     image = image.resize((128, 128))  # Resize to 128x128 for example
 
-    # Pass the image to the model for prediction
+        # Pass the image to the model for prediction
+    
+        # Return the json from the recipt
 
-    # Return the json from the recipt
+    
+        
+
 
     # Return an empty JSON response
     return {}
