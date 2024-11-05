@@ -1,11 +1,11 @@
-import { test } from '@frontend/providers';
+import { services } from '@frontend/services';
 
 export default function App() {
   return (
     <div>
       <h1>
         <span> Hello there, </span>
-        {test()}
+        {services()}
       </h1>
     </div>
   );
