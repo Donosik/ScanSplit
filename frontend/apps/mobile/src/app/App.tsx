@@ -10,7 +10,7 @@ import {
   Linking,
 } from 'react-native';
 import Svg, { G, Path } from 'react-native-svg';
-import { test } from '@frontend/providers';
+import { services } from '@frontend/services';
 
 export default function App(){
   const [whatsNextYCoord, setWhatsNextYCoord] = useState<number>(0);
@@ -59,7 +59,7 @@ export default function App(){
                   />
                 </Svg>
                 <Text style={[styles.textLg, styles.heroTitleText]}>
-                  {test()}
+                  {services()}
                 </Text>
               </View>
               <TouchableOpacity

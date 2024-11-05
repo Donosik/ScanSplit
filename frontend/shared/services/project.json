@@ -1,0 +1,19 @@
+{
+  "name": "services",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "shared/services/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/shared/services",
+        "main": "shared/services/src/index.ts",
+        "tsConfig": "shared/services/tsconfig.lib.json",
+        "assets": ["shared/services/*.md"]
+      }
+    }
+  }
+}
