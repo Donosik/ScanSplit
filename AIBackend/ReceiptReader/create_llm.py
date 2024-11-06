@@ -16,21 +16,23 @@ from langchain.prompts.chat import (
     AIMessagePromptTemplate,
     HumanMessagePromptTemplate,
 )
+from langchain_openai import OpenAI
+from langchain_openai import ChatOpenAI
+from dotenv import load_dotenv
 
+import os
 
+load_dotenv()
+os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
-
-
-def create_vision_llm(model_name="gemini-1.5-pro-001", temperature=0.1, safety_settings=None):
-    vision_llm = ChatVertexAI(model_name=model_name, temperature=temperature, safety_settings=safety_settings)
+def create_vision_llm(model_name="gpt-4o", temperature=0.1, safety_settings=None):
+    vision_llm = OpenAI(model_name=model_name)
     return vision_llm
 
-def create_llm(model_name="gemini-pro", max_output_tokens=16128, temperature=0.1):
+def create_llm(model_name="gpt-4o-mini", max_output_tokens=16128, temperature=0.1):
    
-    llm=VertexAI( 
+    llm=OpenAI( 
            model_name=model_name,
-           max_output_tokens=max_output_tokens,
            temperature=temperature,
-           safety_settings=safety_settings
-       )
-    return _create_local_llm() #llm
+    )
+    return llm
