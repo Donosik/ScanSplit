@@ -3,8 +3,8 @@ import io
 import base64
 
 class ImageConverter:
-    def __init__(self, image_path):
-        self.image_path = image_path
+    def __init__(self):
+       self.id = ''
 
     def image_to_base64(self, image: Image) -> dict:
         # Convert image to text

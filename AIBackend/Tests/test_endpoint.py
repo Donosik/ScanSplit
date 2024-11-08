@@ -15,6 +15,7 @@ def test_upload_photo():
             files={"file": ("test_recipt.jpg", file, "image/jpeg")}
         )
 
+    print(response.json())
     # Check if the response status code is 200 OK
     assert response.status_code == 200
 
