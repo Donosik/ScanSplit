@@ -15,8 +15,10 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@frontend/providers": ["shared/providers/src/index.ts"],
       "@frontend/services": ["shared/services/src/index.ts"]
-    }
+    },
+    "jsx": "react"
   },
   "exclude": ["node_modules", "tmp"]
 }

@@ -1,14 +1,16 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import App from '../app/app';
+import Test from '../Test/Test';
+import { PrivateRoute } from '@frontend/providers';
 
 export default function Router() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/a" element={<>dsadas</>} />
+        <Route path="/login" element={<>Logowanie</>} />
+        <Route element={<PrivateRoute />}>
+          <Route path="/" element={<Test/>} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
 }
-

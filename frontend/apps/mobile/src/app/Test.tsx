@@ -12,7 +12,7 @@ import {
 import Svg, { G, Path } from 'react-native-svg';
 import { services } from '@frontend/services';
 
-export default function App(){
+export default function Test(){
   const [whatsNextYCoord, setWhatsNextYCoord] = useState<number>(0);
   const scrollViewRef = useRef<null | ScrollView>(null);
 
