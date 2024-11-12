@@ -1,14 +1,13 @@
 ﻿using MainBackend.Database.Entities;
-using MainBackend.Database.Generic.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace MainBackend.Database.Generic.Repositories;
 
-public class GroupRepository : IGroupRepository, GenericRepository<Group>
+public class GroupRepository : GenericRepository<Group>, IGroupRepository
 {
-    protected readonly DbContext dbContext;
+    private readonly DbContext dbContext;
 
-    protected GenericRepository(DbContext dbContext)
+    public GroupRepository(DbContext dbContext) : base(dbContext)
     {
         this.dbContext = dbContext;
     }

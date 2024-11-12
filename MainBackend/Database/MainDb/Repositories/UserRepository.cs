@@ -1,14 +1,13 @@
 ﻿using MainBackend.Database.Entities;
-using MainBackend.Database.Generic.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace MainBackend.Database.Generic.Repositories;
 
-public class UserRepository: IUserRepository, GenericRepository<User>
+public class UserRepository: GenericRepository<User>, IUserRepository
 {
-    protected readonly DbContext dbContext;
+    private readonly DbContext dbContext;
 
-    protected GenericRepository(DbContext dbContext)
+    public UserRepository(DbContext dbContext) : base(dbContext)
     {
         this.dbContext = dbContext;
     }

@@ -1,14 +1,13 @@
 ﻿using MainBackend.Database.Entities;
-using MainBackend.Database.Generic.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace MainBackend.Database.Generic.Repositories;
 
-public class LocationRepository : ILocationRepository, GenericRepository<Location>
+public class LocationRepository : GenericRepository<Location>, ILocationRepository
 {
-    protected readonly DbContext dbContext;
+    private readonly DbContext dbContext;
 
-    protected GenericRepository(DbContext dbContext)
+    public LocationRepository(DbContext dbContext) : base(dbContext)
     {
         this.dbContext = dbContext;
     }

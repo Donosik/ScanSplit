@@ -1,14 +1,13 @@
 ﻿using MainBackend.Database.Entities;
-using MainBackend.Database.Generic.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace MainBackend.Database.Generic.Repositories;
 
-public class PaymentRepository: IPaymentRepository, GenericRepository<Payment>
+public class PaymentRepository: GenericRepository<Payment>, IPaymentRepository
 {
-    protected readonly DbContext dbContext;
+   private readonly DbContext dbContext;
 
-    protected GenericRepository(DbContext dbContext)
+    public PaymentRepository(DbContext dbContext) : base(dbContext)
     {
         this.dbContext = dbContext;
     }

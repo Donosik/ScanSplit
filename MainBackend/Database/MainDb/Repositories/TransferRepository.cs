@@ -1,14 +1,13 @@
 ﻿using MainBackend.Database.Entities;
-using MainBackend.Database.Generic.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace MainBackend.Database.Generic.Repositories;
 
-public class TransferRepository: ITransferRepository, GenericRepository<Transfer>
+public class TransferRepository: GenericRepository<Transfer>, ITransferRepository
 {
-    protected readonly DbContext dbContext;
+    private readonly DbContext dbContext;
 
-    protected GenericRepository(DbContext dbContext)
+    public TransferRepository(DbContext dbContext) : base(dbContext)
     {
         this.dbContext = dbContext;
     }

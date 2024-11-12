@@ -1,14 +1,13 @@
 ﻿using MainBackend.Database.Entities;
-using MainBackend.Database.Generic.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace MainBackend.Database.Generic.Repositories;
 
-public class MenuItemRepository : IMenuItemRepository, GenericRepository<MenuItem>
+public class MenuItemRepository : GenericRepository<MenuItem>, IMenuItemRepository
 {
-    protected readonly DbContext dbContext;
+    private readonly DbContext dbContext;
 
-    protected GenericRepository(DbContext dbContext)
+    public MenuItemRepository(DbContext dbContext) : base(dbContext)
     {
         this.dbContext = dbContext;
     }
