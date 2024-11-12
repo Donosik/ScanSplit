@@ -1,0 +1,13 @@
+.light {
+  background-color: yellow;
+  --bgColor: #ffffff;
+  --inputBgColor: #d3b8b8;
+  --fontColor: #000000;
+}
+
+.dark {
+  background-color: red;
+  --bgColor: #000000;
+  --inputBgColor: #634444;
+  --fontColor: #ffffff;
+}

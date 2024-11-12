@@ -1,11 +1,8 @@
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
 import { AuthContext } from './AuthContext';
+import { ProviderProps } from '../All Providers/ProviderProps';
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export function AuthProvider({ children }: AuthProviderProps) {
+export function AuthProvider({ children }: ProviderProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true)
 
   async function login(login: string, password: string):Promise<void> {

@@ -1,21 +1,14 @@
-import React, { useEffect } from 'react';
-import { AuthContextProps, Providers, useAuth } from '@frontend/providers';
+import React from 'react';
+import { AvailableThemes, useAuth, useTheme } from '@frontend/providers';
 
-export default function Test()
-{
-  const auth:AuthContextProps = useAuth();
-
-  useEffect(() => {
-    log().then(r =>{} )
-  }, [auth.isAuthenticated]);
-
-  async function log() {
-    await auth.login('a', ':');
-  }
+export default function Test() {
+  const auth = useAuth();
+  const theme = useTheme();
 
   return (
-    <Providers>
-      <div>{auth.isAuthenticated ? 'Zalogowany' : 'Niezalogowany'}</div>
-    </Providers>
-  )
+    <div>
+      {auth.isAuthenticated ? 'Zalogowany' : 'Niezalogowany'}
+      <button onClick={() => theme.changeTheme(AvailableThemes.dark)}>toDark</button>
+    </div>
+  );
 }
