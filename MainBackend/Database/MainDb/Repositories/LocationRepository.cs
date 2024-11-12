@@ -5,9 +5,9 @@ namespace MainBackend.Database.Generic.Repositories;
 
 public class LocationRepository : GenericRepository<Location>, ILocationRepository
 {
-    private readonly DbContext dbContext;
+    private readonly DB.Context.MainDb dbContext;
 
-    public LocationRepository(DbContext dbContext) : base(dbContext)
+    public LocationRepository(DB.Context.MainDb dbContext) : base(dbContext)
     {
         this.dbContext = dbContext;
     }

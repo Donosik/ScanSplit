@@ -5,9 +5,9 @@ namespace MainBackend.Database.Generic.Repositories;
 
 public class PaymentRepository: GenericRepository<Payment>, IPaymentRepository
 {
-   private readonly DbContext dbContext;
+   private readonly DB.Context.MainDb dbContext;
 
-    public PaymentRepository(DbContext dbContext) : base(dbContext)
+    public PaymentRepository(DB.Context.MainDb dbContext) : base(dbContext)
     {
         this.dbContext = dbContext;
     }

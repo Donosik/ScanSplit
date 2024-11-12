@@ -5,9 +5,9 @@ namespace MainBackend.Database.Generic.Repositories;
 
 public class GroupRepository : GenericRepository<Group>, IGroupRepository
 {
-    private readonly DbContext dbContext;
+    private readonly DB.Context.MainDb dbContext;
 
-    public GroupRepository(DbContext dbContext) : base(dbContext)
+    public GroupRepository(DB.Context.MainDb dbContext) : base(dbContext)
     {
         this.dbContext = dbContext;
     }

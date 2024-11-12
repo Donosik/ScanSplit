@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<MainDb>();
+builder.Services.AddDbContext<MainDb>(options => options.UseSqlite(builder.Configuration.GetConnectionString("MainDb")));
 
 builder.Services.AddScoped<IUoW, UoW>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();

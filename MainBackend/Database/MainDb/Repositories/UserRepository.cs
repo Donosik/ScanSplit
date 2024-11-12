@@ -5,9 +5,9 @@ namespace MainBackend.Database.Generic.Repositories;
 
 public class UserRepository: GenericRepository<User>, IUserRepository
 {
-    private readonly DbContext dbContext;
+    private readonly DB.Context.MainDb dbContext;
 
-    public UserRepository(DbContext dbContext) : base(dbContext)
+    public UserRepository(DB.Context.MainDb dbContext) : base(dbContext)
     {
         this.dbContext = dbContext;
     }

@@ -5,9 +5,9 @@ namespace MainBackend.Database.Generic.Repositories;
 
 public class BillRepository: GenericRepository<Bill>, IBillRepository
 {
-    private readonly DbContext dbContext;
+    private readonly DB.Context.MainDb dbContext;
 
-    public BillRepository(DbContext dbContext) : base(dbContext)
+    public BillRepository(DB.Context.MainDb dbContext) : base(dbContext)
     {
         this.dbContext = dbContext;
     }
