@@ -1,5 +1,20 @@
+using MainBackend.Database.DB.Context;
+using MainBackend.Database.Generic.Repositories;
+using MainBackend.Database.MainDb.Wrapper;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDbContext<MainDb>(options => options.UseSqlite(builder.Configuration.GetConnectionString("MainDb")));
+
+builder.Services.AddScoped<IUoW, UoW>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ITransferRepository, TransferRepository>();
+builder.Services.AddScoped<IBillRepository, BillRepository>();
+builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+builder.Services.AddScoped<ILocationRepository, LocationRepository>();
+builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 // Add services to the container.
 
 builder.Services.AddControllers();
