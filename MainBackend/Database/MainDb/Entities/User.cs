@@ -18,14 +18,14 @@ namespace MainBackend.Database.Entities
         {
         }
 
-        public User(RegisterDTO registerDTO)
+        public User(RegisterDTO registerDto)
         {
-            Login = registerDTO.Login;
-            Password = registerDTO.Password;
-            Name = registerDTO.Name;
-            LastName = registerDTO.LastName;
-            PhoneNumber = registerDTO.PhoneNumber;
-            EmailAddress = registerDTO.Email;
+            Login = registerDto.Login;
+            Password = registerDto.Password;
+            Name = registerDto.Name;
+            LastName = registerDto.LastName;
+            PhoneNumber = registerDto.PhoneNumber;
+            EmailAddress = registerDto.Email;
             Groups = new List<Group>();
         }
     }

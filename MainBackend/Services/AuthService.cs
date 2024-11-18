@@ -21,18 +21,18 @@ public class AuthService : IAuthService
         this.configuration = configuration;
     }
 
-    public async Task Register(RegisterDTO registerDTO)
+    public async Task Register(RegisterDTO registerDto)
     {
-        await CheckRegisterDto(registerDTO);
-        User newUser = new User(registerDTO);
-        newUser.Password = HashPassword(registerDTO.Password);
+        await CheckRegisterDto(registerDto);
+        User newUser = new User(registerDto);
+        newUser.Password = HashPassword(registerDto.Password);
         uow.UserRepository.Create(newUser);
         await uow.Save();
     }
 
-    private async Task<bool> CheckRegisterDto(RegisterDTO registerDTO)
+    private async Task<bool> CheckRegisterDto(RegisterDTO registerDto)
     {
-        User user = await uow.UserRepository.GetByLogin(registerDTO.Login);
+        User user = await uow.UserRepository.GetByLogin(registerDto.Login);
         if (user != null)
             throw new UserAlreadyExistException();
         return true;
