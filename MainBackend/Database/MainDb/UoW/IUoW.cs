@@ -1,6 +1,6 @@
 ﻿using MainBackend.Database.Generic.Repositories;
 
-namespace MainBackend.Database.MainDb.Wrapper;
+namespace MainBackend.Database.MainDb.UoW;
 
 public interface IUoW : IDisposable
 {
@@ -12,6 +12,6 @@ public interface IUoW : IDisposable
     IMenuItemRepository MenuItemRepository { get; }
     IPaymentRepository PaymentRepository { get; }
 
-    Task<bool> Save(int entities = 1);
+    Task Save(int entities = 1);
     void Dispose();
 }

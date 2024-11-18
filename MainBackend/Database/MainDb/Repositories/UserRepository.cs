@@ -13,4 +13,8 @@ public class UserRepository: GenericRepository<User>, IUserRepository
     }
 
 
+    public async Task<User> GetByLogin(string login)
+    {
+        return await dbContext.Users.FirstOrDefaultAsync(x => x.Login == login);
+    }
 }
