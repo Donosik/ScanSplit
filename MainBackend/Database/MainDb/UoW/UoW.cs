@@ -1,12 +1,15 @@
 ﻿using MainBackend.Database.Generic.Repositories;
+using MainBackend.Exceptions;
 
-namespace MainBackend.Database.MainDb.Wrapper;
+namespace MainBackend.Database.MainDb.UoW;
 
 public class UoW : IUoW
 {
     private readonly DB.Context.MainDb context;
 
-    public UoW(DB.Context.MainDb context,IUserRepository userRepository, ITransferRepository transferRepository, IBillRepository billRepository, IGroupRepository groupRepository, ILocationRepository locationRepository, IMenuItemRepository menuItemRepository, IPaymentRepository paymentRepository)
+    public UoW(DB.Context.MainDb context, IUserRepository userRepository, ITransferRepository transferRepository,
+        IBillRepository billRepository, IGroupRepository groupRepository, ILocationRepository locationRepository,
+        IMenuItemRepository menuItemRepository, IPaymentRepository paymentRepository)
     {
         //this.context = context;
         //this.userRepository = userRepository;
@@ -35,12 +38,11 @@ public class UoW : IUoW
     public IMenuItemRepository MenuItemRepository { get; }
     public IPaymentRepository PaymentRepository { get; }
 
-    public async Task<bool> Save(int entities = 1)
+    public async Task Save(int entities = 1)
     {
         int result = await context.SaveChangesAsync();
-        if (result >= entities)
-            return true;
-        return false;
+        if (result < entities)
+            throw new IncorrectDBSaveException();
     }
 
     public void Dispose()
@@ -51,7 +53,7 @@ public class UoW : IUoW
 
     protected virtual void Dispose(bool disposing)
     {
-        if(disposing)
+        if (disposing)
             context.Dispose();
     }
 }
