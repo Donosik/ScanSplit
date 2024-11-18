@@ -28,6 +28,7 @@ public static class ServiceExtensions
         //Services
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IIdentityService, IdentityService>();
+        services.AddSingleton<IAiBackendService, AiBackendService>();
         
         return services;
     }

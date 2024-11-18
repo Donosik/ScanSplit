@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Text.Json.Serialization;
 using MainBackend.Exceptions;
+using MainBackend.Services;
 using Newtonsoft.Json;
 
 namespace MainBackend.Middleware;
@@ -39,6 +40,10 @@ public class ExceptionMiddleware
         string message;
         switch (exception)
         {
+            case AiBackendServiceException:
+                code = HttpStatusCode.BadRequest;
+                message = "Cannot connect to Ai Backend server";
+                break;
             case IncorrectDBSaveException:
                 code = HttpStatusCode.BadRequest;
                 message = "Cannot save data to DB";
