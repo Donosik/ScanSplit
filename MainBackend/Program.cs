@@ -1,9 +1,7 @@
 using System.Text;
 using MainBackend.Database.DB.Context;
-using MainBackend.Database.Generic.Repositories;
-using MainBackend.Database.MainDb.UoW;
+using MainBackend.Extensions;
 using MainBackend.Middleware;
-using MainBackend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -11,19 +9,10 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<MainDb>(options => options.UseSqlite(builder.Configuration.GetConnectionString("MainDb")));
+builder.Services.AddDbContext<MainDb>(
+    options => options.UseSqlite(builder.Configuration.GetConnectionString("MainDb")));
 
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<IUoW, UoW>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<ITransferRepository, TransferRepository>();
-builder.Services.AddScoped<IBillRepository, BillRepository>();
-builder.Services.AddScoped<IGroupRepository, GroupRepository>();
-builder.Services.AddScoped<ILocationRepository, LocationRepository>();
-builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
-builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IIdentityService, IdentityService>();
+builder.Services.AddAllScopes();
 // Add services to the container.
 
 builder.Services.AddControllers();
