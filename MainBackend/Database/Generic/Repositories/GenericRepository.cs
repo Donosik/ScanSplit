@@ -5,9 +5,9 @@ namespace MainBackend.Database.Generic.Repositories;
 
 public abstract class GenericRepository<T> : IGenericRepository<T> where T : class, IEntity
 {
-    protected readonly DbContext dbContext;
+    protected readonly DB.Context.MainDb dbContext;
 
-    protected GenericRepository(DbContext dbContext)
+    protected GenericRepository(DB.Context.MainDb dbContext)
     {
         this.dbContext = dbContext;
     }
