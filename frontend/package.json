@@ -9,9 +9,12 @@
     "react-native": "0.74.1"
   },
   "dependencies": {
+    "babel-plugin-react-native-classname-to-style": "^1.2.2",
+    "babel-plugin-react-native-platform-specific-extensions": "^1.1.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.74.1",
+    "react-native-css-transformer": "^2.0.0",
     "react-router-dom": "^6.27.0",
     "react-router-native": "^6.28.0"
   },

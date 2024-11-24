@@ -21,5 +21,14 @@ module.exports = function (api) {
     presets: [
       ['module:@react-native/babel-preset', { useTransformReactJSX: true }],
     ],
+    plugins: [
+      "react-native-classname-to-style",
+      [
+        "react-native-platform-specific-extensions",
+        {
+          "extensions": ["css"]
+        }
+      ]
+    ]
   };
 };

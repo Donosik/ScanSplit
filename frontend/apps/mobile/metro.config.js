@@ -13,11 +13,11 @@ const { assetExts, sourceExts } = defaultConfig.resolver;
 const customConfig = {
   cacheVersion: 'mobile',
   transformer: {
-    babelTransformerPath: require.resolve('react-native-svg-transformer'),
+    babelTransformerPath: require.resolve('react-native-css-transformer'),
   },
   resolver: {
     assetExts: assetExts.filter((ext) => ext !== 'svg'),
-    sourceExts: [...sourceExts, 'cjs', 'mjs', 'svg'],
+    sourceExts: [...sourceExts, 'cjs', 'mjs', 'svg','css'],
   },
 };
 
