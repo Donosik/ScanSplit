@@ -1,7 +1,6 @@
-import { Navigate } from 'react-router';
+import { Navigate, Outlet } from 'react-router';
 import { AuthContextProps } from './AuthContext';
 import { useAuth } from './useAuth';
-import { Outlet } from 'react-router-native';
 
 export function PrivateRoute() {
   const auth: AuthContextProps = useAuth();
@@ -9,5 +8,6 @@ export function PrivateRoute() {
     console.log('You are not logged in!');
     return <Navigate to={'/login'} />;
   }
-  return <Outlet/>
+  console.log('You are logged in!');
+  return <Outlet />;
 }

@@ -6,10 +6,10 @@ export default function Router() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<>Logowanie</>} />
-        <Route element={<PrivateRoute />}>
-          <Route path="/" element={<Test/>} />
+        <Route path={"/"} element={<PrivateRoute />}>
+          <Route index={true} element={<Test/>} />
         </Route>
+        <Route path="/login" element={<>Logowanie</>} />
       </Routes>
     </BrowserRouter>
   );

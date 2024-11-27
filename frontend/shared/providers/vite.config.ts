@@ -15,7 +15,7 @@ export default defineConfig({
     nxCopyAssetsPlugin(['*.md']),
     dts({
       entryRoot: 'src',
-      tsconfigPath: path.join(__dirname, 'tsconfig.All Providers.json'),
+      tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
     }),
   ],
   // Uncomment this if you are using workers.
