@@ -11,10 +11,13 @@ public class UserRepository: GenericRepository<User>, IUserRepository
     {
         this.dbContext = dbContext;
     }
-
-
+    
     public async Task<User> GetByLogin(string login)
     {
         return await dbContext.Users.FirstOrDefaultAsync(x => x.Login == login);
+    }
+    public async Task<User> GetByPhoneNumber(string phoneNumber)
+    {
+        return await dbContext.Users.FirstOrDefaultAsync(x => x.PhoneNumber == phoneNumber);
     }
 }
