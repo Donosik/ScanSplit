@@ -1,0 +1,47 @@
+.header {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    box-sizing: border-box;
+    background-color: var(--primaryBackgroundColor);
+}
+
+.left {
+    all:unset;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+}
+
+.logo {
+    width: 2rem;
+    height: 2rem;
+}
+
+.title {
+    font-size: 1.4rem;
+}
+
+.navigation {
+    display: flex;
+    gap: 1rem;
+}
+
+.navLink {
+    all: unset;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: transform 0.3s ease-in-out;
+}
+
+.navLink:hover {
+    transform: scale(1.2);
+}
+
+.navLink:active {
+    all: unset;
+    padding: 0.5rem;
+}

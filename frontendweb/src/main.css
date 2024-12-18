@@ -1,0 +1,8 @@
+body{
+    all:unset;
+}
+
+:root{
+    --primaryBackgroundColor:#ffffff;
+    --primaryTextColor:#000000;
+}
