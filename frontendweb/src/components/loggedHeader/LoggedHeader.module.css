@@ -19,10 +19,12 @@
 .logo {
     width: 2rem;
     height: 2rem;
+    border-radius: 50%;
 }
 
 .title {
     font-size: 1.4rem;
+    font-weight: 500;
 }
 
 .navigation {
@@ -35,6 +37,8 @@
     cursor: pointer;
     padding: 0.5rem;
     transition: transform 0.3s ease-in-out;
+    font-weight: 400;
+    font-size: 0.8rem;
 }
 
 .navLink:hover {

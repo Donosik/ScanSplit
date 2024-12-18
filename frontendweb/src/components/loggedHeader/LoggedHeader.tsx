@@ -6,7 +6,7 @@ export function LoggedHeader()
     return (
         <div className={style.header}>
             <NavLink to={"/"} className={style.left}>
-                <img className={style.logo}/>
+                <img alt={"logo"} className={style.logo}/>
                 <span className={style.title}>
                     Event Cost Manager
                 </span>
