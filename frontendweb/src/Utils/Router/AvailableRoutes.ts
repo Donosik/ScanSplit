@@ -1,3 +1,7 @@
 export const AvailableRoutes = {
-    HOME:"/"
+    HOME:"/",
+    PROFILE:"profile",
+    EVENTS:"events",
+    BILLS:"bills",
+    LOGIN:"/login"
 }
