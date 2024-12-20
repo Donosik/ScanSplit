@@ -1,7 +1,8 @@
 export default function AddNewBill()
 {
     return (
-        <>dasdas
+        <>
+            <span>Add bill to event</span>
         </>
     );
 }
