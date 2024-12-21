@@ -1,6 +1,6 @@
-import {axiosWithAuth} from "../utils/axios/axios.ts";
+import {axiosWithAuth} from "../../utils/axios/axios.ts";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
-import {useAuth} from "../utils/auth/useAuth.ts";
+import {useAuth} from "../../utils/auth/useAuth.ts";
 
 async function fetchMe()
 {

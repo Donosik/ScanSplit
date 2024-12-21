@@ -3,5 +3,6 @@ export const AvailableRoutes = {
     PROFILE:"profile",
     EVENTS:"events",
     BILLS:"bills",
-    LOGIN:"/login"
+    LOGIN:"/login",
+    REGISTER:"/register",
 }
