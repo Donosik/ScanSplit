@@ -1,4 +1,5 @@
-﻿using MainBackend.Services;
+﻿using MainBackend.Enums;
+using MainBackend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -22,28 +23,38 @@ public class GroupController: ControllerBase
     [HttpPost("create")]
     public async Task<IActionResult> CreateGroup([FromBody] string groupName)
     {
-        await groupService.CreateGroup(groupName);
-        return Ok();
+        var groupId = await groupService.CreateGroup(groupName);
+        return Ok(new { Id = groupId });
     }
     
-    [HttpPost("add-user-by-login")]
-    public async Task<IActionResult> AddUserToGroupByLogin([FromBody] string login, int idGroup)
+    [HttpPost("groups/{idGroup}/add-user-by-login")]
+    public async Task<IActionResult> AddUserToGroupByLogin(int idGroup, [FromQuery] string login)
     {
          await groupService.AddUserToGroupByLogin(login, idGroup);
         return Ok();
     }
     
-    [HttpPost("add-user-by-phone")]
-    public async Task<IActionResult> AddUserToGroupByPhoneNumber([FromBody] string phoneNumber, int idGroup)
+    [HttpPost("groups/{idGroup}/add-user-by-phone")]
+    public async Task<IActionResult> AddUserToGroupByPhoneNumber([FromQuery] string phoneNumber, int idGroup)
     {
         await groupService.AddUserToGroupByPhoneNumber(phoneNumber, idGroup);
         return Ok();
     }
     
     [HttpPatch("")]
-    public async Task<IActionResult> UpdateStatus([FromBody] string status, int idGroup)
+    public async Task<IActionResult> UpdateStatus([FromBody] GroupStatus status, int idGroup)
     {
         await groupService.UpdateStatus(status, idGroup);
         return Ok();
+    }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetGroup(int id)
+    {
+        var group = await groupService.GetGroupById(id);
+        if (group == null)
+        {
+            return NotFound();
+        }
+        return Ok(group);
     }
 }

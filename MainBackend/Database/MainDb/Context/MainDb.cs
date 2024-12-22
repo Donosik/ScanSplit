@@ -51,6 +51,13 @@ public class MainDb : DbContext
 
             entity.HasMany(e => e.Bills).WithOne().OnDelete(DeleteBehavior.Cascade); 
             entity.HasMany(e => e.Transfers).WithOne().OnDelete(DeleteBehavior.Cascade);
+            entity.HasMany(e => e.Users)
+                .WithMany(u => u.Groups) // Odwrotna nawigacja w User
+                .UsingEntity<Dictionary<string, object>>(
+                    "GroupUser", // Tabela pośrednicząca
+                    j => j.HasOne<User>().WithMany().HasForeignKey("UserId"), // Klucz obcy do User
+                    j => j.HasOne<Group>().WithMany().HasForeignKey("GroupId") // Klucz obcy do Group
+                );
         });
         // Bill
         modelBuilder.Entity<Bill>(entity =>

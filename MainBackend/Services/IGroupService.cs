@@ -1,11 +1,15 @@
-﻿namespace MainBackend.Services;
+﻿using MainBackend.Database.Entities;
+using MainBackend.Enums;
+
+namespace MainBackend.Services;
 
 public interface IGroupService
 {
-    public Task CreateGroup (string groupName);
+    public Task<int> CreateGroup (string groupName);
     public Task AddUserToGroupByLogin(string login, int idGroup);
 
     public Task AddUserToGroupByPhoneNumber(string phoneNumber, int idGroup);
 
-    public Task UpdateStatus(string status, int idGroup);
+    public Task UpdateStatus(GroupStatus status, int idGroup);
+    public Task<Group> GetGroupById(int id);
 }
