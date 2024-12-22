@@ -30,7 +30,8 @@ public class MainDb : DbContext
             entity.Property(e => e.LastName).HasMaxLength(50);
             entity.Property(e => e.PhoneNumber).HasMaxLength(12);
             entity.Property(e => e.EmailAddress).HasMaxLength(100);
-
+            
+            entity.HasIndex(e => e.Login).IsUnique();
             entity.HasMany(u => u.Groups)
                    .WithMany(g => g.Users)
                    .UsingEntity<Dictionary<string, object>>(
@@ -46,9 +47,17 @@ public class MainDb : DbContext
             entity.ToTable("Groups");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Status).IsRequired().HasMaxLength(40);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
 
             entity.HasMany(e => e.Bills).WithOne().OnDelete(DeleteBehavior.Cascade); 
             entity.HasMany(e => e.Transfers).WithOne().OnDelete(DeleteBehavior.Cascade);
+            entity.HasMany(e => e.Users)
+                .WithMany(u => u.Groups) // Odwrotna nawigacja w User
+                .UsingEntity<Dictionary<string, object>>(
+                    "GroupUser", // Tabela pośrednicząca
+                    j => j.HasOne<User>().WithMany().HasForeignKey("UserId"), // Klucz obcy do User
+                    j => j.HasOne<Group>().WithMany().HasForeignKey("GroupId") // Klucz obcy do Group
+                );
         });
         // Bill
         modelBuilder.Entity<Bill>(entity =>
