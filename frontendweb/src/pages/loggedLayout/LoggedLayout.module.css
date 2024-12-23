@@ -1,0 +1,11 @@
+.wrapper{
+    min-height:100vh;
+}
+
+.header{
+    height:5rem
+}
+
+.userData{
+    height: 11rem;
+}
