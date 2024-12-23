@@ -5,12 +5,14 @@ import style from "./RegisterForm.module.css"
 import Button from "../../../components/button/Button.tsx";
 import {Link} from "react-router-dom";
 import {AvailableRoutes} from "../../../utils/router/AvailableRoutes.ts";
+import ErrorMessage from "../../../components/errorMessage/ErrorMessage.tsx";
 
 interface RegisterFormProps{
     onSubmit:(data:registerDTO)=>void,
+    error?:string
 }
 
-export default function RegisterForm({onSubmit}: RegisterFormProps)
+export default function RegisterForm({onSubmit,error}: RegisterFormProps)
 {
     const {register, handleSubmit, formState: {errors}} = useForm<registerDTO>()
 
@@ -87,6 +89,7 @@ export default function RegisterForm({onSubmit}: RegisterFormProps)
                 })}
                 error={errors.email?.message}
             />
+            <ErrorMessage error={error}/>
             <Button value={"Register"} type="submit"/>
             <div className={style.loginLink}>
                 <Link to={AvailableRoutes.LOGIN} className={style.linkText}>Login here</Link>

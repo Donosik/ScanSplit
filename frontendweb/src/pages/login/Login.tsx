@@ -5,8 +5,7 @@ import style from "./Login.module.css"
 
 export default function Login()
 {
-    const {login,isLoading,error}=useAuth()
-
+    const {login,error}=useAuth()
 
     return (
         <div className={style.container}>
