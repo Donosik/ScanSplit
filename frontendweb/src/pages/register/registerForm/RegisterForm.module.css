@@ -1,5 +1,5 @@
 .form {
-    padding: 2rem;
+    padding: 4rem 2rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -7,4 +7,21 @@
     border-radius: 10px;
     min-width: 25rem;
     background-color: var(--primaryBackgroundColor);
+}
+
+.loginLink {
+    text-align: center;
+    padding: 0.25rem;
+}
+
+.linkText {
+    color: var(--primaryTextColor);
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.linkText:hover {
+    color: var(--secondaryBackgroundColor);
 }
