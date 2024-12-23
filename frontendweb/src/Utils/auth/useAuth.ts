@@ -33,5 +33,5 @@ export function useAuth()
         sessionStorage.removeItem("token");
     }
 
-    return {login:onLoginReset,logout: onLogout, isAuthenticated: isAuthenticated,isLoading:onLogin.isPending,error:onLogin.error?.response?.data};
+    return {login:onLoginReset,logout: onLogout, isAuthenticated: isAuthenticated,isLoading:onLogin.isPending,error:onLogin.error?.message};
 }
