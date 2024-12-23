@@ -1,6 +1,9 @@
 import {axiosWithAuth} from "../../utils/axios/axios.ts";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {useAuth} from "../../utils/auth/useAuth.ts";
+import LoginForm from "./loginForm/LoginForm.tsx";
+import {loginDTO} from "../../utils/services/authService.ts";
+import style from "./Login.module.css"
 
 async function fetchMe()
 {
@@ -26,11 +29,17 @@ export default function Login()
         queryClient.resetQueries(["test"])
     }
 
+    function showData(data:loginDTO)
+    {
+        console.log(data)
+    }
+
     return (
-        <>Logowanie
+        <div className={style.container}>Logowanie
             <button onClick={()=>login({login:"string",password:"string"})}>logowanie</button>
             <button onClick={getMe}>getMe</button>
             <button onClick={logout}>logout</button>
-        </>
+            <LoginForm onSubmit={showData}/>
+        </div>
     )
 }

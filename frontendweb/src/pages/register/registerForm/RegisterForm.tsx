@@ -4,6 +4,7 @@ import Input from "../../../components/input/Input.tsx";
 import style from "./RegisterForm.module.css"
 import Button from "../../../components/button/Button.tsx";
 import {Link} from "react-router-dom";
+import {AvailableRoutes} from "../../../utils/router/AvailableRoutes.ts";
 
 interface RegisterFormProps{
     onSubmit:(data:registerDTO)=>void,
@@ -86,9 +87,9 @@ export default function RegisterForm({onSubmit}: RegisterFormProps)
                 })}
                 error={errors.email?.message}
             />
-            <Button type="submit"/>
+            <Button value={"Register"} type="submit"/>
             <div className={style.loginLink}>
-                <Link to="/login" className={style.linkText}>Login</Link>
+                <Link to={AvailableRoutes.LOGIN} className={style.linkText}>Login here</Link>
             </div>
         </form>
     )
