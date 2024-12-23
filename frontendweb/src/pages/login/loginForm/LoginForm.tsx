@@ -5,12 +5,14 @@ import Input from "../../../components/input/Input.tsx";
 import Button from "../../../components/button/Button.tsx";
 import {Link} from "react-router-dom";
 import {AvailableRoutes} from "../../../utils/router/AvailableRoutes.ts";
+import ErrorMessage from "../../../components/errorMessage/ErrorMessage.tsx";
 
 interface LoginFormProps {
     onSubmit: (data: loginDTO) => void;
+    error?:string
 }
 
-export default function LoginForm({onSubmit}: LoginFormProps)
+export default function LoginForm({onSubmit,error}: LoginFormProps)
 {
     const {register,handleSubmit,formState:{errors}} = useForm<loginDTO>()
 
@@ -39,6 +41,7 @@ export default function LoginForm({onSubmit}: LoginFormProps)
                 })}
                 error={errors.password?.message}
             />
+            <ErrorMessage error={error}/>
             <Button value={"Login"} type="submit"/>
             <div className={style.loginLink}>
                 <Link to={AvailableRoutes.REGISTER} className={style.linkText}>Register here</Link>

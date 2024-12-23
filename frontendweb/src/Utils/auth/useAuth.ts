@@ -1,10 +1,32 @@
 import {login, loginDTO} from "../services/authService.ts"
+import {useMutation} from "@tanstack/react-query";
 
 export function useAuth()
 {
-    function onLogin(loginData:loginDTO)
+    function isAuthenticated(): boolean
     {
-        login(loginData).then(jwt => sessionStorage.setItem("token", jwt));
+        if (sessionStorage.getItem("token") == null)
+            return false;
+        return true;
+    }
+
+    const onLogin = useMutation({
+        mutationFn: (data:loginDTO) => {
+            return login(data)
+        },
+        onSuccess: (user) => {
+            console.log("success");
+            console.log(user);
+        },
+        onError: (error) => {
+            console.log("error")
+            console.log(error.response.data);
+        }
+    })
+
+    function onLoginReset(data: loginDTO) {
+        onLogin.reset();
+        onLogin.mutate(data);
     }
 
     function onLogout()
@@ -12,12 +34,5 @@ export function useAuth()
         sessionStorage.removeItem("token");
     }
 
-    function isAuthorized():boolean
-    {
-        if(sessionStorage.getItem("token") == null)
-            return false;
-        return true;
-    }
-
-    return {login:onLogin,logout:onLogout,isAuthorized};
+    return {login:onLoginReset,logout: onLogout, isAuthenticated: isAuthenticated,isLoading:onLogin.isPending,error:onLogin.error?.response.data};
 }

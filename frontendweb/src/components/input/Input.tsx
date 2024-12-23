@@ -1,6 +1,6 @@
 import style from './Input.module.css'
-import {forwardRef, useEffect, useState} from "react";
-import AnimateHeight from "react-animate-height";
+import {forwardRef} from "react";
+import ErrorMessage from "../errorMessage/ErrorMessage.tsx";
 
 interface InputProps
 {
@@ -11,26 +11,9 @@ interface InputProps
     error?: string,
 }
 
-export default forwardRef<HTMLInputElement, InputProps>(function Input({
-                                                                           label,
-                                                                           name,
-                                                                           type = "text",
-                                                                           placeholder,
-                                                                           error,
-                                                                           ...rest
-                                                                       }: InputProps, ref)
+export default forwardRef<HTMLInputElement, InputProps>
+(function Input({label, name, type = "text", placeholder, error, ...rest}: InputProps, ref)
 {
-    const [debouncedError, setDebouncedError] = useState<string | undefined>(error)
-
-    useEffect(() =>
-    {
-        const timer = setTimeout(() =>
-        {
-            setDebouncedError(error);
-        }, 500);
-        return () => clearTimeout(timer);
-
-    }, [error]);
 
     return (
         <div className={style.container}>
@@ -46,11 +29,7 @@ export default forwardRef<HTMLInputElement, InputProps>(function Input({
                    aria-invalid={error ? 'true' : 'false'}
                    {...rest}
             />
-            <AnimateHeight height={error ? "auto" : 0} animateOpacity={true}>
-                <span className={style.errorMessage}>
-                    {error ? error : debouncedError}
-                </span>
-            </AnimateHeight>
+            <ErrorMessage error={error}/>
         </div>
     )
 })

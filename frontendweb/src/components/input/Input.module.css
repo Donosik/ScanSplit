@@ -38,9 +38,3 @@
 .errorInput {
     border-color: red;
 }
-
-.errorMessage {
-    color: red;
-    font-size: 0.875rem;
-    display: flex;
-}

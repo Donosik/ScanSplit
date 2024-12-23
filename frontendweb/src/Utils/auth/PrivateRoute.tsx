@@ -4,8 +4,8 @@ import {AvailableRoutes} from "../router/AvailableRoutes.ts";
 
 export default function PrivateRoute()
 {
-    const {isAuthorized}=useAuth()
-    if(!isAuthorized()){
+    const {isAuthenticated}=useAuth()
+    if(!isAuthenticated()){
         return <Navigate to={AvailableRoutes.LOGIN}/>
     }
     return <Outlet/>
