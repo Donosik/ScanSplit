@@ -25,7 +25,7 @@ export default function Register()
 
     return (
         <div className={style.container}>
-            <RegisterForm onSubmit={onSubmit} error={error?.response?.data} />
+            <RegisterForm onSubmit={onSubmit} error={error?.message} />
         </div>
     )
 }
