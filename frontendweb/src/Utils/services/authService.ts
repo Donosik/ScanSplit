@@ -10,7 +10,7 @@ export interface registerDTO{
 }
 export async function register(register: registerDTO): Promise<void>
 {
-    const response=await axiosBasic.post("/auth/register",{register})
+    const response=await axiosBasic.post("/auth/register",register)
     return response.data;
 }
 

@@ -1,8 +1,11 @@
 import {login, loginDTO} from "../services/authService.ts"
 import {useMutation} from "@tanstack/react-query";
+import {useNavigate} from "react-router-dom";
+import {AvailableRoutes} from "../router/AvailableRoutes.ts";
 
 export function useAuth()
 {
+    const navigate = useNavigate()
     function isAuthenticated(): boolean
     {
         if (sessionStorage.getItem("token") == null)
@@ -14,13 +17,9 @@ export function useAuth()
         mutationFn: (data:loginDTO) => {
             return login(data)
         },
-        onSuccess: (user) => {
-            console.log("success");
-            console.log(user);
-        },
-        onError: (error) => {
-            console.log("error")
-            console.log(error.response.data);
+        onSuccess: (token:string) => {
+            sessionStorage.setItem("token", token);
+            navigate(AvailableRoutes.HOME)
         }
     })
 
@@ -34,5 +33,5 @@ export function useAuth()
         sessionStorage.removeItem("token");
     }
 
-    return {login:onLoginReset,logout: onLogout, isAuthenticated: isAuthenticated,isLoading:onLogin.isPending,error:onLogin.error?.response.data};
+    return {login:onLoginReset,logout: onLogout, isAuthenticated: isAuthenticated,isLoading:onLogin.isPending,error:onLogin.error?.response?.data};
 }
