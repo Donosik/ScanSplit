@@ -1,0 +1,10 @@
+.form {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border: 1px solid var(--borderColor);
+    border-radius: 10px;
+    min-width: 25rem;
+    background-color: var(--primaryBackgroundColor);
+}

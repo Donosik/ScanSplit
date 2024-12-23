@@ -6,6 +6,10 @@ body{
     --primaryBackgroundColor:#ffffff;
     --primaryTextColor:#000000;
 
-    --secondaryBackgroundColor:#00000099;
+    --secondaryBackgroundColor: rgba(0, 0, 0, 0.6);
     --secondaryTextColor:#ffffff;
+
+    --placeholderTextColor:#aaa;
+
+    --borderColor:#ddd;
 }
