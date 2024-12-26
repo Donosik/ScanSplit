@@ -7,7 +7,7 @@ import Login from "../../pages/login/Login.tsx";
 import PrivateRoute from "../auth/PrivateRoute.tsx";
 import Register from "../../pages/register/Register.tsx";
 
-export function Router()
+export default function Router()
 {
     return (
         <BrowserRouter>
@@ -18,8 +18,8 @@ export function Router()
                     <Route element={<LoggedLayout/>}>
                         <Route path={AvailableRoutes.HOME} element={<AddNewBill/>}/>
                     </Route>
-                    <Route path={"*"} element={<NotFound/>}/>
                 </Route>
+                <Route path={"*"} element={<NotFound/>}/>
             </Routes>
         </BrowserRouter>
     );
