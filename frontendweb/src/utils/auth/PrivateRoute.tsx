@@ -1,6 +1,6 @@
 import {Navigate, Outlet} from "react-router-dom";
 import {useAuth} from "./useAuth.ts";
-import {AvailableRoutes} from "../router/AvailableRoutes.ts";
+import {AvailableRoutes} from "../router/availableRoutes.ts";
 
 export default function PrivateRoute()
 {

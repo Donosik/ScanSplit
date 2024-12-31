@@ -1,7 +1,7 @@
 import {login, loginDTO} from "../services/authService.ts"
 import {useMutation} from "@tanstack/react-query";
 import {useNavigate} from "react-router-dom";
-import {AvailableRoutes} from "../router/AvailableRoutes.ts";
+import {AvailableRoutes} from "../router/availableRoutes.ts";
 
 export function useAuth()
 {

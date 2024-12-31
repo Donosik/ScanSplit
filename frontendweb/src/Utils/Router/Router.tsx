@@ -2,7 +2,7 @@ import {BrowserRouter, Route, Routes} from "react-router-dom";
 import AddNewBill from "../../pages/addNewBill/AddNewBill.tsx";
 import {NotFound} from "../../pages/notfound/NotFound.tsx";
 import {LoggedLayout} from "../../pages/loggedLayout/LoggedLayout.tsx";
-import {AvailableRoutes} from "./AvailableRoutes.ts";
+import {AvailableRoutes} from "./availableRoutes.ts";
 import Login from "../../pages/login/Login.tsx";
 import PrivateRoute from "../auth/PrivateRoute.tsx";
 import Register from "../../pages/register/Register.tsx";

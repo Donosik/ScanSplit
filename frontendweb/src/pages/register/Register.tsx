@@ -3,7 +3,7 @@ import style from "./Register.module.css"
 import {register, registerDTO} from "../../utils/services/authService.ts";
 import {useMutation} from "@tanstack/react-query";
 import {useNavigate} from "react-router-dom";
-import {AvailableRoutes} from "../../utils/router/AvailableRoutes.ts";
+import {AvailableRoutes} from "../../utils/router/availableRoutes.ts";
 
 export default function Register()
 {
