@@ -66,6 +66,8 @@ public class MainDb : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Date).IsRequired();
             entity.Property(e => e.BillImage).HasMaxLength(255);
+            entity.Property(e => e.Name).HasMaxLength(255);
+            entity.Property(e => e.Currency).HasMaxLength(10);
 
 
             entity.HasOne(e => e.Location).WithMany().OnDelete(DeleteBehavior.Restrict);
