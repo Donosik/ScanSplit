@@ -83,7 +83,9 @@ public class MainDb : DbContext
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Price).IsRequired().HasColumnType("decimal(6,2)");
 
-            entity.HasMany<User>("OrderedBy").WithMany("OrderedItems").UsingEntity(j => j.ToTable("UserMenuItems"));
+            entity.HasMany<User>("OrderedBy")
+                .WithMany("OrderedItems")
+                .UsingEntity(j => j.ToTable("UserMenuItems"));
 
         });
 

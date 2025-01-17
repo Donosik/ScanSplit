@@ -19,7 +19,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddJwtBearerToSwagger();
 
 builder.Services.AddJwt(builder.Configuration);
-
+builder.Services.AddHttpClient();
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>();

@@ -28,4 +28,22 @@ public class BillService: IBillService
         uow.BillRepository.Create(newbill);
         await uow.Save();
     }
+    public async Task AddMenuItemsToBillAsync(int billId, List<MenuItem> menuItems)
+    {
+        if (menuItems == null || !menuItems.Any())
+        {
+            throw new ArgumentException("No menu items provided.");
+        }
+
+        // Pobieramy istniejący rachunek z repozytorium
+        var bill = await uow.BillRepository.GetBillByIdAsync(billId);
+
+        if (bill == null)
+        {
+            throw new KeyNotFoundException($"Bill with ID {billId} not found.");
+        }
+
+        // Dodajemy pozycje menu do rachunku
+        await uow.BillRepository.AddMenuItemsToBillAsync(bill, menuItems);
+    }
 }

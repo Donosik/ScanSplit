@@ -8,4 +8,5 @@ public interface IBillService
 {
     public Task<List<KeyValuePair<string, string>>> GetAllCurrencies();
     Task CreateBill(BillDTO billDto);
+    Task AddMenuItemsToBillAsync(int billId, List<MenuItem> menuItems);
 }
