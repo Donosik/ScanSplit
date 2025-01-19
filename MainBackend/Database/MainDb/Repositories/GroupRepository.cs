@@ -12,5 +12,24 @@ public class GroupRepository : GenericRepository<Group>, IGroupRepository
         this.dbContext = dbContext;
     }
 
+    public async Task<Group> GetWithUsers(int id)
+    {
+        return await GetQuery().Include(x=>x.Users).FirstOrDefaultAsync(t => t.Id == id);
+    }
+
+    public async Task<IEnumerable<User>> GetUsersFromGroup(int groupId)
+    {
+        return await GetQuery().Where(g => g.Id == groupId).SelectMany(g => g.Users.Select(u=>new User
+        {
+            Id = u.Id,
+            EmailAddress = u.EmailAddress,
+            Groups = new List<Group>(),
+            Name = u.Name,
+            Login = u.Login,
+            LastName = u.LastName,
+            Password = "",
+            PhoneNumber = u.PhoneNumber
+        })).ToListAsync();
+    }
 
 }

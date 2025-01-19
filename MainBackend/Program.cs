@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using MainBackend.Database.DB.Context;
 using MainBackend.Extensions;
 using MainBackend.Helpers;
@@ -14,6 +15,8 @@ builder.Services.AddAllScopes();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new CurrencyJsonConverter());
+    options.JsonSerializerOptions.ReferenceHandler=ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.WriteIndented=true;
 });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddJwtBearerToSwagger();

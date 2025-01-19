@@ -22,11 +22,17 @@ public class BillService: IBillService
     }
     
 // to do id bill w adresie, id grupy w paragonie 
-    public async Task CreateBill(BillDTO billDto)
+    public async Task<int> CreateBill(BillDTO billDto,int groupId)
     {
         Bill newbill = new Bill(billDto);
         uow.BillRepository.Create(newbill);
-        await uow.Save();
+        Group group = await uow.GroupRepository.Get(groupId);
+        if (group == null)
+            throw new Exception("Group does not exist");
+        group.Bills.Add(newbill);
+        uow.GroupRepository.Update(group);
+        await uow.Save(2);
+        return newbill.Id;
     }
     public async Task AddMenuItemsToBillAsync(int billId, List<MenuItem> menuItems)
     {
