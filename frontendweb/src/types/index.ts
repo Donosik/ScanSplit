@@ -72,6 +72,7 @@ export interface Bill {
   status: 'pending' | 'settled';
   items: MenuItem[];
   groupId: number;
+  currency: string;
 }
 
 export interface MenuItem {

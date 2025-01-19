@@ -9,13 +9,13 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Receipt } from '@/types';
+import { Bill } from '@/types';
 import { useState } from 'react';
 import { AddReceiptForm } from './AddReceiptForm';
 
 interface ReceiptListProps {
-  receipts: Receipt[];
-  onSelectReceipt: (receipt: Receipt) => void;
+  receipts: Bill[];
+  onSelectReceipt: (receipt: Bill) => void;
   onAddReceipt: (name: string, file: File, date: string, currency: string) => Promise<void>;
 }
 

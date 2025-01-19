@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Receipt, MenuItem } from '@/types';
+import { Bill, MenuItem } from '@/types';
 import ReceiptItemDialog from '@/components/receipts/ReceiptItemDialog';
 import CurrencySelect from '@/components/receipts/CurrencySelect';
 import { PaidBy } from '@/components/groups/detail/PaidBy';
@@ -14,9 +14,9 @@ import { useBill } from '@/hooks/useBill';
 import { PhotoUpload } from '@/components/shared/PhotoUpload';
 
 interface ReceiptDetailProps {
-  receipt: Receipt;
+  receipt: Bill;
   onBack: () => void;
-  onUpdate?: (receipt: Receipt) => void;
+  onUpdate?: (receipt: Bill) => void;
 }
 
 export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdate }: ReceiptDetailProps) {
@@ -28,17 +28,19 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
     updateBillPaidBy,
     updateBill,
     addMenuItems,
+    fetchBill,
     fetchCurrencies,
-  } = useBill(initialReceipt);
+  } = useBill();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MenuItem | undefined>();
-  const [currency, setCurrency] = useState('USD');
+  const [currency, setCurrency] = useState(initialReceipt.currency || 'USD');
 
   useEffect(() => {
+    fetchBill(initialReceipt.id);
     fetchCurrencies();
-  }, []);
+  }, [initialReceipt.id]);
 
   const handleEditItem = (item: MenuItem) => {
     setSelectedItem(item);
@@ -69,27 +71,37 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
 
   const handleChangePaidBy = async (billId: number, newPaidBy: string) => {
     await updateBillPaidBy(billId, newPaidBy);
-    onUpdate?.(bill!);
+    if (bill) {
+      onUpdate?.(bill);
+    }
   };
 
-  const handleUpdateReceipt = async (updates: Partial<Receipt>) => {
+  const handleUpdateReceipt = async (updates: Partial<Bill>) => {
     if (!bill) return;
     await updateBill(bill.id, updates);
-    onUpdate?.(bill);
+    if (bill) {
+      onUpdate?.(bill);
+    }
     setIsEditDialogOpen(false);
   };
 
+  const handleImageChange = async (file: File) => {
+    if (!bill) return;
+    await updateBill(bill.id, { image: URL.createObjectURL(file) });
+    if (bill) {
+      onUpdate?.(bill);
+    }
+  };
+
   if (!bill || loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   const totalItems = bill.items.reduce((sum, item) => sum + item.quantity, 0);
-
-  const handleImageChange = (file: File) => {
-    const updatedReceipt = { ...receipt, image: URL.createObjectURL(file) };
-    setReceipt(updatedReceipt);
-    onUpdate?.(updatedReceipt); // Notify parent component of the image update
-  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -140,7 +152,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
             <Card>
               <div className="aspect-[16/9] w-full overflow-hidden rounded-t-lg">
                 <PhotoUpload
-                  currentImage={receipt.image}
+                  currentImage={bill.image}
                   onImageChange={handleImageChange}
                   aspectRatio="16:9"
                   showRemove

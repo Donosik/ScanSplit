@@ -3,13 +3,29 @@ import { billService } from '@/services/billService';
 import { Bill, MenuItem } from '@/types';
 import { useToast } from '@/components/ui/use-toast';
 
-export function useBill(initialBill?: Bill) {
-  const [bill, setBill] = useState<Bill | undefined>(initialBill);
+interface CreateBillDTO {
+  date: string;
+  location: {
+    name: string;
+    city: string;
+    country: string;
+    address: string;
+  };
+  billImage: string;
+  name: string;
+  currency: string;
+}
+
+export function useBill() {
+  const [bill, setBill] = useState<Bill | null>(null);
   const [loading, setLoading] = useState(false);
   const [currencies, setCurrencies] = useState<string[]>([]);
   const { toast } = useToast();
 
   const fetchBill = async (id: number) => {
+    if (bill != null) {
+        return bill;
+    }
     try {
       setLoading(true);
       const data = await billService.getBill(id);
@@ -21,6 +37,7 @@ export function useBill(initialBill?: Bill) {
         description: "Failed to fetch bill details",
         variant: "destructive",
       });
+      return null;
     } finally {
       setLoading(false);
     }
@@ -37,82 +54,62 @@ export function useBill(initialBill?: Bill) {
         description: "Failed to fetch currencies",
         variant: "destructive",
       });
+      return [];
     }
   };
-  interface BillDTO {
-    date: string; // Format: ISO string (e.g., "2025-01-19T12:00:00Z")
-    location: LocationDTO;
-    billImage: string;
-    name: string;
-    currency: 'USD' | 'EUR' | 'GBP' | 'PLN' | 'JPY';
-  }
-  
-  interface LocationDTO {
-    name: string;
-    city: string;
-    country: string;
-    address: string;
-  }
 
   const createBill = async (groupId: number, name: string, file: File, date: string, currency: string) => {
     try {
-        setLoading(true);
-    
-        const staticLocation: LocationDTO = {
-          name: 'Main Restaurant',
-          city: 'Warsaw',
-          country: 'Poland',
-          address: '123 Main St',
-        };
-    
-        // Construct the bill object
-        const bill: BillDTO = {
-          date: date,
-          location: staticLocation,
-          billImage: 'static-receipt.jpg', // Placeholder or generated on backend
-          name: name,
-          currency: currency as 'USD' | 'EUR' | 'GBP' | 'PLN' | 'JPY',
-        };
-    
-        // Create FormData object
-        const formData = new FormData();
-        formData.append('Date', bill.date);
-        formData.append('Location.Name', bill.location.name);
-        formData.append('Location.City', bill.location.city);
-        formData.append('Location.Country', bill.location.country);
-        formData.append('Location.Address', bill.location.address);
-        formData.append('BillImage', bill.billImage);
-        formData.append('Name', bill.name);
-        formData.append('Currency', bill.currency);
-        formData.append('image', file); // Binary file upload
-    
-        // Make the POST request
-        const { billId, menuItems } = await billService.createBill(groupId, formData);
-    
-        // Handle response
+      setLoading(true);
+
+      // Create bill data
+      const billData: CreateBillDTO = {
+        date,
+        location: {
+          name: 'Default Location', // These could be added to the form later
+          city: 'Default City',
+          country: 'Default Country',
+          address: 'Default Address',
+        },
+        billImage: '', // This will be set by the backend
+        name,
+        currency,
+      };
+
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('billData', JSON.stringify(billData));
+      formData.append('image', file);
+
+      const response = await billService.createBill(groupId, formData);
+      
+      if (response.billId) {
         toast({
-          title: 'Success',
-          description: 'Bill created successfully',
+          title: "Success",
+          description: "Bill created successfully",
         });
-    
-        return { billId, menuItems };
-      } catch (error) {
-        toast({
-          title: 'Error',
-          description: 'Failed to create bill',
-          variant: 'destructive',
-        });
-      } finally {
-        setLoading(false);
+        await fetchBill(response.billId);
+        return response;
       }
+      
+      throw new Error('Failed to create bill');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create bill",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const addMenuItems = async (billId: number, menuItems: MenuItem[]) => {
+  const addMenuItems = async (billId: number, items: MenuItem[]) => {
     try {
       setLoading(true);
-      await billService.addMenuItemsToBill(billId, menuItems);
+      await billService.addMenuItemsToBill(billId, items);
       await fetchBill(billId);
-      
       toast({
         title: "Success",
         description: "Menu items added successfully",
@@ -123,19 +120,19 @@ export function useBill(initialBill?: Bill) {
         description: "Failed to add menu items",
         variant: "destructive",
       });
+      throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  const updateBillStatus = async (billId: number, status: 'pending' | 'settled') => {
+  const updateBillStatus = async (billId: number, status: Bill['status']) => {
     try {
       setLoading(true);
       await billService.updateBillStatus(billId, status);
       if (bill) {
         setBill({ ...bill, status });
       }
-      
       toast({
         title: "Success",
         description: "Bill status updated successfully",
@@ -146,6 +143,7 @@ export function useBill(initialBill?: Bill) {
         description: "Failed to update bill status",
         variant: "destructive",
       });
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -158,7 +156,6 @@ export function useBill(initialBill?: Bill) {
       if (bill) {
         setBill({ ...bill, paidBy });
       }
-      
       toast({
         title: "Success",
         description: "Paid by updated successfully",
@@ -169,6 +166,7 @@ export function useBill(initialBill?: Bill) {
         description: "Failed to update paid by",
         variant: "destructive",
       });
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -181,7 +179,6 @@ export function useBill(initialBill?: Bill) {
       if (bill) {
         setBill({ ...bill, ...updates });
       }
-      
       toast({
         title: "Success",
         description: "Bill updated successfully",
@@ -192,6 +189,7 @@ export function useBill(initialBill?: Bill) {
         description: "Failed to update bill",
         variant: "destructive",
       });
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -201,8 +199,7 @@ export function useBill(initialBill?: Bill) {
     try {
       setLoading(true);
       await billService.deleteBill(billId);
-      setBill(undefined);
-      
+      setBill(null);
       toast({
         title: "Success",
         description: "Bill deleted successfully",
@@ -213,6 +210,7 @@ export function useBill(initialBill?: Bill) {
         description: "Failed to delete bill",
         variant: "destructive",
       });
+      throw error;
     } finally {
       setLoading(false);
     }

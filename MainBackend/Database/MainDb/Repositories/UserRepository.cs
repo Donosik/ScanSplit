@@ -21,14 +21,18 @@ public class UserRepository: GenericRepository<User>, IUserRepository
         return await dbContext.Users.FirstOrDefaultAsync(x => x.PhoneNumber == phoneNumber);
     }
 
-    public async Task<IEnumerable<(int id , string name)>> GetUserGroups(int userId)
+    public async Task<IEnumerable<Group>> GetUserGroups(int userId)
     {
-        var groups = await dbContext.Users
+        return await dbContext.Users
             .Where(user => user.Id == userId)
             .SelectMany(user => user.Groups)
-            .Select(group => new { group.Id, group.Name }) 
+            .Include(g => g.Users)
+            .Include(g => g.Bills)
+                .ThenInclude(b => b.MenuItems)
+            .Include(g => g.Transfers)
+                .ThenInclude(t => t.Payer)
+            .Include(g => g.Transfers)
+                .ThenInclude(t => t.Recipient)
             .ToListAsync();
-        
-        return groups.Select(group => (id: group.Id, name: group.Name));
     }
 }

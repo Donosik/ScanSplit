@@ -14,7 +14,15 @@ public class GroupRepository : GenericRepository<Group>, IGroupRepository
 
     public async Task<Group> GetWithUsers(int id)
     {
-        return await GetQuery().Include(x=>x.Users).FirstOrDefaultAsync(t => t.Id == id);
+        return await GetQuery()
+            .Include(x => x.Users)
+            .Include(x => x.Bills)
+                .ThenInclude(b => b.MenuItems)
+            .Include(x => x.Transfers)
+                .ThenInclude(t => t.Payer)
+            .Include(x => x.Transfers)
+                .ThenInclude(t => t.Recipient)
+            .FirstOrDefaultAsync(t => t.Id == id);
     }
 
     public async Task<IEnumerable<User>> GetUsersFromGroup(int groupId)

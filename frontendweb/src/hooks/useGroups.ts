@@ -1,46 +1,121 @@
 import { useState, useEffect } from 'react';
 import { Group, GroupDetail } from '@/types';
-import { getGroups, getGroupById } from '@/services/groupService';
+import * as groupService from '@/services/groupService';
+import { useToast } from '@/components/ui/use-toast';
 
 export function useGroups() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
   const [groupDetail, setGroupDetail] = useState<GroupDetail | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchGroups();
-  }, []);
+  const { toast } = useToast();
 
   const fetchGroups = async () => {
     try {
-      setIsLoading(true);
+      setLoading(true);
+      const data = await groupService.getGroups();
+      setGroups(data);
       setError(null);
-      const fetchedGroups = await getGroups();
-      console.log(fetchedGroups);
-
-      setGroups(fetchedGroups);
     } catch (err) {
       setError('Failed to fetch groups');
-      console.error(err);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch groups. Please try again later.",
+      });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
+    }
+  };
+
+  const createGroup = async (name: string, image?: string) => {
+    try {
+      setLoading(true);
+      const newGroup = await groupService.createGroup({ name, image });
+      setGroups(prev => [...prev, newGroup]);
+      toast({
+        title: "Success",
+        description: "Group created successfully!",
+      });
+      return newGroup.id;
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to create group. Please try again.",
+      });
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addMemberByLogin = async (groupId: number, login: string) => {
+    try {
+      await groupService.groupService.addMemberByLogin(groupId, login);
+      await fetchGroups(); // Refresh groups to get updated member count
+      toast({
+        title: "Success",
+        description: "Member added successfully!",
+      });
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to add member. Please check the login and try again.",
+      });
+      throw err;
+    }
+  };
+
+  const addMemberByPhone = async (groupId: number, phoneNumber: string) => {
+    try {
+      await groupService.groupService.addMemberByPhone(groupId, phoneNumber);
+      await fetchGroups(); // Refresh groups to get updated member count
+      toast({
+        title: "Success",
+        description: "Member added successfully!",
+      });
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to add member. Please check the phone number and try again.",
+      });
+      throw err;
+    }
+  };
+
+  const updateGroupStatus = async (groupId: number, status: string) => {
+    try {
+      await groupService.groupService.updateGroupStatus(groupId, status);
+      toast({
+        title: "Success",
+        description: "Group status updated successfully!",
+      });
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update group status. Please try again.",
+      });
+      throw err;
     }
   };
 
   const selectGroup = async (groupId: number) => {
     setSelectedGroup(groupId);
     try {
-      setIsLoading(true);
+      setLoading(true);
       setError(null);
-      const detail = await getGroupById(groupId);
+      const detail = await groupService.getGroupById(groupId);
       setGroupDetail(detail);
     } catch (err) {
       setError('Failed to fetch group details');
       console.error(err);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -49,14 +124,22 @@ export function useGroups() {
     setGroupDetail(null);
   };
 
+  useEffect(() => {
+    fetchGroups();
+  }, []);
+
   return {
     groups,
     selectedGroup,
     groupDetail,
     selectGroup,
     clearSelectedGroup,
-    isLoading,
+    loading,
     error,
+    createGroup,
+    addMemberByLogin,
+    addMemberByPhone,
+    updateGroupStatus,
     refreshGroups: fetchGroups,
   };
 }
