@@ -1,29 +1,23 @@
-import {BrowserRouter, Route, Routes} from "react-router-dom";
-import AddNewBill from "../../pages/addNewBill/AddNewBill.tsx";
-import {NotFound} from "../../pages/notfound/NotFound.tsx";
-import {LoggedLayout} from "../../pages/loggedLayout/LoggedLayout.tsx";
-import {AvailableRoutes} from "./availableRoutes.ts";
-import Login from "../../pages/login/Login.tsx";
-import PrivateRoute from "../auth/PrivateRoute.tsx";
-import Register from "../../pages/register/Register.tsx";
-import SplitNewBill from "../../pages/splitNewBill/SplitNewBill.tsx";
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { AvailableRoutes } from './availableRoutes';
+import Login from '@/pages/login/Login';
+import Register from '@/pages/register/Register';
+import PrivateRoute from '@/utils/auth/PrivateRoute';
+import Landing from '@/pages/landing/Landing';
+import Home from '@/pages/Home';
 
-export function Router()
-{
-    return (
-        <BrowserRouter>
-            <Routes>
-                <Route path={AvailableRoutes.LOGIN} element={<Login/>}/>
-                <Route path={AvailableRoutes.REGISTER} element={<Register/>}/>
-                <Route element={<PrivateRoute/>}>
-                    <Route element={<LoggedLayout/>}>
-                        <Route path={AvailableRoutes.HOME} element={<>home</>}/>
-                        <Route path={AvailableRoutes.ADDBILL} element={<AddNewBill/>}/>
-                        <Route path={AvailableRoutes.SPLITBILL} element={<SplitNewBill/>}/>
-                    </Route>
-                </Route>
-                <Route path={"*"} element={<NotFound/>}/>
-            </Routes>
-        </BrowserRouter>
-    );
+export function Router() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path={AvailableRoutes.LANDING} element={<Landing />} />
+        <Route path={AvailableRoutes.LOGIN} element={<Login />} />
+        <Route path={AvailableRoutes.REGISTER} element={<Register />} />
+        <Route element={<PrivateRoute />}>
+          <Route path={AvailableRoutes.HOME} element={<Home />} />
+        </Route>
+        <Route path="*" element={<Landing />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }

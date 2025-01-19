@@ -1,5 +1,6 @@
 export const AvailableRoutes = {
-    HOME:"/",
+    LANDING:"/",
+    HOME:"/groups",
     PROFILE:"profile",
     EVENTS:"events",
     BILLS:"bills",
