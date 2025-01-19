@@ -9,8 +9,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useProfile } from '@/hooks/useProfile';
+import { PhotoUpload } from '@/components/shared/PhotoUpload';
 
 interface ProfileDialogProps {
   open: boolean;
@@ -20,6 +20,7 @@ interface ProfileDialogProps {
 export default function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
   const { user, updateProfile } = useProfile();
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [newAvatar, setNewAvatar] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,6 +31,7 @@ export default function ProfileDialog({ open, onOpenChange }: ProfileDialogProps
       username: formData.get('username') as string,
       email: formData.get('email') as string,
       phone: formData.get('phone') as string,
+      avatar: newAvatar,
     });
     onOpenChange(false);
   };
@@ -45,6 +47,10 @@ export default function ProfileDialog({ open, onOpenChange }: ProfileDialogProps
     setIsPasswordDialogOpen(false);
   };
 
+  const handleAvatarChange = (file: File) => {
+    setNewAvatar(file);
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -58,12 +64,16 @@ export default function ProfileDialog({ open, onOpenChange }: ProfileDialogProps
             <DialogTitle>Profile Settings</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6 py-4">
-            <div className="flex justify-center">
-              <Avatar className="h-24 w-24 ring-2 ring-primary ring-offset-2">
-                <AvatarImage src={user.avatar} />
-                <AvatarFallback>{user.name[0]}</AvatarFallback>
-              </Avatar>
+            {/* Enlarged Avatar Area */}
+            <div className="flex justify-center mb-6">
+              <PhotoUpload
+                currentImage={user.avatar}
+                onImageChange={handleAvatarChange}
+                className="w-40 h-40" // Enlarged size for avatar area
+                variant="avatar"
+              />
             </div>
+            {/* Profile Fields */}
             <div className="space-y-4">
               <div className="flex gap-4">
                 <Input name="firstName" placeholder="First Name" defaultValue={user.name.split(' ')[0]} />
@@ -74,7 +84,9 @@ export default function ProfileDialog({ open, onOpenChange }: ProfileDialogProps
               <Input name="phone" placeholder="Phone Number" defaultValue={user.phone} type="tel" />
             </div>
             <div className="flex gap-4">
-              <Button type="submit" className="flex-1" size="lg">Save Changes</Button>
+              <Button type="submit" className="flex-1" size="lg">
+                Save Changes
+              </Button>
               <Button type="button" variant="outline" size="lg" onClick={() => setIsPasswordDialogOpen(true)}>
                 <Lock className="h-4 w-4 mr-2" />
                 Change Password
@@ -94,11 +106,12 @@ export default function ProfileDialog({ open, onOpenChange }: ProfileDialogProps
               <Input name="oldPassword" placeholder="Current Password" type="password" />
               <Input name="newPassword" placeholder="New Password" type="password" />
             </div>
-            <Button type="submit" className="w-full" size="lg">Update Password</Button>
+            <Button type="submit" className="w-full" size="lg">
+              Update Password
+            </Button>
           </form>
         </DialogContent>
       </Dialog>
     </>
   );
 }
-

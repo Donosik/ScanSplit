@@ -1,20 +1,59 @@
+import { useState } from 'react';
 import { Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { GroupDetail } from '@/types';
+import { Balance, GroupDetail } from '@/types';
+import { BalancesDialog } from './BalancesDialog';
+import { useToast } from '@/hooks/use-toast';
 
 interface GroupSummaryProps {
   group: GroupDetail;
+  onUpdateGroup?: (updatedGroup: GroupDetail) => void;
 }
 
-export default function GroupSummary({ group }: GroupSummaryProps) {
+export default function GroupSummary({ group, onUpdateGroup }: GroupSummaryProps) {
+  const [isBalancesOpen, setIsBalancesOpen] = useState(false);
+  const [balances, setBalances] = useState<Balance[]>(group.balances);
+  const { toast } = useToast();
+
+  const handleMarkAsPaid = (balance: Balance) => {
+    // Update the local state immediately for better UX
+    const updatedBalances = balances.map(b => {
+      if (b.from === balance.from && b.to === balance.to && b.amount === balance.amount) {
+        return { ...b, status: 'paid' };
+      }
+      return b;
+    });
+
+    setBalances(updatedBalances);
+
+    // Update the parent component if provided
+    if (onUpdateGroup) {
+      onUpdateGroup({
+        ...group,
+        balances: updatedBalances,
+      });
+    }
+
+    // Show success toast
+    toast({
+      title: "Balance marked as paid",
+      description: `${balance.from} → ${balance.to}: $${balance.amount.toFixed(2)}`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <h3 className="font-semibold">Summary</h3>
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setIsBalancesOpen(true)}
+            className="hover:bg-primary hover:text-primary-foreground"
+          >
             <Wallet className="mr-2 h-4 w-4" />
             View Balances
           </Button>
@@ -46,30 +85,12 @@ export default function GroupSummary({ group }: GroupSummaryProps) {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <h3 className="font-semibold">Balances</h3>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {group.balances.map((balance, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between py-2"
-            >
-              <div className="flex items-center gap-2">
-                <p className="text-sm">
-                  <span className="font-medium">{balance.from}</span>
-                  {' owes '}
-                  <span className="font-medium">{balance.to}</span>
-                </p>
-              </div>
-              <p className="font-semibold">
-                ${balance.amount.toFixed(2)}
-              </p>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+      <BalancesDialog
+        open={isBalancesOpen}
+        onOpenChange={setIsBalancesOpen}
+        balances={balances}
+        onMarkAsPaid={handleMarkAsPaid}
+      />
     </div>
   );
 }
