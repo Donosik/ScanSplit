@@ -1,4 +1,5 @@
 import { Group, GroupDetail } from '@/types';
+import { api } from './api';
 
 // Temporary mock data - replace with actual API calls
 const mockGroups: Group[] = [
@@ -96,20 +97,36 @@ const mockGroupDetail: GroupDetail = {
   ],
 };
 
-export const getGroups = (): Group[] => {
-  // Replace with actual API call
-  return mockGroups;
-};
+export async function getGroups(): Promise<Group[]> {
+  const response = await api.get('/user/groups');
+  return response.data.map((group: any) => ({
+    id: group.id,
+    name: group.name,
+    date: new Date().toISOString(), // FIXME: Add date to backend model
+    members: group.users?.length || 0,
+    receipts: group.bills?.length || 0,
+    totalAmount: group.bills?.reduce((sum: number, bill: any) => sum + bill.amount, 0) || 0,
+    image: group.image || 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9',
+  }));
+}
 
-export const getGroupById = (id: number): GroupDetail => {
-  // Replace with actual API call
-  return mockGroupDetail;
-};
+export async function getGroupById(id: number): Promise<GroupDetail> {
+  const response = await api.get(`/group/${id}`);
+  return response.data;
+}
 
 export const createGroup = async (group: Partial<Group>): Promise<Group> => {
   // Replace with actual API call
+  console.log(group);
+
+  const response = await api.post('/group/create', group.name || 'New Group');
+  console.log(response);
+  const id = response.data.id || Math.random();
+  // Now we have to save the image... 
+  // TODO: Save the image to the backend when the endpoint is available
+
   return {
-    id: Math.random(),
+    id: id,
     name: group.name || '',
     date: new Date().toISOString(),
     members: 1,
@@ -120,10 +137,10 @@ export const createGroup = async (group: Partial<Group>): Promise<Group> => {
 };
 
 export const updateGroup = async (id: number, group: Partial<Group>): Promise<Group> => {
-  // Replace with actual API call
+  // TODO: Replace with actual API call
   return { ...mockGroups[0], ...group };
 };
 
 export const deleteGroup = async (id: number): Promise<void> => {
-  // Replace with actual API call
+  // TODO: Replace with actual API call
 };
