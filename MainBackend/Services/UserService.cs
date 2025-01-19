@@ -36,8 +36,22 @@ public class UserService: IUserService
         userDto.Email = user.EmailAddress;
         userDto.Login = user.Login;
         userDto.Id = user.Id;
-        
+        userDto.Image = user.Image;
        return userDto;
+    }
+
+    public  async Task<UserDTO> GetUserByLogin(string login)
+    {
+        UserDTO userDto = new UserDTO();
+        var user= await uow.UserRepository.GetByLogin(login);
+        userDto.PhoneNumber = user.PhoneNumber;
+        userDto.Name = user.Name;
+        userDto.LastName = user.LastName;
+        userDto.Email = user.EmailAddress;
+        userDto.Login = user.Login;
+        userDto.Id = user.Id;
+        userDto.Image = user.Image ;
+        return userDto;
     }
     public async Task<IEnumerable<GroupDto>> GetGroupsForUser()
     {
