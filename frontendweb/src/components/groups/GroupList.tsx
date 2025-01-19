@@ -88,7 +88,7 @@ export default function GroupList({ groups, onSelectGroup }: GroupListProps) {
               <Input name="members" placeholder="Add members by username" />
 
               {/* Submit */}
-              <Button type="submit" className="w-full">
+              <Button ype="submit" className="w-full">
                 Create Group
               </Button>
             </form>
@@ -121,9 +121,9 @@ export default function GroupList({ groups, onSelectGroup }: GroupListProps) {
                     d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V7a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                   />
                 </svg>
-                <h3 className="text-lg font-medium text-muted-foreground mb-2">No receipts yet</h3>
+                <h3 className="text-lg font-medium text-muted-foreground mb-2">No groups yet</h3>
                 <p className="text-sm text-muted-foreground/75 text-center">
-                  Click the button above to add your first receipt to this event
+                  Click the button above to add your first event and start splitting bills with your friends!
                 </p>
               </div>
             )}

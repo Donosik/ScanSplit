@@ -110,9 +110,68 @@ export async function getGroups(): Promise<Group[]> {
   }));
 }
 
+
+// TODO: Refactor this later
+function getGroupTotal(bills: any[]) {
+  return bills.reduce((sum: number, bill: any) => sum + bill.amount, 0);
+}
+
+function getGroupMyAmount(bills: any[]) {
+  return 0; // TODO: Implement this
+}
+
 export async function getGroupById(id: number): Promise<GroupDetail> {
   const response = await api.get(`/group/${id}`);
-  return response.data;
+  const backendGroup = response.data;
+  console.log(backendGroup);
+  // Map backend group data to GroupDetail and Receipt
+  // TODO: Refactor this later
+  let transfers = [];
+  if (backendGroup.transfers != null) {
+  transfers = backendGroup.transfers.map((transfer: any) => ({
+    id: transfer.id,
+    from: transfer.payer.username,
+    to: transfer.recipient.username,
+    amount: transfer.amount,
+    date: transfer.date,
+  }));
+  }
+  let receipts = [];
+  if (backendGroup.bills != null) {
+  receipts = backendGroup.bills.map((bill: any) => ({
+    id: bill.id,
+    name: bill.name,
+    amount: bill.amount,
+    paidBy: bill.paidBy,
+    date: bill.date,
+    image: bill.image,
+    status: bill.status,
+    items: bill.items,
+  }));
+  }
+  let members: Member[] = [];
+  if (backendGroup.users != null) {
+  members = backendGroup.users.map((user: any) => ({
+    id: user.id,
+    name: user.name,
+    username: user.username,
+    avatar: user.avatar,
+  }));
+  }
+  const groupDetail: GroupDetail = {
+    id: backendGroup.id,
+    name: backendGroup.name,
+    date: backendGroup.date,
+    image: backendGroup.image,
+    totalAmount: getGroupTotal(receipts),
+    myAmount: getGroupMyAmount(receipts),
+    members: members,
+    receipts: receipts,
+    balances: transfers,
+  };
+  console.log("Loggin group detail");
+  console.log(groupDetail);
+  return groupDetail;
 }
 
 export const createGroup = async (group: Partial<Group>): Promise<Group> => {

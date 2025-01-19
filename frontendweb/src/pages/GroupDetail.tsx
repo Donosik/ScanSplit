@@ -33,6 +33,7 @@ export default function GroupDetail({ group, onBack }: GroupDetailProps) {
               receipts={group.receipts} 
               onSelectReceipt={setSelectedReceipt}
             />
+           
           </div>
           <div>
             <GroupSummary group={group} />
