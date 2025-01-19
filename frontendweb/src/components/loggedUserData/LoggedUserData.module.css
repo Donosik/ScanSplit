@@ -1,0 +1,24 @@
+.wrapper{
+    background-color: var(--secondaryBackgroundColor);
+    height: 100%;
+    box-sizing: border-box;
+    padding: 3rem;
+}
+
+.profileData{
+    display: flex;
+    gap:2rem;
+
+}
+
+.profilePicture{
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+}
+
+.profileName{
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--secondaryTextColor);
+}
