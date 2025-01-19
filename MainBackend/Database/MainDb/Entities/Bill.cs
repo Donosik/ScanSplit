@@ -13,7 +13,7 @@ namespace MainBackend.Database.Entities
         public DateTime Date { get; set; }
         public virtual Location Location{ get; set; }
         public string BillImage { get; set; } //jako string bo przechowuje URL do obrazu 
-        public string CoverImage { get; set; }
+        public string? CoverImage { get; set; }
         public string Name { get; set; }
         public Currency Currency { get; set; }
         public virtual ICollection<MenuItem> MenuItems { get; set; }

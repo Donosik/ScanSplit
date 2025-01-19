@@ -7,6 +7,7 @@ namespace MainBackend.Services;
 public interface IBillService
 {
     public Task<List<KeyValuePair<string, string>>> GetAllCurrencies();
-    Task CreateBill(BillDTO billDto);
+    Task<int> CreateBill(BillDTO billDto,int groupId);
+    
     Task AddMenuItemsToBillAsync(int billId, List<MenuItem> menuItems);
 }
