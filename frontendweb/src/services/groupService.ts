@@ -19,7 +19,19 @@ export async function getGroups(): Promise<Group[]> {
   }));
 }
 
-
+const convertBillItems = (items: any, members: Member[]) => {
+  let billItems: MenuItem[] = [];
+  if (billItems) {
+    billItems = items.map((item: any) => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      assignedTo: members,
+    }));
+  }
+  return billItems;
+}
 
 export async function getGroupById(id: number): Promise<GroupDetail> {
   const response = await api.get(`/group/${id}`);
@@ -35,8 +47,14 @@ export async function getGroupById(id: number): Promise<GroupDetail> {
     date: transfer.date,
   })) || [];
 
+  const members: Member[] = backendGroup.users?.map((user: any) => ({
+    id: user.id,
+    name: user.name,
+    username: user.username,
+    avatar: user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`, // Fallback avatar
+  })) || [];
   // Map bills to receipts
-  const receipts: Receipt[] = backendGroup.bills?.map((bill: any) => ({
+  const receipts: Bill[] = backendGroup.bills?.map((bill: any) => ({
     id: bill.id,
     name: bill.name,
     amount: calculateBillAmount(bill),
@@ -44,16 +62,14 @@ export async function getGroupById(id: number): Promise<GroupDetail> {
     date: bill.date,
     image: bill.image,
     status: bill.status,
-    items: bill.items,
+    items: convertBillItems(bill.menuItems, members),
+    groupId: bill.groupId,
+    currency: bill.currency,
   })) || [];
-
+  console.log("Printing receipts");
+  console.log(receipts);
   // Map users to members
-  const members: Member[] = backendGroup.users?.map((user: any) => ({
-    id: user.id,
-    name: user.name,
-    username: user.username,
-    avatar: user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`, // Fallback avatar
-  })) || [];
+
 
   return {
     id: backendGroup.id,

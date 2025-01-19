@@ -43,6 +43,28 @@ export function useBill() {
     }
   };
 
+
+  const setCurrentBill = (bill: Bill) => {
+
+    const totalAmount = bill.items.reduce((sum, item) => sum + item.price, 0);
+
+
+
+    const newBill = {
+        id: bill.id,
+        name: bill.name || "No name",
+        amount: totalAmount,
+        paidBy: bill.paidBy || "No paid by",
+        date: bill.date || new Date().toISOString(),
+        image: bill.image || "",
+        status: bill.status || "pending",
+        items: bill.items || [],
+        groupId: bill.groupId || 0,
+        currency: bill.currency || "USD",
+    }
+    setBill(newBill);
+  };
+
   const fetchCurrencies = async () => {
     try {
       const data = await billService.getAllCurrencies();
@@ -228,6 +250,7 @@ export function useBill() {
     updateBillPaidBy,
     updateBill,
     deleteBill,
+    setCurrentBill,
   };
 }
 

@@ -30,6 +30,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
     addMenuItems,
     fetchBill,
     fetchCurrencies,
+    setCurrentBill,
   } = useBill();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -38,8 +39,9 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
   const [currency, setCurrency] = useState(initialReceipt.currency || 'USD');
 
   useEffect(() => {
-    fetchBill(initialReceipt.id);
-    fetchCurrencies();
+    // fetchBill(initialReceipt.id);
+    // fetchCurrencies();
+    setCurrentBill(initialReceipt);
   }, [initialReceipt.id]);
 
   const handleEditItem = (item: MenuItem) => {
@@ -102,7 +104,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
   }
 
   const totalItems = bill.items.reduce((sum, item) => sum + item.quantity, 0);
-
+// const totalItems = 0;
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50">
@@ -191,7 +193,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
             {/* Items Section */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <h3 className="text-lg font-semibold">Items ({totalItems})</h3>
+                <h3 className="text-lg font-semibold">Items ({totalItems || 0})</h3>
                 <Button onClick={handleAddItem}>
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Add Item
