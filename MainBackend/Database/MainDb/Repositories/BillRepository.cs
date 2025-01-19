@@ -11,6 +11,29 @@ public class BillRepository: GenericRepository<Bill>, IBillRepository
     {
         this.dbContext = dbContext;
     }
+    
+    public async Task<Bill> GetBillByIdAsync(int billId)
+    {
+        return await dbContext.Bills
+            .Include(b => b.MenuItems) // Załaduj MenuItems razem z Bill
+            .FirstOrDefaultAsync(b => b.Id == billId);
+    }
 
+    // Dodaje MenuItems do Bill
+    public async Task AddMenuItemsToBillAsync(Bill bill, List<MenuItem> menuItems)
+    {
+        foreach (var menuItem in menuItems)
+        {
+            bill.MenuItems.Add(menuItem);
+        }
 
+        // Zapisujemy zmiany w bazie danych
+        await SaveChangesAsync();
+    }
+
+    // Zapisuje zmiany do bazy danych
+    public async Task SaveChangesAsync()
+    {
+        await dbContext.SaveChangesAsync();
+    }
 }

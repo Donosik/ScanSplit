@@ -44,4 +44,16 @@ public class UserController: ControllerBase
         await userService.UpdatePassword(password);
         return Ok();
     }
+    
+    [HttpGet("groups")]
+    public async Task<IActionResult> GetMyGroups()
+    {
+        var groups = await userService.GetGroupsForUser();
+        Console.WriteLine("halo3");
+        foreach (var group in groups)
+        {
+            Console.WriteLine($"Group ID: {group.Id}, Group Name: {group.Name}");
+        }
+        return Ok(groups);
+    }
 }

@@ -1,0 +1,59 @@
+{
+    "name": "Stop & Shop",
+    "date": "April 7, 2020",
+    "location": "341 Plymouth Street, Halifax, MA 02338",
+    "total": 35.01,
+    "tip": 0,
+    "tax": 0,
+    "additional_info": "Store Number: #82, Balance: $35.01",
+    "items": [
+      {
+        "name": "JSPH Org Hummus",
+        "price": 5.99,
+        "quantity": 1,
+        "total_price": 5.99,
+        "category": "Cheese Shop",
+        "notes": ""
+      },
+      {
+        "name": "SB SW Blend 10Z",
+        "price": 2.49,
+        "quantity": 1,
+        "total_price": 2.49,
+        "category": "Frozen Food",
+        "notes": ""
+      },
+      {
+        "name": "Amys LS Chnky To",
+        "price": 3.99,
+        "quantity": 2,
+        "total_price": 7.98,
+        "category": "Grocery",
+        "notes": ""
+      },
+      {
+        "name": "Amys Soup LS Len",
+        "price": 3.19,
+        "quantity": 1,
+        "total_price": 3.19,
+        "category": "Grocery",
+        "notes": ""
+      },
+      {
+        "name": "Soup Lentil",
+        "price": 3.19,
+        "quantity": 2,
+        "total_price": 6.38,
+        "category": "Grocery",
+        "notes": ""
+      },
+      {
+        "name": "Dole Spinach 10",
+        "price": 4.99,
+        "quantity": 1,
+        "total_price": 4.99,
+        "category": "Produce",
+        "notes": ""
+      }
+    ]
+  }

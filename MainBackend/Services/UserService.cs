@@ -39,6 +39,17 @@ public class UserService: IUserService
         
        return userDto;
     }
+    public async Task<IEnumerable<GroupDto>> GetGroupsForUser()
+    {
+        var userId = identityService.GetLoggedUserId();
+        
+        var groups = await uow.UserRepository.GetUserGroups(userId);
+        return groups.Select(group => new GroupDto
+        {
+            Id = group.id,
+            Name = group.name
+        });
+    }
 
     public async Task UpdateMe(UserDTO userDto)
     {
