@@ -11,6 +11,7 @@ import CurrencySelect from '@/components/receipts/CurrencySelect';
 import { PaidBy } from '@/components/groups/detail/PaidBy';
 import { EditReceiptDialog } from '@/components/receipts/EditReceiptDialog';
 import { useBill } from '@/hooks/useBill';
+import { PhotoUpload } from '@/components/shared/PhotoUpload';
 
 interface ReceiptDetailProps {
   receipt: Receipt;
@@ -84,6 +85,12 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
 
   const totalItems = bill.items.reduce((sum, item) => sum + item.quantity, 0);
 
+  const handleImageChange = (file: File) => {
+    const updatedReceipt = { ...receipt, image: URL.createObjectURL(file) };
+    setReceipt(updatedReceipt);
+    onUpdate?.(updatedReceipt); // Notify parent component of the image update
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50">
@@ -132,10 +139,11 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <div className="aspect-[16/9] w-full overflow-hidden rounded-t-lg">
-                <img
-                  src={bill.image}
-                  alt={bill.name}
-                  className="w-full h-full object-cover"
+                <PhotoUpload
+                  currentImage={receipt.image}
+                  onImageChange={handleImageChange}
+                  aspectRatio="16:9"
+                  showRemove
                 />
               </div>
               <CardContent className="p-6">
@@ -168,6 +176,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
               </CardContent>
             </Card>
 
+            {/* Items Section */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <h3 className="text-lg font-semibold">Items ({totalItems})</h3>
@@ -213,6 +222,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
             </Card>
           </div>
 
+          {/* Summary Section */}
           <div className="space-y-6">
             <Card>
               <CardHeader className="pb-3">

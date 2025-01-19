@@ -30,7 +30,13 @@ public class UserController: ControllerBase
         
         return Ok(await userService.GetMe());
     }
-    
+
+    [HttpGet("{login}")]
+    public async Task<IActionResult> GetUserByLogin(string login)
+    {
+        
+        return Ok(await userService.GetUserByLogin(login));
+    }
     [HttpPut("")]
     public async Task<IActionResult> UpdateMe([FromBody] UserDTO userDto)
     {
