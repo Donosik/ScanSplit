@@ -1,11 +1,8 @@
-import {AllProviders} from "./utils/allProviders/AllProviders.tsx";
-import {Router} from "./utils/router/Router.tsx";
+// 
+import Home from './pages/Home';
 
-export default function App()
-{
-    return (
-            <AllProviders>
-                <Router/>
-            </AllProviders>
-    )
+function App() {
+  return <Home />;
 }
+
+export default App;
