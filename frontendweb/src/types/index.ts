@@ -4,6 +4,7 @@ export interface User {
   username: string;
   email: string;
   avatar: string;
+  phone?: string;
 }
 
 export interface Group {
@@ -58,4 +59,5 @@ export interface Balance {
   from: string;
   to: string;
   amount: number;
+  status?: 'pending' | 'paid';
 }

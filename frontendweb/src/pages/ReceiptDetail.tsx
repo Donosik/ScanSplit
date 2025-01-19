@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Check, Clock, DollarSign, PlusCircle, Users } from 'lucide-react';
+import { ArrowLeft, Check, Clock, DollarSign, PlusCircle, Users, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -8,14 +8,19 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Receipt, ReceiptItem } from '@/types';
 import ReceiptItemDialog from '@/components/receipts/ReceiptItemDialog';
 import CurrencySelect from '@/components/receipts/CurrencySelect';
+import { PaidBy } from '@/components/groups/detail/PaidBy';
+import { EditReceiptDialog } from '@/components/receipts/EditReceiptDialog';
 
 interface ReceiptDetailProps {
   receipt: Receipt;
   onBack: () => void;
+  onUpdate?: (receipt: Receipt) => void;
 }
 
-export default function ReceiptDetail({ receipt, onBack }: ReceiptDetailProps) {
+export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdate }: ReceiptDetailProps) {
+  const [receipt, setReceipt] = useState(initialReceipt);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ReceiptItem | undefined>();
   const [currency, setCurrency] = useState('USD');
   const [items, setItems] = useState<ReceiptItem[]>(receipt.items);
@@ -34,7 +39,6 @@ export default function ReceiptDetail({ receipt, onBack }: ReceiptDetailProps) {
 
   const handleSaveItem = (newItem: Omit<ReceiptItem, 'id'>) => {
     if (selectedItem) {
-      // Edit existing item
       setItems(
         items.map((item) =>
           item.id === selectedItem.id
@@ -43,9 +47,20 @@ export default function ReceiptDetail({ receipt, onBack }: ReceiptDetailProps) {
         )
       );
     } else {
-      // Add new item
       setItems([...items, { ...newItem, id: Math.random() }]);
     }
+  };
+
+  const handleChangePaidBy = (receiptId: number, newPaidBy: string) => {
+    const updatedReceipt = { ...receipt, paidBy: newPaidBy };
+    setReceipt(updatedReceipt);
+    onUpdate?.(updatedReceipt);
+  };
+
+  const handleUpdateReceipt = (updates: Partial<Receipt>) => {
+    const updatedReceipt = { ...receipt, ...updates };
+    setReceipt(updatedReceipt);
+    onUpdate?.(updatedReceipt);
   };
 
   return (
@@ -66,6 +81,14 @@ export default function ReceiptDetail({ receipt, onBack }: ReceiptDetailProps) {
             </div>
             <div className="flex items-center gap-4">
               <CurrencySelect value={currency} onValueChange={setCurrency} />
+              <Button
+                variant="outline"
+                size="icon"
+                className="rounded-full"
+                onClick={() => setIsEditDialogOpen(true)}
+              >
+                <Settings2 className="h-4 w-4" />
+              </Button>
               <Badge variant={receipt.status === 'settled' ? 'default' : 'secondary'}>
                 {receipt.status === 'settled' ? (
                   <Check className="mr-1 h-3 w-3" />
@@ -108,8 +131,12 @@ export default function ReceiptDetail({ receipt, onBack }: ReceiptDetailProps) {
                       <AvatarFallback>{receipt.paidBy[0]}</AvatarFallback>
                     </Avatar>
                     <div className="text-sm">
-                      <p className="font-medium">Paid by</p>
-                      <p className="text-muted-foreground">{receipt.paidBy}</p>
+                      <PaidBy
+                        receiptId={receipt.id}
+                        currentPaidBy={receipt.paidBy}
+                        allMembers={items[0]?.assignedTo || []}
+                        onChangePaidBy={handleChangePaidBy}
+                      />
                     </div>
                   </div>
                 </div>
@@ -200,8 +227,25 @@ export default function ReceiptDetail({ receipt, onBack }: ReceiptDetailProps) {
                   </div>
                 </div>
                 <div className="pt-4 border-t">
-                  <Button className="w-full" variant="default">
-                    Mark as Settled
+                  <Button 
+                    className="w-full" 
+                    variant={receipt.status === 'settled' ? 'secondary' : 'default'}
+                    onClick={() => {
+                      const newStatus = receipt.status === 'settled' ? 'pending' : 'settled';
+                      handleUpdateReceipt({ status: newStatus });
+                    }}
+                  >
+                    {receipt.status === 'settled' ? (
+                      <>
+                        <Clock className="mr-2 h-4 w-4" />
+                        Mark as Pending
+                      </>
+                    ) : (
+                      <>
+                        <Check className="mr-2 h-4 w-4" />
+                        Mark as Settled
+                      </>
+                    )}
                   </Button>
                 </div>
               </CardContent>
@@ -213,10 +257,17 @@ export default function ReceiptDetail({ receipt, onBack }: ReceiptDetailProps) {
       <ReceiptItemDialog
         open={isDialogOpen}
         item={selectedItem}
-        members={receipt.items[0].assignedTo}
+        members={items[0]?.assignedTo || []}
         currency={currency}
         onOpenChange={setIsDialogOpen}
         onSave={handleSaveItem}
+      />
+
+      <EditReceiptDialog
+        receipt={receipt}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onSave={handleUpdateReceipt}
       />
     </div>
   );
