@@ -60,6 +60,16 @@ public class GroupService: IGroupService
     
     public async Task<Group> GetGroupById(int id)
     {
-        return await uow.GroupRepository.Get(id);
+        return await uow.GroupRepository.GetWithUsers(id);
+    }
+    
+    public async Task<IEnumerable<User>> GetUsersByGroupId(int idGroup)
+    {
+        var group = await uow.GroupRepository.GetUsersFromGroup(idGroup);
+
+        if (group == null)
+            throw new Exception("Group not found");
+
+        return group;
     }
 }

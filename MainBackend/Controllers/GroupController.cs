@@ -57,4 +57,14 @@ public class GroupController: ControllerBase
         }
         return Ok(group);
     }
+    [HttpGet("{idGroup}/get-users")]
+    public async Task<IActionResult> GetListUsers(int idGroup)
+    {
+        var users = await groupService.GetUsersByGroupId(idGroup);
+        if (users == null)
+        {
+            return NotFound();
+        }
+        return Ok(users);
+    }
 }

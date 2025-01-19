@@ -10,5 +10,5 @@ public class BillDTO
     public LocationDTO Location { get; set; } 
     public string BillImage { get; set; }
     public string Name { get; set; }
-    public Currency Currency { get; set; } 
+    public Currency Currency { get; set; }
 }

@@ -14,7 +14,7 @@ public class BillRepository: GenericRepository<Bill>, IBillRepository
     
     public async Task<Bill> GetBillByIdAsync(int billId)
     {
-        return await dbContext.Bills
+        return await GetQuery()
             .Include(b => b.MenuItems) // Załaduj MenuItems razem z Bill
             .FirstOrDefaultAsync(b => b.Id == billId);
     }

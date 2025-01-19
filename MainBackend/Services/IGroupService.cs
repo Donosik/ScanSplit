@@ -12,4 +12,5 @@ public interface IGroupService
 
     public Task UpdateStatus(GroupStatus status, int idGroup);
     public Task<Group> GetGroupById(int id);
+    public Task<IEnumerable<User>> GetUsersByGroupId(int idGroup);
 }
