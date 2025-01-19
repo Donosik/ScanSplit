@@ -52,4 +52,16 @@ public class BillService: IBillService
         // Dodajemy pozycje menu do rachunku
         await uow.BillRepository.AddMenuItemsToBillAsync(bill, menuItems);
     }
+    public async Task UpdateBillPhotoAsync(int billId, string photoUrl)
+    {
+        var bill = await uow.BillRepository.GetBillByIdAsync(billId);
+        if (bill == null)
+        {
+            throw new KeyNotFoundException("Bill not found.");
+        }
+
+        bill.BillImage= photoUrl;
+        uow.BillRepository.Update(bill);
+        await uow.Save();
+    }
 }

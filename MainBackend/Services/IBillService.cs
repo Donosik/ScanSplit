@@ -10,4 +10,5 @@ public interface IBillService
     Task<int> CreateBill(BillDTO billDto,int groupId);
     
     Task AddMenuItemsToBillAsync(int billId, List<MenuItem> menuItems);
+    Task UpdateBillPhotoAsync(int billId, string photoUrl);
 }

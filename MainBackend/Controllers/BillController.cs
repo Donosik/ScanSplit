@@ -12,6 +12,7 @@ using System.IO;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Google.Cloud.Storage.V1;
 
 namespace MainBackend.Controllers;
 
@@ -50,9 +51,17 @@ public class BillController : ControllerBase
         {
             return BadRequest("No file uploaded.");
         }
-
+        
+        string uploadedImageUrl = null;
+        
         try
         {
+            // 1. Upload the image to Google Cloud Storage
+            uploadedImageUrl = await UploadImageToCloudStorage(image);
+
+            // 2. Save the image URL to the bill
+            await billService.UpdateBillPhotoAsync(billId, uploadedImageUrl);
+
             // Send file to FastAPI micro-backend
             using var memoryStream = new MemoryStream();
             await image.CopyToAsync(memoryStream);
@@ -106,13 +115,32 @@ public class BillController : ControllerBase
             return Ok(new
             {
                 billId = billId,
-                menuItems = menuItems
+                menuItems = menuItems,
+                photoUrl = uploadedImageUrl // Include photo URL in the response
             });
         }
         catch (Exception ex)
         {
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
+    }
+    // Helper method to upload image to Google Cloud Storage
+    private async Task<string> UploadImageToCloudStorage(IFormFile image)
+    {
+        // Replace with your bucket name
+        string bucketName = "scan-split-images";
+
+        var storageClient = StorageClient.Create();
+        var fileName = Guid.NewGuid() + Path.GetExtension(image.FileName); // Generate unique filename
+
+        using var memoryStream = new MemoryStream();
+        await image.CopyToAsync(memoryStream);
+        memoryStream.Seek(0, SeekOrigin.Begin);
+
+        var uploadObject = await storageClient.UploadObjectAsync(bucketName, fileName, image.ContentType, memoryStream);
+
+        // Return the public URL of the file
+        return $"https://storage.googleapis.com/{bucketName}/{fileName}";
     }
 
     public class Receipt
