@@ -57,8 +57,8 @@ public class BillController: ControllerBase
         public string Date { get; set; }
         public string Location { get; set; }
         public double Total { get; set; }
-        public double Tip { get; set; }
-        public double Tax { get; set; }
+        public double? Tip { get; set; }
+        public double? Tax { get; set; }
         public string AdditionalInfo { get; set; }
         public List<Item> Items { get; set; }
     }
@@ -111,13 +111,25 @@ public class BillController: ControllerBase
             {
                 return BadRequest("Invalid receipt data.");
             }
+            
 
             // Map Receipt to MenuItems list
             var menuItems = receipt.Items.Select(item => new MenuItem
             {
                 Name = item.Name,
-                Price = (decimal)item.Price
+                Price = (decimal)item.Price,
+                Quantity = (int)item.Quantity,
             }).ToList();
+            
+            if (receipt.Tip != null)
+            {
+                menuItems.Add(new MenuItem
+                {
+                    Name = "Tip", 
+                    Price = (decimal)receipt.Tip,
+                    Quantity = 1 
+                });
+            }
 
             // Zwróć listę MenuItems
             return Ok(menuItems);
