@@ -1,15 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowLeft, Check, Clock, DollarSign, PlusCircle, Users, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Receipt, ReceiptItem } from '@/types';
+import { Receipt, MenuItem } from '@/types';
 import ReceiptItemDialog from '@/components/receipts/ReceiptItemDialog';
 import CurrencySelect from '@/components/receipts/CurrencySelect';
 import { PaidBy } from '@/components/groups/detail/PaidBy';
 import { EditReceiptDialog } from '@/components/receipts/EditReceiptDialog';
+import { useBill } from '@/hooks/useBill';
 
 interface ReceiptDetailProps {
   receipt: Receipt;
@@ -18,16 +19,27 @@ interface ReceiptDetailProps {
 }
 
 export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdate }: ReceiptDetailProps) {
-  const [receipt, setReceipt] = useState(initialReceipt);
+  const {
+    bill,
+    loading,
+    currencies,
+    updateBillStatus,
+    updateBillPaidBy,
+    updateBill,
+    addMenuItems,
+    fetchCurrencies,
+  } = useBill(initialReceipt);
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<ReceiptItem | undefined>();
+  const [selectedItem, setSelectedItem] = useState<MenuItem | undefined>();
   const [currency, setCurrency] = useState('USD');
-  const [items, setItems] = useState<ReceiptItem[]>(receipt.items);
 
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+  useEffect(() => {
+    fetchCurrencies();
+  }, []);
 
-  const handleEditItem = (item: ReceiptItem) => {
+  const handleEditItem = (item: MenuItem) => {
     setSelectedItem(item);
     setIsDialogOpen(true);
   };
@@ -37,31 +49,40 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
     setIsDialogOpen(true);
   };
 
-  const handleSaveItem = (newItem: Omit<ReceiptItem, 'id'>) => {
+  const handleSaveItem = async (newItem: Omit<MenuItem, 'id'>) => {
+    if (!bill) return;
+
     if (selectedItem) {
-      setItems(
-        items.map((item) =>
-          item.id === selectedItem.id
-            ? { ...newItem, id: selectedItem.id }
-            : item
-        )
+      const updatedItems = bill.items.map((item) =>
+        item.id === selectedItem.id
+          ? { ...newItem, id: selectedItem.id }
+          : item
       );
+      await updateBill(bill.id, { items: updatedItems });
     } else {
-      setItems([...items, { ...newItem, id: Math.random() }]);
+      const newItemWithId = { ...newItem, id: Math.random() };
+      await addMenuItems(bill.id, [newItemWithId]);
     }
+    setIsDialogOpen(false);
   };
 
-  const handleChangePaidBy = (receiptId: number, newPaidBy: string) => {
-    const updatedReceipt = { ...receipt, paidBy: newPaidBy };
-    setReceipt(updatedReceipt);
-    onUpdate?.(updatedReceipt);
+  const handleChangePaidBy = async (billId: number, newPaidBy: string) => {
+    await updateBillPaidBy(billId, newPaidBy);
+    onUpdate?.(bill!);
   };
 
-  const handleUpdateReceipt = (updates: Partial<Receipt>) => {
-    const updatedReceipt = { ...receipt, ...updates };
-    setReceipt(updatedReceipt);
-    onUpdate?.(updatedReceipt);
+  const handleUpdateReceipt = async (updates: Partial<Receipt>) => {
+    if (!bill) return;
+    await updateBill(bill.id, updates);
+    onUpdate?.(bill);
+    setIsEditDialogOpen(false);
   };
+
+  if (!bill || loading) {
+    return <div>Loading...</div>;
+  }
+
+  const totalItems = bill.items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -77,10 +98,14 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <h1 className="text-xl font-semibold truncate">{receipt.name}</h1>
+              <h1 className="text-xl font-semibold truncate">{bill.name}</h1>
             </div>
             <div className="flex items-center gap-4">
-              <CurrencySelect value={currency} onValueChange={setCurrency} />
+              <CurrencySelect 
+                value={currency} 
+                onValueChange={setCurrency}
+                currencies={currencies}
+              />
               <Button
                 variant="outline"
                 size="icon"
@@ -89,13 +114,13 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
               >
                 <Settings2 className="h-4 w-4" />
               </Button>
-              <Badge variant={receipt.status === 'settled' ? 'default' : 'secondary'}>
-                {receipt.status === 'settled' ? (
+              <Badge variant={bill.status === 'settled' ? 'default' : 'secondary'}>
+                {bill.status === 'settled' ? (
                   <Check className="mr-1 h-3 w-3" />
                 ) : (
                   <Clock className="mr-1 h-3 w-3" />
                 )}
-                {receipt.status === 'settled' ? 'Settled' : 'Pending'}
+                {bill.status === 'settled' ? 'Settled' : 'Pending'}
               </Badge>
             </div>
           </div>
@@ -108,17 +133,17 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
             <Card>
               <div className="aspect-[16/9] w-full overflow-hidden rounded-t-lg">
                 <img
-                  src={receipt.image}
-                  alt={receipt.name}
+                  src={bill.image}
+                  alt={bill.name}
                   className="w-full h-full object-cover"
                 />
               </div>
               <CardContent className="p-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <h2 className="text-2xl font-bold">{receipt.name}</h2>
+                    <h2 className="text-2xl font-bold">{bill.name}</h2>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(receipt.date).toLocaleDateString('en-US', {
+                      {new Date(bill.date).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
@@ -127,14 +152,14 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
                   </div>
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={receipt.image} />
-                      <AvatarFallback>{receipt.paidBy[0]}</AvatarFallback>
+                      <AvatarImage src={bill.image} />
+                      <AvatarFallback>{bill.paidBy[0]}</AvatarFallback>
                     </Avatar>
                     <div className="text-sm">
                       <PaidBy
-                        receiptId={receipt.id}
-                        currentPaidBy={receipt.paidBy}
-                        allMembers={items[0]?.assignedTo || []}
+                        receiptId={bill.id}
+                        currentPaidBy={bill.paidBy}
+                        allMembers={bill.items[0]?.assignedTo || []}
                         onChangePaidBy={handleChangePaidBy}
                       />
                     </div>
@@ -154,7 +179,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
               <CardContent>
                 <ScrollArea className="h-[400px] pr-4">
                   <div className="space-y-4">
-                    {items.map((item) => (
+                    {bill.items.map((item) => (
                       <div
                         key={item.id}
                         className="flex items-start justify-between p-4 rounded-lg border hover:bg-accent/5 cursor-pointer transition-colors"
@@ -199,7 +224,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
                   <div className="flex-1">
                     <p className="text-sm text-muted-foreground">Total Amount</p>
                     <p className="font-bold">
-                      {currency} {receipt.amount.toFixed(2)}
+                      {currency} {bill.amount.toFixed(2)}
                     </p>
                   </div>
                 </div>
@@ -208,7 +233,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
                   <div className="flex-1">
                     <p className="text-sm text-muted-foreground">Split Between</p>
                     <div className="flex -space-x-2 mt-1">
-                      {items
+                      {bill.items
                         .flatMap((item) => item.assignedTo)
                         .filter(
                           (member, index, self) =>
@@ -229,13 +254,13 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
                 <div className="pt-4 border-t">
                   <Button 
                     className="w-full" 
-                    variant={receipt.status === 'settled' ? 'secondary' : 'default'}
-                    onClick={() => {
-                      const newStatus = receipt.status === 'settled' ? 'pending' : 'settled';
-                      handleUpdateReceipt({ status: newStatus });
+                    variant={bill.status === 'settled' ? 'secondary' : 'default'}
+                    onClick={async () => {
+                      const newStatus = bill.status === 'settled' ? 'pending' : 'settled';
+                      await updateBillStatus(bill.id, newStatus);
                     }}
                   >
-                    {receipt.status === 'settled' ? (
+                    {bill.status === 'settled' ? (
                       <>
                         <Clock className="mr-2 h-4 w-4" />
                         Mark as Pending
@@ -257,14 +282,14 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
       <ReceiptItemDialog
         open={isDialogOpen}
         item={selectedItem}
-        members={items[0]?.assignedTo || []}
+        members={bill.items[0]?.assignedTo || []}
         currency={currency}
         onOpenChange={setIsDialogOpen}
         onSave={handleSaveItem}
       />
 
       <EditReceiptDialog
-        receipt={receipt}
+        receipt={bill}
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         onSave={handleUpdateReceipt}

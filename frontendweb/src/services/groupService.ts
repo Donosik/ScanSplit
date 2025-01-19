@@ -1,4 +1,4 @@
-import { Group, GroupDetail } from '@/types';
+import { Balance, Group, GroupDetail, Member, Receipt } from '@/types';
 import { api } from './api';
 
 // Temporary mock data - replace with actual API calls
@@ -126,17 +126,18 @@ export async function getGroupById(id: number): Promise<GroupDetail> {
   console.log(backendGroup);
   // Map backend group data to GroupDetail and Receipt
   // TODO: Refactor this later
-  let transfers = [];
+  let transfers: Balance[] = [];
   if (backendGroup.transfers != null) {
   transfers = backendGroup.transfers.map((transfer: any) => ({
     id: transfer.id,
     from: transfer.payer.username,
     to: transfer.recipient.username,
     amount: transfer.amount,
+    status: transfer.status || 'pending',
     date: transfer.date,
   }));
   }
-  let receipts = [];
+  let receipts: Receipt[] = [];
   if (backendGroup.bills != null) {
   receipts = backendGroup.bills.map((bill: any) => ({
     id: bill.id,
@@ -202,4 +203,32 @@ export const updateGroup = async (id: number, group: Partial<Group>): Promise<Gr
 
 export const deleteGroup = async (id: number): Promise<void> => {
   // TODO: Replace with actual API call
+};
+
+export const groupService = {
+  getGroupDetails: async (id: number): Promise<GroupDetail> => {
+    const response = await api.get(`/group/${id}`);
+    return response.data;
+  },
+
+  createGroup: async (name: string): Promise<number> => {
+    const response = await api.post('/group/create', { name });
+    return response.data.id;
+  },
+
+  addMember: async (groupId: number, userId: number): Promise<void> => {
+    await api.post(`/group/${groupId}/members`, { userId });
+  },
+
+  removeMember: async (groupId: number, userId: number): Promise<void> => {
+    await api.delete(`/group/${groupId}/members/${userId}`);
+  },
+
+  updateGroup: async (groupId: number, updates: Partial<GroupDetail>): Promise<void> => {
+    await api.patch(`/group/${groupId}`, updates);
+  },
+
+  deleteGroup: async (groupId: number): Promise<void> => {
+    await api.delete(`/group/${groupId}`);
+  }
 };

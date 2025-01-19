@@ -43,77 +43,56 @@ public class BillController : ControllerBase
     }
 
     [HttpPost("{groupId}")]
-    public async Task<IActionResult> CreateBill([FromForm] BillDTO bill, IFormFile image, int groupId)
+public async Task<IActionResult> CreateBill([FromForm] BillDTO bill, IFormFile image, int groupId)
+{
+    if (bill == null || groupId <= 0)
+        return BadRequest("Invalid bill or groupId.");
+
+    if (image == null || image.Length == 0)
+        return BadRequest("No file uploaded.");
+
+    try
     {
         int billId = await billService.CreateBill(bill, groupId);
-        if (image == null || image.Length == 0)
+
+        using var memoryStream = new MemoryStream();
+        await image.CopyToAsync(memoryStream);
+        memoryStream.Seek(0, SeekOrigin.Begin);
+
+        using var content = new MultipartFormDataContent();
+        content.Add(new StreamContent(memoryStream), "file", image.FileName);
+
+        var fastApiUrl = "https://scan-split-914997496942.europe-west1.run.app/upload-photo";
+        var response = await _httpClient.PostAsync(fastApiUrl, content);
+
+        if (!response.IsSuccessStatusCode)
+            return StatusCode((int)response.StatusCode, "Failed to process receipt.");
+
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+        var receipt = JsonSerializer.Deserialize<Receipt>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        if (receipt == null)
+            return BadRequest("Invalid receipt data.");
+
+        var menuItems = receipt.Items.Select(item => new MenuItem
         {
-            return BadRequest("No file uploaded.");
+            Name = item.Name,
+            Price = (decimal)item.Price,
+            Quantity = item.Quantity
+        }).ToList();
+
+        if (receipt.Tip.HasValue)
+        {
+            menuItems.Add(new MenuItem { Name = "Tip", Price = (decimal)receipt.Tip.Value, Quantity = 1 });
         }
 
-        try
-        {
-            // Send file to FastAPI micro-backend
-            using var memoryStream = new MemoryStream();
-            await image.CopyToAsync(memoryStream);
-            memoryStream.Seek(0, SeekOrigin.Begin);
-
-            using var content = new MultipartFormDataContent();
-            content.Add(new StreamContent(memoryStream), "file", image.FileName);
-
-            var fastApiUrl =
-                "https://scan-split-914997496942.europe-west1.run.app/upload-photo"; // Update to your FastAPI endpoint
-            var response = await _httpClient.PostAsync(fastApiUrl, content);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                return StatusCode((int)response.StatusCode, "Failed to process receipt.");
-            }
-
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-
-            // Deserialize JSON into Receipt object
-            var receipt = JsonSerializer.Deserialize<Receipt>(jsonResponse, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-
-            if (receipt == null)
-            {
-                return BadRequest("Invalid receipt data.");
-            }
-
-
-            // Map Receipt to MenuItems list
-            var menuItems = receipt.Items.Select(item => new MenuItem
-            {
-                Name = item.Name,
-                Price = (decimal)item.Price,
-                Quantity = (int)item.Quantity,
-            }).ToList();
-
-            if (receipt.Tip != null && receipt.Tip > 0.0)
-            {
-                menuItems.Add(new MenuItem
-                {
-                    Name = "Tip",
-                    Price = (decimal)receipt.Tip,
-                    Quantity = 1
-                });
-            }
-
-            // Zwróć listę MenuItems
-            return Ok(new
-            {
-                billId = billId,
-                menuItems = menuItems
-            });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
+        return Ok(new { billId, menuItems });
     }
+    catch (Exception ex)
+    {
+        return StatusCode(500, $"Internal server error: {ex.Message}");
+    }
+}
 
     public class Receipt
     {

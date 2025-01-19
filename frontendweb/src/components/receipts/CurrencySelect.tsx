@@ -6,31 +6,22 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-const CURRENCIES = [
-  { code: 'USD', symbol: '$', name: 'US Dollar' },
-  { code: 'EUR', symbol: '€', name: 'Euro' },
-  { code: 'GBP', symbol: '£', name: 'British Pound' },
-  { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
-] as const;
-
 interface CurrencySelectProps {
   value: string;
   onValueChange: (value: string) => void;
+  currencies: string[];
 }
 
-export default function CurrencySelect({
-  value,
-  onValueChange,
-}: CurrencySelectProps) {
+export default function CurrencySelect({ value, onValueChange, currencies }: CurrencySelectProps) {
   return (
     <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger className="w-[120px]">
-        <SelectValue placeholder="Select currency" />
+      <SelectTrigger className="w-[100px]">
+        <SelectValue placeholder="Currency" />
       </SelectTrigger>
       <SelectContent>
-        {CURRENCIES.map((currency) => (
-          <SelectItem key={currency.code} value={currency.code}>
-            {currency.symbol} {currency.code}
+        {currencies.map((currency) => (
+          <SelectItem key={currency} value={currency}>
+            {currency}
           </SelectItem>
         ))}
       </SelectContent>
