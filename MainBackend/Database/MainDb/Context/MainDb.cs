@@ -30,6 +30,7 @@ public class MainDb : DbContext
             entity.Property(e => e.LastName).HasMaxLength(50);
             entity.Property(e => e.PhoneNumber).HasMaxLength(12);
             entity.Property(e => e.EmailAddress).HasMaxLength(100);
+            entity.Property(e => e.Image).HasMaxLength(255);
             
             entity.HasIndex(e => e.Login).IsUnique();
             entity.HasMany(u => u.Groups)
@@ -48,6 +49,7 @@ public class MainDb : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Status).IsRequired().HasMaxLength(40);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Image).HasMaxLength(255);
 
             entity.HasMany(e => e.Bills).WithOne().OnDelete(DeleteBehavior.Cascade); 
             entity.HasMany(e => e.Transfers).WithOne().OnDelete(DeleteBehavior.Cascade);
@@ -66,6 +68,7 @@ public class MainDb : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Date).IsRequired();
             entity.Property(e => e.BillImage).HasMaxLength(255);
+            entity.Property(e => e.CoverImage).HasMaxLength(255);
             entity.Property(e => e.Name).HasMaxLength(255);
             entity.Property(e => e.Currency).HasMaxLength(10);
 
@@ -82,6 +85,7 @@ public class MainDb : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Price).IsRequired().HasColumnType("decimal(6,2)");
+            entity.Property(e => e.Quantity).IsRequired(false).HasColumnType("decimal(6,2)");
 
             entity.HasMany<User>("OrderedBy")
                 .WithMany("OrderedItems")
