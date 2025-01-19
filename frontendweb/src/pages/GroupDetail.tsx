@@ -23,7 +23,7 @@ export default function GroupDetail({ group, onBack }: GroupDetailProps) {
   const [isAddingMember, setIsAddingMember] = useState(false);
   const [memberInput, setMemberInput] = useState('');
   const { createBill } = useBill();
-  const { addMemberByLogin, addMemberByPhone } = useGroups();
+  const { addMemberByLogin, addMemberByPhone, groupService } = useGroups();
   const { toast } = useToast();
 
   const handleAddReceipt = async (name: string, file: File, date: string, currency: string) => {
@@ -86,7 +86,7 @@ export default function GroupDetail({ group, onBack }: GroupDetailProps) {
         <div className="h-full grid grid-cols-1 lg:grid-cols-3 gap-6 p-4 sm:p-6 lg:p-8">
           <div className="lg:col-span-2">
             <ReceiptList 
-              receipts={group.receipts} 
+              receipts={group.receipts as Bill[]} 
               onSelectReceipt={(receipt: Bill) => setSelectedReceipt(receipt)}
               onAddReceipt={handleAddReceipt}
             />

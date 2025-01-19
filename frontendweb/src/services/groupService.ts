@@ -114,11 +114,11 @@ export async function createGroup(group: Partial<Group>): Promise<Group> {
 
 export const groupService = {
   addMemberByLogin: async (groupId: number, login: string): Promise<void> => {
-    await api.post(`/groups/${groupId}/add-user-by-login?login=${encodeURIComponent(login)}`);
+    // Use the query string for the login parameter
+    await api.post(`/group/groups/${groupId}/add-user-by-login?login=${encodeURIComponent(login)}`);
   },
-
   addMemberByPhone: async (groupId: number, phoneNumber: string): Promise<void> => {
-    await api.post(`/groups/${groupId}/add-user-by-phone?phoneNumber=${encodeURIComponent(phoneNumber)}`);
+    await api.post(`/group/groups/${groupId}/add-user-by-phone?phoneNumber=${encodeURIComponent(phoneNumber)}`);
   },
 
   updateGroupStatus: async (groupId: number, status: string): Promise<void> => {

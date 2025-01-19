@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Settings, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,20 +18,25 @@ interface ProfileDialogProps {
 }
 
 export default function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
-  const { user, updateProfile } = useProfile();
+  const { user, updateProfile, updatePassword, fetchUser } = useProfile();
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [newAvatar, setNewAvatar] = useState<File | null>(null);
+
+  // load the user on appear
+  useEffect(() => {
+    fetchUser();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     await updateProfile({
-      firstName: formData.get('firstName') as string,
+      name: formData.get('name') as string,
       lastName: formData.get('lastName') as string,
       username: formData.get('username') as string,
       email: formData.get('email') as string,
       phone: formData.get('phone') as string,
-      avatar: newAvatar,
+      avatar: newAvatar ? URL.createObjectURL(newAvatar) : undefined,
     });
     onOpenChange(false);
   };
@@ -44,6 +49,11 @@ export default function ProfileDialog({ open, onOpenChange }: ProfileDialogProps
       oldPassword: formData.get('oldPassword'),
       newPassword: formData.get('newPassword'),
     });
+    const response = await updatePassword(
+      formData.get('oldPassword') as string,
+      formData.get('newPassword') as string,
+    );
+
     setIsPasswordDialogOpen(false);
   };
 
@@ -76,8 +86,8 @@ export default function ProfileDialog({ open, onOpenChange }: ProfileDialogProps
             {/* Profile Fields */}
             <div className="space-y-4">
               <div className="flex gap-4">
-                <Input name="firstName" placeholder="First Name" defaultValue={user.name.split(' ')[0]} />
-                <Input name="lastName" placeholder="Last Name" defaultValue={user.name.split(' ')[1]} />
+                <Input name="name" placeholder="First Name" defaultValue={user.name} />
+                <Input name="lastName" placeholder="Last Name" defaultValue={user.lastName} />
               </div>
               <Input name="username" placeholder="Username" defaultValue={user.username} />
               <Input name="email" placeholder="Email" defaultValue={user.email} type="email" />

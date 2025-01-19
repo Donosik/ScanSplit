@@ -7,6 +7,7 @@ import { GroupImage } from './detail/GroupImage';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Member } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { useMembers } from '@/hooks/useMembers';
 
 interface CreateGroupDialogProps {
   onCreateGroup: (data: { name: string; image: string; members: Member[] }) => void;
@@ -21,7 +22,7 @@ export function CreateGroupDialog({ onCreateGroup }: CreateGroupDialogProps) {
   const [searchResults, setSearchResults] = useState<Member[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<Member[]>([]);
   const { toast } = useToast();
-
+  const { fetchMemberByLogin } = useMembers();
   // Mock members data - replace with actual API call
   const mockMembers: Member[] = [
     { id: 1, name: 'John Doe', username: '@johndoe', avatar: 'https://via.placeholder.com/150' },
@@ -71,17 +72,23 @@ export function CreateGroupDialog({ onCreateGroup }: CreateGroupDialogProps) {
     setImageSrc(url);
   };
 
-  const handleSearch = (term: string) => {
+  const handleSearch = async (term: string) => {
     setSearchTerm(term);
 
     // Filter the mock members to simulate search results
-    const results = mockMembers.filter(
-      (member) =>
-        member.name.toLowerCase().includes(term.toLowerCase()) ||
-        member.username.toLowerCase().includes(term.toLowerCase())
-    );
+    // const results = mockMembers.filter(
+    //   (member) =>
+    //     member.name.toLowerCase().includes(term.toLowerCase()) ||
+    //     member.username.toLowerCase().includes(term.toLowerCase())
+    // );
+    const results = await fetchMemberByLogin(term);
+    if (results) {
+      setSearchResults([results]);
+    }else{
+      setSearchResults([]);
+    }
 
-    setSearchResults(results.filter((member) => !selectedMembers.some((m) => m.id === member.id)));
+    // setSearchResults(results.filter((member) => !selectedMembers.some((m) => m.id === member.id)));
   };
 
   const handleAddMember = (member: Member) => {
