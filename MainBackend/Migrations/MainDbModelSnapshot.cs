@@ -57,6 +57,11 @@ namespace MainBackend.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("CoverImage")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("Currency")
                         .HasMaxLength(10)
                         .HasColumnType("INTEGER");
@@ -84,6 +89,11 @@ namespace MainBackend.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -146,6 +156,9 @@ namespace MainBackend.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("Price")
+                        .HasColumnType("decimal(6,2)");
+
+                    b.Property<int?>("Quantity")
                         .HasColumnType("decimal(6,2)");
 
                     b.HasKey("Id");
@@ -220,6 +233,11 @@ namespace MainBackend.Migrations
                     b.Property<string>("EmailAddress")
                         .IsRequired()
                         .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LastName")
