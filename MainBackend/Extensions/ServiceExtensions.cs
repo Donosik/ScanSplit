@@ -30,6 +30,7 @@ public static class ServiceExtensions
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IGroupService, GroupService>();
+        services.AddScoped<IBillService, BillService>();
         
         return services;
     }

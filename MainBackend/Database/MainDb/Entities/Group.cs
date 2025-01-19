@@ -9,6 +9,8 @@ namespace MainBackend.Database.Entities
         public int Id { get; set; }
 
         public string Name {get; set; }
+        
+        public string Image { get; set; }
         public HashSet<User> Users { get; set; } = new HashSet<User>();
         public ICollection<Bill> Bills { get; set; }
         public ICollection<Transfer> Transfers { get; set; }
