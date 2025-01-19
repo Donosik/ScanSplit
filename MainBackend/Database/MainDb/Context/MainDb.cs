@@ -31,6 +31,7 @@ public class MainDb : DbContext
             entity.Property(e => e.PhoneNumber).HasMaxLength(12);
             entity.Property(e => e.EmailAddress).HasMaxLength(100);
             entity.Property(e => e.Image).HasMaxLength(255);
+            entity.Property(e => e.Image).IsRequired(false);
             
             entity.HasIndex(e => e.Login).IsUnique();
             entity.HasMany(u => u.Groups)
@@ -50,6 +51,7 @@ public class MainDb : DbContext
             entity.Property(e => e.Status).IsRequired().HasMaxLength(40);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Image).HasMaxLength(255);
+            entity.Property(e => e.Image).IsRequired(false);
 
             entity.HasMany(e => e.Bills).WithOne().OnDelete(DeleteBehavior.Cascade); 
             entity.HasMany(e => e.Transfers).WithOne().OnDelete(DeleteBehavior.Cascade);

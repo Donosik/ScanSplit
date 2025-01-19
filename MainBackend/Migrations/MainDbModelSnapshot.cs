@@ -91,7 +91,6 @@ namespace MainBackend.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Image")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
@@ -236,7 +235,6 @@ namespace MainBackend.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Image")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 

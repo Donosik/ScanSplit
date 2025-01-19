@@ -13,7 +13,7 @@ namespace MainBackend.Database.Entities
         public string PhoneNumber { get; set; }
         public string EmailAddress { get; set; }
         
-        public string Image { get; set; }
+        public string? Image { get; set; }
         public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
       
         public User()
