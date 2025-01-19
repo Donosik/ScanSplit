@@ -4,7 +4,7 @@ import style from "./LoginForm.module.css";
 import Input from "../../../components/input/Input.tsx";
 import Button from "../../../components/button/Button.tsx";
 import {Link} from "react-router-dom";
-import {AvailableRoutes} from "../../../utils/router/AvailableRoutes.ts";
+import {AvailableRoutes} from "../../../utils/router/availableRoutes.ts";
 import ErrorMessage from "../../../components/errorMessage/ErrorMessage.tsx";
 
 interface LoginFormProps {

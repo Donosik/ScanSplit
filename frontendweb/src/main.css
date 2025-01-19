@@ -1,15 +1,3 @@
-body{
-    all:unset;
-}
-
-:root{
-    --primaryBackgroundColor:#ffffff;
-    --primaryTextColor:#000000;
-
-    --secondaryBackgroundColor: rgba(0, 0, 0, 0.6);
-    --secondaryTextColor:#ffffff;
-
-    --placeholderTextColor:#aaa;
-
-    --borderColor:#ddd;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

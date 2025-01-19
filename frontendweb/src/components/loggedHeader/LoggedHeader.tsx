@@ -1,6 +1,6 @@
 import style from './LoggedHeader.module.css'
 import {NavLink} from "react-router-dom";
-import {AvailableRoutes} from "../../utils/router/AvailableRoutes.ts";
+import {AvailableRoutes} from "../../utils/router/availableRoutes.ts";
 
 export function LoggedHeader()
 {

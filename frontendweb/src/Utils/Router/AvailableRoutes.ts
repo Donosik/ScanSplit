@@ -5,4 +5,6 @@ export const AvailableRoutes = {
     BILLS:"bills",
     LOGIN:"/login",
     REGISTER:"/register",
+    ADDBILL:"addBill",
+    SPLITBILL:"splitBill",
 }
