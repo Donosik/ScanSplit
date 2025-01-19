@@ -1,129 +1,137 @@
-import { Group, GroupDetail } from '@/types';
+import { Balance, Group, GroupDetail, Member, Receipt } from '@/types';
+import { api } from './api';
+const calculateBillAmount = (bill: any) => {
+  return bill.menuItems.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0);
+}
+export async function getGroups(): Promise<Group[]> {
+  const response = await api.get('/user/groups');
+  // fetch details for each group like in getGroupById
 
-// Temporary mock data - replace with actual API calls
-const mockGroups: Group[] = [
-  {
-    id: 1,
-    name: 'Weekend Trip to NYC',
-    date: '2024-03-15',
-    members: 4,
-    receipts: 8,
-    totalAmount: 1250.75,
-    image: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9',
-  },
-  {
-    id: 2,
-    name: 'Dinner Party',
-    date: '2024-03-10',
-    members: 6,
-    receipts: 3,
-    totalAmount: 385.50,
-    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0',
-  },
-];
+    
+  return response.data.map((group: any) => ({
+    id: group.id,
+    name: group.name,
+    date: group.date || new Date().toISOString(),
+    members: group.users?.length || 0,
+    receipts: group.bills?.length || 0,
+    totalAmount: group.bills?.reduce((sum: number, bill: any) => sum + calculateBillAmount(bill), 0) || 0,
+    image: group.image || 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9', // Default image
+  }));
+}
 
-const mockMembers = [
-  { id: 1, name: 'John Doe', username: '@johndoe', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e' },
-  { id: 2, name: 'Jane Smith', username: '@janesmith', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80' },
-  { id: 3, name: 'Mike Johnson', username: '@mikej', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e' },
-  { id: 4, name: 'Sarah Wilson', username: '@sarahw', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330' },
-];
+const convertBillItems = (items: any, members: Member[]) => {
+  let billItems: MenuItem[] = [];
+  if (billItems) {
+    billItems = items.map((item: any) => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      assignedTo: members,
+    }));
+  }
+  return billItems;
+}
 
-const mockGroupDetail: GroupDetail = {
-  id: 1,
-  name: 'Weekend Trip to NYC',
-  date: '2024-03-15',
-  image: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9',
-  totalAmount: 1250.75,
-  myAmount: 312.68,
-  members: mockMembers,
-  receipts: [
-    {
-      id: 1,
-      name: 'Hotel Stay',
-      amount: 650.00,
-      paidBy: 'John Doe',
-      date: '2024-03-15',
-      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945',
-      status: 'settled',
-      items: [
-        {
-          id: 1,
-          name: 'Room Rate',
-          price: 550.00,
-          quantity: 1,
-          assignedTo: mockMembers,
-        },
-        {
-          id: 2,
-          name: 'Room Service',
-          price: 50.00,
-          quantity: 2,
-          assignedTo: [mockMembers[0], mockMembers[1]],
-        },
-      ],
-    },
-    {
-      id: 2,
-      name: 'Dinner at Le Bernardin',
-      amount: 425.50,
-      paidBy: 'Jane Smith',
-      date: '2024-03-15',
-      image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0',
-      status: 'pending',
-      items: [
-        {
-          id: 3,
-          name: 'Main Course',
-          price: 85.00,
-          quantity: 4,
-          assignedTo: mockMembers,
-        },
-        {
-          id: 4,
-          name: 'Wine Bottle',
-          price: 85.50,
-          quantity: 1,
-          assignedTo: [mockMembers[0], mockMembers[1], mockMembers[2]],
-        },
-      ],
-    },
-  ],
-  balances: [
-    { from: 'Jane Smith', to: 'John Doe', amount: 125.50 },
-    { from: 'Mike Johnson', to: 'Sarah Wilson', amount: 75.25 },
-    { from: 'Sarah Wilson', to: 'John Doe', amount: 50.00 },
-  ],
-};
+export async function getGroupById(id: number): Promise<GroupDetail> {
+  const response = await api.get(`/group/${id}`);
+  const backendGroup = response.data;
 
-export const getGroups = (): Group[] => {
-  // Replace with actual API call
-  return mockGroups;
-};
+  // Map transfers to balances
+  const transfers: Balance[] = backendGroup.transfers?.map((transfer: any) => ({
+    id: transfer.id,
+    from: transfer.payer.username,
+    to: transfer.recipient.username,
+    amount: transfer.amount,
+    status: transfer.status || 'pending',
+    date: transfer.date,
+  })) || [];
 
-export const getGroupById = (id: number): GroupDetail => {
-  // Replace with actual API call
-  return mockGroupDetail;
-};
+  const members: Member[] = backendGroup.users?.map((user: any) => ({
+    id: user.id,
+    name: user.name,
+    username: user.username,
+    avatar: user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`, // Fallback avatar
+  })) || [];
+  // Map bills to receipts
+  const receipts: Bill[] = backendGroup.bills?.map((bill: any) => ({
+    id: bill.id,
+    name: bill.name,
+    amount: calculateBillAmount(bill),
+    paidBy: bill.paidBy,
+    date: bill.date,
+    image: bill.image,
+    status: bill.status,
+    items: convertBillItems(bill.menuItems, members),
+    groupId: bill.groupId,
+    currency: bill.currency,
+  })) || [];
+  console.log("Printing receipts");
+  console.log(receipts);
+  // Map users to members
 
-export const createGroup = async (group: Partial<Group>): Promise<Group> => {
-  // Replace with actual API call
+
   return {
-    id: Math.random(),
+    id: backendGroup.id,
+    name: backendGroup.name,
+    date: backendGroup.date || new Date().toISOString(),
+    image: backendGroup.image,
+    totalAmount: receipts.reduce((sum, receipt) => sum + receipt.amount, 0),
+    myAmount: receipts.reduce((sum, receipt) => {
+      // Calculate user's share in each receipt
+      const userItems = receipt.items?.filter(item => 
+        item.assignedTo?.some(member => member.id === backendGroup.currentUserId)
+      ) || [];
+      return sum + userItems.reduce((itemSum, item) => 
+        itemSum + (item.price * item.quantity) / item.assignedTo.length, 0
+      );
+    }, 0),
+    members,
+    receipts,
+    balances: transfers,
+  };
+}
+
+export async function createGroup(group: Partial<Group>): Promise<Group> {
+  const response = await api.post('/group/create', group.name);
+  const id = response.data.id;
+
+  // If image is provided, we should implement image upload here
+  if (group.image) {
+    // TODO: Implement image upload when backend endpoint is ready
+  }
+
+  return {
+    id,
     name: group.name || '',
     date: new Date().toISOString(),
-    members: 1,
+    members: 1, // Initially only creator
     receipts: 0,
     totalAmount: 0,
     image: group.image || '',
   };
-};
+}
 
-export const updateGroup = async (id: number, group: Partial<Group>): Promise<Group> => {
-  // Replace with actual API call
-  return { ...mockGroups[0], ...group };
-};
+export const groupService = {
+  addMemberByLogin: async (groupId: number, login: string): Promise<void> => {
+    await api.post(`/groups/${groupId}/add-user-by-login?login=${encodeURIComponent(login)}`);
+  },
 
-export const deleteGroup = async (id: number): Promise<void> => {
-  // Replace with actual API call
+  addMemberByPhone: async (groupId: number, phoneNumber: string): Promise<void> => {
+    await api.post(`/groups/${groupId}/add-user-by-phone?phoneNumber=${encodeURIComponent(phoneNumber)}`);
+  },
+
+  updateGroupStatus: async (groupId: number, status: string): Promise<void> => {
+    await api.patch('', { status, idGroup: groupId });
+  },
+
+  getGroupMembers: async (groupId: number): Promise<Member[]> => {
+    const response = await api.get(`/group/${groupId}/get-users`);
+    return response.data.map((user: any) => ({
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      avatar: user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`,
+    }));
+  },
 };

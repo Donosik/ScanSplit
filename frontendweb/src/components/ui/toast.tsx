@@ -2,7 +2,8 @@ import * as React from 'react';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import * as ToastPrimitives from '@radix-ui/react-toast';
 import { cva, type VariantProps } from 'class-variance-authority';
-
+import { useToast } from './use-toast';
+import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const ToastProvider = ToastPrimitives.Provider;
@@ -125,3 +126,48 @@ export {
   ToastClose,
   ToastAction,
 };
+
+export function Toaster() {
+  const { toasts, dismiss } = useToast();
+
+  return (
+    <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
+      {toasts.map(({ id, title, description, variant }) => (
+        <div
+          key={id}
+          className={cn(
+            'flex items-start gap-2 rounded-lg p-4 shadow-lg transition-all',
+            'bg-white dark:bg-gray-800',
+            variant === 'destructive' && 'bg-red-50 dark:bg-red-900/50'
+          )}
+        >
+          <div className="flex-1">
+            <h3 className={cn(
+              'font-medium',
+              variant === 'destructive' && 'text-red-900 dark:text-red-200'
+            )}>
+              {title}
+            </h3>
+            {description && (
+              <p className={cn(
+                'text-sm text-gray-500 dark:text-gray-400',
+                variant === 'destructive' && 'text-red-800 dark:text-red-300'
+              )}>
+                {description}
+              </p>
+            )}
+          </div>
+          <button
+            onClick={() => dismiss(id)}
+            className={cn(
+              'rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-700',
+              variant === 'destructive' && 'hover:bg-red-100 dark:hover:bg-red-800'
+            )}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}

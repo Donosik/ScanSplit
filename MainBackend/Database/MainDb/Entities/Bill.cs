@@ -33,6 +33,7 @@ namespace MainBackend.Database.Entities
                 Address = billDto.Location.Address
             } : null;
             BillImage = billDto.BillImage;
+            CoverImage = "";   //TODO: Add cover image 
             Name = billDto.Name;
             Currency = billDto.Currency;
         }

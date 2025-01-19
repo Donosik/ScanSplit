@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -8,18 +9,13 @@ import {
   import { Input } from '@/components/ui/input';
   import { PhotoUpload } from '@/components/shared/PhotoUpload';
   import { Receipt } from '@/types';
-  import { useState } from 'react';
-  import { Calendar } from '@/components/ui/calendar';
-  import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-  import { CalendarIcon } from 'lucide-react';
-  import { format } from 'date-fns';
-  import { cn } from '@/lib/utils';
+  import { Label } from '@/components/ui/label';
   
   interface EditReceiptDialogProps {
     receipt: Receipt;
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onSave: (receipt: Partial<Receipt>) => void;
+    onSave: (updates: Partial<Receipt>) => void;
   }
   
   export function EditReceiptDialog({
@@ -29,71 +25,73 @@ import {
     onSave,
   }: EditReceiptDialogProps) {
     const [name, setName] = useState(receipt.name);
-    const [date, setDate] = useState<Date>(new Date(receipt.date));
-    const [image, setImage] = useState<string>(receipt.image);
+    const [date, setDate] = useState(receipt.date.split('T')[0]);
+    const [image, setImage] = useState<File>();
   
-    const handleSave = () => {
-      onSave({
-        id: receipt.id,
+    useEffect(() => {
+      setName(receipt.name);
+      setDate(receipt.date.split('T')[0]);
+    }, [receipt]);
+  
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      const updates: Partial<Receipt> = {
         name,
-        date: date.toISOString(),
-        image,
-      });
-      onOpenChange(false);
+        date: new Date(date).toISOString(),
+      };
+  
+      if (image) {
+        updates.image = URL.createObjectURL(image);
+      }
+  
+      onSave(updates);
     };
   
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Receipt</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <PhotoUpload
-              currentImage={image}
-              onImageChange={(file) => {
-                const url = URL.createObjectURL(file);
-                setImage(url);
-              }}
-              aspectRatio="4:3"
-              variant="receipt"
-            />
-            <div className="grid gap-2">
-              <Input
-                placeholder="Receipt Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      'justify-start text-left font-normal',
-                      !date && 'text-muted-foreground'
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, 'PPP') : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={(date) => date && setDate(date)}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="name">Receipt Name</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter receipt name"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="date">Date</Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <Label>Receipt Image</Label>
+                <PhotoUpload
+                  currentImage={receipt.image}
+                  onImageChange={setImage}
+                  variant="receipt"
+                  className="mt-2"
+                />
+              </div>
             </div>
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave}>Save Changes</Button>
-          </div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button type="submit">Save Changes</Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     );

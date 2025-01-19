@@ -61,3 +61,24 @@ export interface Balance {
   amount: number;
   status?: 'pending' | 'paid';
 }
+
+export interface Bill {
+  id: number;
+  name: string;
+  amount: number;
+  paidBy: string;
+  date: string;
+  image: string;
+  status: 'pending' | 'settled';
+  items: MenuItem[];
+  groupId: number;
+  currency: string;
+}
+
+export interface MenuItem {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+  assignedTo: Member[];
+}

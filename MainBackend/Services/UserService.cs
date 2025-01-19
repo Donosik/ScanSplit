@@ -53,15 +53,20 @@ public class UserService: IUserService
         userDto.Image = user.Image ;
         return userDto;
     }
-    public async Task<IEnumerable<GroupDto>> GetGroupsForUser()
+    
+    public async Task<IEnumerable<GroupDTO>> GetGroupsForUser()
     {
         var userId = identityService.GetLoggedUserId();
-        
         var groups = await uow.UserRepository.GetUserGroups(userId);
-        return groups.Select(group => new GroupDto
+        
+        return groups.Select(group => new GroupDTO
         {
-            Id = group.id,
-            Name = group.name
+            Id = group.Id,
+            Name = group.Name,
+            Users = group.Users,
+            Bills = group.Bills,
+            Transfers = group.Transfers,
+            Status = group.Status
         });
     }
 

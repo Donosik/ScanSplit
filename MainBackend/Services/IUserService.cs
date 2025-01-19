@@ -14,6 +14,6 @@ public interface IUserService
     
     public Task UpdatePassword(string password);
     
-    public Task<IEnumerable<GroupDto>> GetGroupsForUser();
+    public Task<IEnumerable<GroupDTO>> GetGroupsForUser();
 
 }
