@@ -33,7 +33,7 @@ export default function ReceiptList({ receipts, onSelectReceipt, onAddReceipt }:
         <h2 className="text-2xl font-bold">Receipts</h2>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200">
               <PlusCircle className="mr-2 h-4 w-4" />
               Add Receipt
             </Button>
@@ -55,31 +55,31 @@ export default function ReceiptList({ receipts, onSelectReceipt, onAddReceipt }:
           {receipts.map((receipt) => (
             <Card 
               key={receipt.id}
-              className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+              className="cursor-pointer hover:shadow-lg transition-shadow duration-200 overflow-hidden"
               onClick={() => onSelectReceipt(receipt)}
             >
               <div className="flex flex-col sm:flex-row">
-                <div className="w-full sm:w-48 h-48 sm:h-auto">
+                <div className="w-full sm:w-64 h-48 sm:h-auto">
                   <img
                     src={receipt.image || "/placeholder.svg"}
                     alt={receipt.name}
                     className="h-full w-full object-cover"
                   />
                 </div>
-                <CardContent className="flex-1 p-4">
-                  <div className="flex items-start justify-between">
+                <CardContent className="flex-1 p-6">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
                     <div>
-                      <h3 className="font-semibold">{receipt.name}</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <h3 className="text-xl font-semibold mb-2">{receipt.name}</h3>
+                      <p className="text-base text-muted-foreground">
                         Paid by {receipt.paidBy}
                       </p>
                     </div>
-                    <p className="text-lg font-semibold">
+                    <p className="text-2xl font-semibold mt-2 sm:mt-0">
                       ${receipt.amount.toFixed(2)}
                     </p>
                   </div>
-                  <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                    <CalendarDays className="h-4 w-4" />
+                  <div className="flex items-center gap-2 text-base text-muted-foreground">
+                    <CalendarDays className="h-5 w-5" />
                     {new Date(receipt.date).toLocaleDateString()}
                   </div>
                 </CardContent>

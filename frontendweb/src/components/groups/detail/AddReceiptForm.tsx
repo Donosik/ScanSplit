@@ -1,9 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-
-// Optional: If you have a separate ImageUpload component
-// import { ImageUpload } from './ImageUpload';
+import { PhotoUpload } from '@/components/shared/PhotoUpload';
 
 interface AddReceiptFormProps {
   // Called when the user submits the new receipt
@@ -20,16 +18,14 @@ export function AddReceiptForm({ onSubmit, onCancel }: AddReceiptFormProps) {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!file) {
-      alert('Please select a file.');
+      alert('Please upload a receipt image.');
       return;
     }
     await onSubmit(receiptName, file);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-    }
+  const handleFileChange = (selectedFile: File) => {
+    setFile(selectedFile);
   };
 
   return (
@@ -42,12 +38,13 @@ export function AddReceiptForm({ onSubmit, onCancel }: AddReceiptFormProps) {
         required
       />
 
-      {/* File Upload (Image) */}
-      <input 
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-        required 
+      {/* Photo Upload Component */}
+      <PhotoUpload
+        currentImage={file ? URL.createObjectURL(file) : undefined}
+        onImageChange={handleFileChange}
+        aspectRatio="16:9"
+        showRemove
+        className="w-full"
       />
 
       {/* Action Buttons */}

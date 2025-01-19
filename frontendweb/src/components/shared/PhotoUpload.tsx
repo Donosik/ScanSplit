@@ -85,10 +85,13 @@ export function PhotoUpload({
 
       <div
         className={cn(
-          'relative overflow-hidden rounded-lg border-2 border-dashed transition-all',
+          'relative overflow-hidden rounded-lg transition-all',
           aspectRatioClasses[aspectRatio],
-          isDragging ? 'border-primary' : 'border-muted-foreground/25',
-          !previewUrl && 'hover:border-primary/50',
+          isDragging
+            ? 'border-2 border-primary'
+            : previewUrl
+            ? 'border-none' // No border if there's a preview image
+            : 'border-2 border-dashed border-muted-foreground/25 hover:border-primary/50',
           variantClasses[variant]
         )}
         onDrop={handleDrop}
