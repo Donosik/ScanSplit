@@ -13,7 +13,7 @@ namespace MainBackend.Database.Entities
         public string? Image { get; set; }
         public HashSet<User> Users { get; set; } = new HashSet<User>();
         public ICollection<Bill> Bills { get; set; } = new List<Bill>();
-        public ICollection<Transfer> Transfers { get; set; }
+        public ICollection<Transfer> Transfers { get; set; } = new List<Transfer>();
         public GroupStatus Status { get; set; }
     }
 }
