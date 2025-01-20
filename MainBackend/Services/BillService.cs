@@ -52,4 +52,20 @@ public class BillService: IBillService
         // Dodajemy pozycje menu do rachunku
         await uow.BillRepository.AddMenuItemsToBillAsync(bill, menuItems);
     }
+
+    public async Task UpadateNameBill(string billName, int billId)
+    {
+        var bill = await uow.BillRepository.GetBillByIdAsync(billId);
+        bill.Name = billName;
+        uow.BillRepository.Update(bill);
+        await uow.Save();
+    }
+
+    public async Task UpadateDateBill(DateTime date, int billId)
+    {
+        var bill = await uow.BillRepository.GetBillByIdAsync(billId);
+        bill.Date = date;
+        uow.BillRepository.Update(bill);
+        await uow.Save();
+    }
 }

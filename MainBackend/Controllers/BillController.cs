@@ -142,4 +142,17 @@ public async Task<IActionResult> CreateBill([FromForm] BillDTO bill, IFormFile i
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
+    
+    [HttpPatch("{idBill})/updata-name")]
+    public async Task<IActionResult> UpdateName([FromBody] string name, int idBill)
+    {
+        await billService.UpadateNameBill(name, idBill);
+        return Ok();
+    }
+    [HttpPatch("{idBill}/updata-date")]
+    public async Task<IActionResult> UpdateDate([FromBody] DateTime date, int  idBill)
+    {
+        await billService.UpadateDateBill(date, idBill);
+        return Ok();
+    }
 }
