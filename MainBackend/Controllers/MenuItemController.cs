@@ -74,6 +74,26 @@ public class MenuItemController : ControllerBase
 
         return Ok(menuItem);
     }
+    [HttpPatch("{idMenuItem}/updata-name")]
+    public async Task<IActionResult> UpadateNameMenuItems(string menuItemName, int idMenuItem)
+    {
+        await _menuItemService.UpadateNameMenuItem(menuItemName, idMenuItem);
+        return Ok();
+    }
+    
+    [HttpPatch("{idMenuItem}/updata-price")]
+    public async Task<IActionResult> UpadatePriceMenuItems(decimal Price, int idMenuItem)
+    {
+        await _menuItemService.UpadatePriceMenuItem(Price, idMenuItem);
+        return Ok();
+    }
+    
+    [HttpPatch("{idMenuItem}/updata-quantity")]
+    public async Task<IActionResult> UpadateQuantityMenuItems(int quantity, int idMenuItem)
+    {
+        await _menuItemService.UpadateQuantityMenuItem(quantity, idMenuItem);
+        return Ok();
+    }
 
     // [HttpGet]
     // public async Task<IActionResult> GetAssignedUsersForMenuItem(int id)

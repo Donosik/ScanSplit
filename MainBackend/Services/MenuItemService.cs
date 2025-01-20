@@ -3,6 +3,7 @@ using MainBackend.Database.MainDb.UoW;
 using MainBackend.DTO;
 using MainBackend.Enums;
 using System.Collections.Generic;
+using MainBackend.Exceptions;
 
 namespace MainBackend.Services;
 
@@ -45,5 +46,37 @@ public class MenuItemService : IMenuItemService
 
         await uow.Save();
         return menuItem;
+    }
+
+    public async Task UpadateNameMenuItem(string menuItemName, int menuItemId)
+    {
+        var menuItem = await uow.MenuItemRepository.GetMenuItemByIdAsync(menuItemId);
+        if (menuItem == null)
+            throw new NotFoundException();
+        menuItem.Name = menuItemName;
+        uow.MenuItemRepository.Update(menuItem);
+        await uow.Save();
+        
+    }
+    
+    public async Task UpadateQuantityMenuItem(int quantity, int idMenuItem)
+    {
+        var menuItem = await uow.MenuItemRepository.GetMenuItemByIdAsync(idMenuItem);
+        if(menuItem == null)
+            throw new NotFoundException();
+        menuItem.Quantity =quantity;
+        uow.MenuItemRepository.Update(menuItem);
+        await uow.Save();
+        
+    }
+    public async Task UpadatePriceMenuItem(decimal Price, int idMenuItem)
+    {
+        var menuItem = await uow.MenuItemRepository.GetMenuItemByIdAsync(idMenuItem);
+        if(menuItem == null)
+            throw new NotFoundException();
+        menuItem.Price = Price;
+        uow.MenuItemRepository.Update(menuItem);
+        await uow.Save();
+        
     }
 }
