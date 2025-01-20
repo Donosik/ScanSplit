@@ -127,6 +127,7 @@ export function useBill(): UseBillReturn {
     }
   };
 
+  
   const updateBillStatus = async (billId: number, status: BillStatus) => {
     await updateBill(billId, { status });
   };

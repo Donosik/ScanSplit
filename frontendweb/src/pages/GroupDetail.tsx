@@ -71,6 +71,7 @@ export default function GroupDetail({ group, onBack }: GroupDetailProps) {
       <ReceiptDetail 
         receipt={selectedReceipt}
         onBack={() => setSelectedReceipt(null)}
+        members={group.members}
       />
     );
   }

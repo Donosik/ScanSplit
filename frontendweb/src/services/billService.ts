@@ -44,17 +44,24 @@ export const billService = {
     const response = await api.get<{ key: string; value: string }[]>('/bill');
     return response.data;
   },
-
-  async createBill(groupId: number, bill: CreateBillRequest, image: File): Promise<BillResponse> {
-    const formData = new FormData();
-    formData.append('image', image);
-    Object.entries(bill).forEach(([key, value]) => {
-      formData.append(key, value.toString());
+  createBill: async (groupId: number, formData: FormData): Promise<{ billId: number; menuItems: MenuItem[] }> => {
+    const response = await api.post(`/bill/${groupId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     });
-
-    const response = await api.post<BillResponse>(`/bill/${groupId}`, formData);
     return response.data;
   },
+  // async createBill(groupId: number, bill: CreateBillRequest, image: File): Promise<BillResponse> {
+  //   const formData = new FormData();
+  //   formData.append('image', image);
+  //   Object.entries(bill).forEach(([key, value]) => {
+  //     formData.append(key, value.toString());
+  //   });
+
+  //   const response = await api.post<BillResponse>(`/bill/${groupId}`, formData);
+  //   return response.data;
+  // },
 
   async getBillDetails(billId: number): Promise<BillDetailsResponse> {
     const response = await api.get<BillDetailsResponse>(`/bill/${billId}`);

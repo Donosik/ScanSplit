@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Bill, MenuItem } from '@/types';
+import { Bill, Member, MenuItem } from '@/types';
 import ReceiptItemDialog from '@/components/receipts/ReceiptItemDialog';
 import CurrencySelect from '@/components/receipts/CurrencySelect';
 import { PaidBy } from '@/components/groups/detail/PaidBy';
@@ -16,11 +16,12 @@ import { useMenuItem } from '@/hooks/useMenuItem';
 
 interface ReceiptDetailProps {
   receipt: Bill;
+  members: Member[] | [];
   onBack: () => void;
   onUpdate?: (receipt: Bill) => void;
 }
 
-export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdate }: ReceiptDetailProps) {
+export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdate, members }: ReceiptDetailProps) {
   const {
     bill,
     loading,
@@ -204,7 +205,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
                       <PaidBy
                         receiptId={bill.id}
                         currentPaidBy={bill.paidBy}
-                        allMembers={bill.items[0]?.assignedTo || []}
+                        allMembers={members}
                         onChangePaidBy={handleChangePaidBy}
                       />
                     </div>
@@ -308,7 +309,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
                     variant={bill.status === 'settled' ? 'secondary' : 'default'}
                     onClick={async () => {
                       const newStatus = bill.status === 'settled' ? 'pending' : 'settled';
-                      await updateBillStatus(bill.id, newStatus);
+                      await updateBillStatus(bill.id, newStatus as BillStatus);
                     }}
                   >
                     {bill.status === 'settled' ? (
@@ -333,7 +334,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
       <ReceiptItemDialog
         open={isDialogOpen}
         item={selectedItem}
-        members={bill.items[0]?.assignedTo || []}
+        members={members}
         currency={currency}
         onOpenChange={setIsDialogOpen}
         onSave={handleSaveItem}
