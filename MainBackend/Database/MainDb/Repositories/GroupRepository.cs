@@ -39,5 +39,14 @@ public class GroupRepository : GenericRepository<Group>, IGroupRepository
             PhoneNumber = u.PhoneNumber
         })).ToListAsync();
     }
+    public async Task DeleteUserFromGroup(int groupId, int userIdToRemove)
+    {
+        var group=await GetQuery().Include(x=>x.Users).FirstOrDefaultAsync(g => g.Id == groupId);
+        var user=await dbContext.Users.FirstOrDefaultAsync(x=>x.Id == userIdToRemove);
+        if (user != null && group != null)
+        {
+                group.Users.Remove(user);
+        }
+    }
 
 }

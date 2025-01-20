@@ -67,4 +67,25 @@ public class GroupController: ControllerBase
         }
         return Ok(users);
     }
+    
+    [HttpDelete("{idGroup}/remove-user")]
+    public async Task<IActionResult> RemoveUserFromGroup(int idGroup, [FromQuery] string login)
+    {
+        await groupService.RemoveUserFromGroup(login, idGroup);
+        return Ok();
+    }
+
+    [HttpDelete("{idGroup}/leave")]
+    public async Task<IActionResult> LeaveGroup(int idGroup)
+    {
+        await groupService.RemoveSelfFromGroup(idGroup);
+        return Ok();
+    }
+
+    [HttpDelete("{idGroup}")]
+    public async Task<IActionResult> DeleteGroup(int idGroup)
+    {
+        await groupService.DeleteGroup(idGroup);
+        return Ok();
+    }
 }
