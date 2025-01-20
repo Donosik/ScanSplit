@@ -104,6 +104,24 @@ export function useGroups() {
     }
   };
 
+  const removeMember = async (groupId: number, login: string) => {
+    await groupService.groupService.removeMemberFromGroup(groupId, login);
+    await fetchGroups(); // Refresh groups to get updated member count
+    toast({
+      title: "Success",
+      description: "Member removed successfully!",
+    });
+  };
+
+  const leaveGroup = async (groupId: number) => {
+    await groupService.groupService.leaveGroup(groupId);
+    await fetchGroups(); // Refresh groups to get updated member count
+    toast({
+      title: "Success",
+      description: "You have left the group successfully!",
+    });
+  };
+
   const selectGroup = async (groupId: number) => {
     setSelectedGroup(groupId);
     try {
@@ -140,6 +158,8 @@ export function useGroups() {
     addMemberByLogin,
     addMemberByPhone,
     updateGroupStatus,
+    removeMember,
+    leaveGroup,
     refreshGroups: fetchGroups,
   };
 }

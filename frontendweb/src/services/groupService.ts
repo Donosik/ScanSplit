@@ -50,7 +50,7 @@ export async function getGroupById(id: number): Promise<GroupDetail> {
   const members: Member[] = backendGroup.users?.map((user: any) => ({
     id: user.id,
     name: user.name,
-    username: user.username,
+    username: user.login,
     avatar: user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`, // Fallback avatar
   })) || [];
   // Map bills to receipts
@@ -123,6 +123,12 @@ export const groupService = {
 
   updateGroupStatus: async (groupId: number, status: string): Promise<void> => {
     await api.patch('', { status, idGroup: groupId });
+  },
+  removeMemberFromGroup: async (groupId: number, login: string): Promise<void> => {
+    await api.delete(`/group/${groupId}/remove-user?login=${encodeURIComponent(login)}`);
+  },
+  leaveGroup: async (groupId: number): Promise<void> => {
+    await api.delete(`/group/${groupId}/leave`);
   },
 
   getGroupMembers: async (groupId: number): Promise<Member[]> => {

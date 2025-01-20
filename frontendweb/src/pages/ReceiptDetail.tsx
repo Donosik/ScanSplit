@@ -40,7 +40,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
 
   useEffect(() => {
     // fetchBill(initialReceipt.id);
-    // fetchCurrencies();
+    fetchCurrencies();
     setCurrentBill(initialReceipt);
   }, [initialReceipt.id]);
 

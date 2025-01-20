@@ -17,6 +17,7 @@ export const getMemberByLogin = async (login: string): Promise<Member | null> =>
 };
 
 
+
 export const getMemberByPhone = async (phone: string): Promise<Member> => {
   const response = await api.get(`/user/phone/${phone}`);
   return response.data;

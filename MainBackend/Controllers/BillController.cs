@@ -53,7 +53,7 @@ public async Task<IActionResult> CreateBill([FromForm] BillDTO bill, IFormFile i
 
     try
     {
-        int billId = await billService.CreateBill(bill, groupId);
+        BillResponse billId = await billService.CreateBill(bill, groupId);
 
         using var memoryStream = new MemoryStream();
         await image.CopyToAsync(memoryStream);
@@ -81,7 +81,7 @@ public async Task<IActionResult> CreateBill([FromForm] BillDTO bill, IFormFile i
             Quantity = item.Quantity
         }).ToList();
 
-        if (receipt.Tip.HasValue)
+        if (receipt.Tip.HasValue && receipt.Tip.Value > 0)
         {
             menuItems.Add(new MenuItem { Name = "Tip", Price = (decimal)receipt.Tip.Value, Quantity = 1 });
         }

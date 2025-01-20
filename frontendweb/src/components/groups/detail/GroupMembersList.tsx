@@ -4,7 +4,7 @@ import { GroupDetail } from '@/types';
 
 interface GroupMembersListProps {
   members: GroupDetail['members'];
-  onRemoveMember?: (memberId: number) => void; 
+  onRemoveMember?: (login: string) => void; 
   // ^ Optional callback for "Remove" if you want to handle it outside
 }
 
@@ -31,7 +31,7 @@ export function GroupMembersList({ members, onRemoveMember }: GroupMembersListPr
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onRemoveMember?.(member.id)}
+            onClick={() => onRemoveMember?.(member.username)}
           >
             Remove
           </Button>

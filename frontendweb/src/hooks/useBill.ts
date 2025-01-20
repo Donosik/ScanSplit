@@ -83,29 +83,40 @@ export function useBill() {
   const createBill = async (groupId: number, name: string, file: File, date: string, currency: string) => {
     try {
       setLoading(true);
-
-      // Create bill data
-      const billData: CreateBillDTO = {
-        date,
+  
+      // Create bill data object
+      const billData = {
+        date, // Ensure this matches the required format, e.g., ISO string
         location: {
-          name: 'Default Location', // These could be added to the form later
+          name: 'Default Location', // Default or user-provided values
           city: 'Default City',
           country: 'Default Country',
           address: 'Default Address',
         },
-        billImage: '', // This will be set by the backend
+        billImage: '', // Handled by backend
         name,
         currency,
       };
-
-      // Create FormData for file upload
+  
+      // Prepare FormData
       const formData = new FormData();
-      formData.append('billData', JSON.stringify(billData));
-      formData.append('image', file);
-
+      formData.append('Date', billData.date);
+      formData.append('Location.Name', billData.location.name);
+      formData.append('Location.City', billData.location.city);
+      formData.append('Location.Country', billData.location.country);
+      formData.append('Location.Address', billData.location.address);
+      formData.append('BillImage', 'bill-image.jpg'); // Optional or leave out if unnecessary
+      formData.append('Name', billData.name);
+      formData.append('Currency', billData.currency);
+      formData.append('image', file); // File data
+  
+      // Make API call
       const response = await billService.createBill(groupId, formData);
-      
-      if (response.billId) {
+      const billId = response.billId.billId; 
+      // add menu items
+      const menuitemresponse = await billService.addMenuItemsToBill(billId, response.menuItems);
+      // Handle response
+      if (billId) {
         toast({
           title: "Success",
           description: "Bill created successfully",
@@ -113,7 +124,7 @@ export function useBill() {
         await fetchBill(response.billId);
         return response;
       }
-      
+  
       throw new Error('Failed to create bill');
     } catch (error) {
       toast({
