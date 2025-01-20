@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using System.Threading.Tasks.Dataflow;
 using MainBackend.Database.Entities;
 using MainBackend.Database.MainDb.UoW;
 using MainBackend.Enums;
@@ -72,4 +73,31 @@ public class GroupService: IGroupService
 
         return group;
     }
+    
+    
+    public async Task RemoveUserFromGroup(string login, int idGroup)
+    {
+        var user = await uow.UserRepository.GetByLogin(login);
+        await uow.GroupRepository.DeleteUserFromGroup(idGroup, user.Id);
+        await uow.Save();
+    }
+
+    public async Task RemoveSelfFromGroup(int idGroup)
+    {
+        var userId = identityService.GetLoggedUserId();
+        
+        await uow.GroupRepository.DeleteUserFromGroup(idGroup, userId);
+        await uow.Save();
+    }
+
+    public async Task DeleteGroup(int idGroup)
+    {
+        var group = await uow.GroupRepository.Get(idGroup);
+        if (group == null)
+            throw new Exception("Group not found");
+
+        uow.GroupRepository.Delete(group);
+        await uow.Save();
+    }
+
 }
