@@ -6,6 +6,7 @@ export interface User {
   email: string;
   avatar: string;
   phone?: string;
+  image?: string;
 }
 
 export interface Group {
@@ -63,17 +64,21 @@ export interface Balance {
   status?: 'pending' | 'paid';
 }
 
+export enum BillStatus {
+  Pending = 'pending',
+  Settled = 'settled'
+}
+
 export interface Bill {
   id: number;
   name: string;
-  amount: number;
-  paidBy: string;
   date: string;
-  image: string;
-  status: 'pending' | 'settled';
-  items: MenuItem[];
-  groupId: number;
+  amount: number;
   currency: string;
+  status: BillStatus;
+  paidBy: string;
+  image?: string;
+  items: MenuItem[];
 }
 
 export interface MenuItem {
@@ -81,5 +86,5 @@ export interface MenuItem {
   name: string;
   price: number;
   quantity: number;
-  assignedTo: Member[];
+  assignedTo: User[];
 }
