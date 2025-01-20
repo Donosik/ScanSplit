@@ -12,6 +12,7 @@ public class UserRepository: GenericRepository<User>, IUserRepository
         this.dbContext = dbContext;
     }
     
+
     public async Task<User> GetByLogin(string login)
     {
         return await dbContext.Users.FirstOrDefaultAsync(x => x.Login == login);
@@ -34,5 +35,10 @@ public class UserRepository: GenericRepository<User>, IUserRepository
             .Include(g => g.Transfers)
                 .ThenInclude(t => t.Recipient)
             .ToListAsync();
+    }
+
+    public Task<User> GetByIdAsync(int userId)
+    {
+        return dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
     }
 }
