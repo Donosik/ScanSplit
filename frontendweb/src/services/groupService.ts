@@ -1,5 +1,6 @@
-import { Balance, Group, GroupDetail, Member, Receipt } from '@/types';
+import { Balance, Group, GroupDetail, Member, MenuItem, Receipt } from '@/types';
 import { api } from './api';
+import { menuItemService } from './menuItemService';
 const calculateBillAmount = (bill: any) => {
   return bill.menuItems.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0);
 }
@@ -19,17 +20,45 @@ export async function getGroups(): Promise<Group[]> {
   }));
 }
 
-const convertBillItems = (items: any, members: Member[]) => {
-  let billItems: MenuItem[] = [];
-  if (billItems) {
-    billItems = items.map((item: any) => ({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      quantity: item.quantity,
-      assignedTo: members,
-    }));
+const convertMenuItemAssignedTo = (assignedTo: any) => {
+  if (assignedTo == null || assignedTo.length == 0) {
+    return [];
   }
+  return assignedTo.map((user: any) => ({
+    id: user.id,
+    name: user.name,
+    lastName: user.lastName,
+    phoneNumber: user.phoneNumber,
+    email: user.email,  
+    username: user.username,
+    avatar: user.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`,
+  }));
+}
+
+const convertBillItems = async (items: any, members: Member[]) => {
+  let billItems: MenuItem[] = [];
+  // if (billItems) {
+  //   billItems = items.map((item: any) => ({
+  //     id: item.id,
+  //     name: item.name,
+  //     price: item.price,
+  //     quantity: item.quantity,
+  //     assignedTo: members,
+  //   }));
+  // }
+
+  // We will loop through the items and call loadMenuItemDetail
+  for (const item of items) {
+    const menuItemDetail = await menuItemService.getMenuItemDetail(item.id);
+    billItems.push({
+      id: menuItemDetail.id,
+      name: menuItemDetail.name,
+      price: menuItemDetail.price,
+      quantity: menuItemDetail.quantity,
+      assignedTo: convertMenuItemAssignedTo(menuItemDetail.assignedTo),
+    });
+  }
+
   return billItems;
 }
 
@@ -53,8 +82,9 @@ export async function getGroupById(id: number): Promise<GroupDetail> {
     username: user.login,
     avatar: user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`, // Fallback avatar
   })) || [];
+
   // Map bills to receipts
-  const receipts: Bill[] = backendGroup.bills?.map((bill: any) => ({
+  const receipts: Bill[] = await Promise.all(backendGroup.bills?.map(async (bill: any) => ({
     id: bill.id,
     name: bill.name,
     amount: calculateBillAmount(bill),
@@ -62,14 +92,13 @@ export async function getGroupById(id: number): Promise<GroupDetail> {
     date: bill.date,
     image: bill.image,
     status: bill.status,
-    items: convertBillItems(bill.menuItems, members),
+    items: await convertBillItems(bill.menuItems, members),
     groupId: bill.groupId,
     currency: bill.currency,
-  })) || [];
+  })) || []);
+
   console.log("Printing receipts");
   console.log(receipts);
-  // Map users to members
-
 
   return {
     id: backendGroup.id,
