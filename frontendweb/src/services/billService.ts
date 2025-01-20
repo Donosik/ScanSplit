@@ -23,7 +23,16 @@ export const billService = {
   },
 
   addMenuItemsToBill: async (billId: number, menuItems: MenuItem[]): Promise<void> => {
-    await api.post(`/bill/${billId}/add-menu-items`, menuItems);
+    const payload = menuItems.map(item => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      orderedBy: [],
+      transfers: [],
+      status: 0,
+    }));
+    await api.post(`/bill/${billId}/add-menu-items`, payload);
   },
 
   updateBillStatus: async (billId: number, status: 'pending' | 'settled'): Promise<void> => {

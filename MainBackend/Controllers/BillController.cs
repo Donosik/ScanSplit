@@ -81,7 +81,7 @@ public async Task<IActionResult> CreateBill([FromForm] BillDTO bill, IFormFile i
             Quantity = item.Quantity
         }).ToList();
 
-        if (receipt.Tip.HasValue)
+        if (receipt.Tip.HasValue && receipt.Tip.Value > 0)
         {
             menuItems.Add(new MenuItem { Name = "Tip", Price = (decimal)receipt.Tip.Value, Quantity = 1 });
         }

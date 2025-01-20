@@ -50,7 +50,7 @@ export default function GroupSettings({ group, onUpdateGroupImage }: GroupSettin
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h4 className="text-sm font-medium">Members</h4>
-          <InviteFriends groupId={group.id} />
+          {/* <InviteFriends groupId={group.id} /> */}
         </div>
         <GroupMembersList 
           members={group.members} 

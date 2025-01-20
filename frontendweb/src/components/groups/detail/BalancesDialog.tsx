@@ -48,7 +48,7 @@ export function BalancesDialog({
           )}
           {balances.length === 0 && (
             <div className="text-center text-muted-foreground py-8">
-              No balances to show
+              Settle all receipts to see balances!
             </div>
           )}
         </div>

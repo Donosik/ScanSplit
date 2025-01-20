@@ -50,7 +50,7 @@ export async function getGroupById(id: number): Promise<GroupDetail> {
   const members: Member[] = backendGroup.users?.map((user: any) => ({
     id: user.id,
     name: user.name,
-    username: user.username,
+    username: user.login,
     avatar: user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`, // Fallback avatar
   })) || [];
   // Map bills to receipts
