@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import GroupCard from './GroupCard';
 import { Group } from '@/types';
-import { createGroup } from '@/services/groupService';
+import { createGroup, groupService} from '@/services/groupService';
 import { CreateGroupDialog } from './CreateGroupDialog';
 
 interface GroupListProps {
@@ -12,11 +12,16 @@ interface GroupListProps {
 }
 
 export default function GroupList({ groups, onSelectGroup }: GroupListProps) {
-  const handleCreateGroup = async (data: { name: string; image: string; members: any[] }) => {
+  const handleCreateGroup = async (data: { name: string; image: string; members: Member[] }) => {
     const newGroup = await createGroup({
       name: data.name,
       image: data.image,
     });
+   // add all the members by login 
+   for (const member of data.members) {
+    await groupService.addMemberByLogin(newGroup.id, member.login);
+   }
+    groups.push(newGroup);
     onSelectGroup(newGroup.id);
   };
 
@@ -63,3 +68,4 @@ export default function GroupList({ groups, onSelectGroup }: GroupListProps) {
     </div>
   );
 }
+

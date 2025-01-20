@@ -22,7 +22,7 @@ public class BillService: IBillService
     }
     
 // to do id bill w adresie, id grupy w paragonie 
-    public async Task<int> CreateBill(BillDTO billDto,int groupId)
+    public async Task<BillResponse> CreateBill(BillDTO billDto, int groupId)
     {
         Bill newbill = new Bill(billDto);
         uow.BillRepository.Create(newbill);
@@ -31,8 +31,8 @@ public class BillService: IBillService
             throw new Exception("Group does not exist");
         group.Bills.Add(newbill);
         uow.GroupRepository.Update(group);
-        await uow.Save(2);
-        return newbill.Id;
+        await uow.Save();
+        return new BillResponse { BillId = newbill.Id };
     }
     public async Task AddMenuItemsToBillAsync(int billId, List<MenuItem> menuItems)
     {
