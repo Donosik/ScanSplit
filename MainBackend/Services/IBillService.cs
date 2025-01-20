@@ -12,5 +12,11 @@ public interface IBillService
     Task<BillResponse> CreateBill(BillDTO billDto,int groupId);
     
     Task AddMenuItemsToBillAsync(int billId, List<MenuItem> menuItems);
+
+    
+    Task UpadateNameBill(string billName, int billId);
+    Task UpadateDateBill(DateTime date, int billId);
+
     Task<BillDetailDTO> GetBillDetailsAsync(int billId);
+
 }

@@ -144,6 +144,20 @@ public class BillController : ControllerBase
         }
     }
 
+    
+    [HttpPatch("{idBill})/updata-name")]
+    public async Task<IActionResult> UpdateName([FromBody] string name, int idBill)
+    {
+        await billService.UpadateNameBill(name, idBill);
+        return Ok();
+    }
+    [HttpPatch("{idBill}/updata-date")]
+    public async Task<IActionResult> UpdateDate([FromBody] DateTime date, int  idBill)
+    {
+        await billService.UpadateDateBill(date, idBill);
+        return Ok();
+     }
+
     /// <summary>
     /// Gets details of a specific bill including menu items and assigned users
     /// </summary>
@@ -171,5 +185,6 @@ public class BillController : ControllerBase
         {
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
+
     }
 }

@@ -47,6 +47,8 @@ public class GroupController: ControllerBase
         await groupService.UpdateStatus(status, idGroup);
         return Ok();
     }
+    
+    
     [HttpGet("{id}")]
     public async Task<IActionResult> GetGroup(int id)
     {
