@@ -42,16 +42,23 @@ public class UserService: IUserService
 
     public  async Task<UserDTO> GetUserByLogin(string login)
     {
-        UserDTO userDto = new UserDTO();
-        var user= await uow.UserRepository.GetByLogin(login);
-        userDto.PhoneNumber = user.PhoneNumber;
-        userDto.Name = user.Name;
-        userDto.LastName = user.LastName;
-        userDto.Email = user.EmailAddress;
-        userDto.Login = user.Login;
-        userDto.Id = user.Id;
-        userDto.Image = user.Image ;
-        return userDto;
+        var user = await uow.UserRepository.GetByLogin(login);
+
+        if (user == null)
+        {
+            return null; // Można też rzucić wyjątek, jeśli to bardziej pasuje do architektury
+        }
+        Console.WriteLine($"User details: {System.Text.Json.JsonSerializer.Serialize(user)}");
+        return new UserDTO
+        {
+            PhoneNumber = user.PhoneNumber,
+            Name = user.Name,
+            LastName = user.LastName,
+            Email = user.EmailAddress,
+            Login = user.Login,
+            Id = user.Id,
+            Image = user.Image
+        };
     }
     
     public async Task<IEnumerable<GroupDTO>> GetGroupsForUser()

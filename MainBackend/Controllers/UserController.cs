@@ -35,7 +35,12 @@ public class UserController: ControllerBase
     public async Task<IActionResult> GetUserByLogin(string login)
     {
         
-        return Ok(await userService.GetUserByLogin(login));
+        var user = await userService.GetUserByLogin(login);
+        if (user == null)
+        {
+            return NotFound($"User with login '{login}' not found.");
+        }
+        return Ok(user);
     }
     [HttpPut("")]
     public async Task<IActionResult> UpdateMe([FromBody] UserDTO userDto)
