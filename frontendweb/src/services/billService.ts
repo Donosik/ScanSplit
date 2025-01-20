@@ -1,38 +1,77 @@
+import { Bill, BillStatus, MenuItem, User } from '@/types';
 import { api } from './api';
-import { Bill, MenuItem } from '@/types';
+
+export interface CreateBillRequest {
+  name: string;
+  date: string;
+  amount: number;
+  currency: string;
+  paidBy: string;
+  status: BillStatus;
+  image?: string;
+}
+
+export interface BillResponse {
+  billId: number;
+  menuItems: MenuItem[];
+}
+
+export interface BillDetailsResponse {
+  id: number;
+  name: string;
+  image: string;
+  date: string;
+  amount: number;
+  status: string;
+  currency: string;
+  paidBy: string; 
+  items: {
+    id: number;
+    name: string;
+    price: number;
+    quantity: number;
+    assignedTo: User[];
+  }[];
+}
 
 export const billService = {
-  getBill: async (id: number): Promise<Bill> => {
+  getBill: async (id: number): Promise<BillDetailsResponse> => {
     const response = await api.get(`/bill/${id}`);
     return response.data;
   },
 
-  getAllCurrencies: async (): Promise<string[]> => {
-    const response = await api.get('/bill');
-    const currencies = response.data.map((item: { key: string; value: string }) => item.key);
-    return currencies;
-  },
-
-  createBill: async (groupId: number, formData: FormData): Promise<{ billId: number; menuItems: MenuItem[] }> => {
-    const response = await api.post(`/bill/${groupId}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+  async getAllCurrencies(): Promise<{ key: string; value: string }[]> {
+    const response = await api.get<{ key: string; value: string }[]>('/bill');
     return response.data;
   },
 
-  addMenuItemsToBill: async (billId: number, menuItems: MenuItem[]): Promise<void> => {
-    const payload = menuItems.map(item => ({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      quantity: item.quantity,
-      orderedBy: [],
-      transfers: [],
-      status: 0,
-    }));
-    await api.post(`/bill/${billId}/add-menu-items`, payload);
+  async createBill(groupId: number, bill: CreateBillRequest, image: File): Promise<BillResponse> {
+    const formData = new FormData();
+    formData.append('image', image);
+    Object.entries(bill).forEach(([key, value]) => {
+      formData.append(key, value.toString());
+    });
+
+    const response = await api.post<BillResponse>(`/bill/${groupId}`, formData);
+    return response.data;
+  },
+
+  async getBillDetails(billId: number): Promise<BillDetailsResponse> {
+    const response = await api.get<BillDetailsResponse>(`/bill/${billId}`);
+    return response.data;
+  },
+
+  async addMenuItems(billId: number, menuItems: MenuItem[]): Promise<void> {
+    if (menuItems == null || !menuItems.length) {
+      throw new Error("No menu items provided.");
+    }
+
+    const bill = await this.getBill(billId);
+    if (!bill) {
+      throw new Error(`Bill with ID ${billId} not found.`);
+    }
+
+    await api.post(`/bill/${billId}/add-menu-items`, menuItems);
   },
 
   updateBillStatus: async (billId: number, status: 'pending' | 'settled'): Promise<void> => {

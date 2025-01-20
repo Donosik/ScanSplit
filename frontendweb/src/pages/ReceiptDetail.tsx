@@ -39,7 +39,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
   const [currency, setCurrency] = useState(initialReceipt.currency || 'USD');
 
   useEffect(() => {
-    // fetchBill(initialReceipt.id);
+    fetchBill(initialReceipt.id);
     fetchCurrencies();
     setCurrentBill(initialReceipt);
   }, [initialReceipt.id]);
@@ -125,7 +125,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
               <CurrencySelect 
                 value={currency} 
                 onValueChange={setCurrency}
-                currencies={currencies}
+                currencies={currencies.map(currency => currency.value)}
               />
               <Button
                 variant="outline"
@@ -175,7 +175,9 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={bill.image} />
-                      <AvatarFallback>{bill.paidBy[0]}</AvatarFallback>
+                      // check if bill.paidBy is  not empty 
+                      
+                      {/* FIXME: <AvatarFallback>{bill.paidBy[0] }</AvatarFallback> */ }
                     </Avatar>
                     <div className="text-sm">
                       <PaidBy
@@ -252,26 +254,30 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-lg">
-                  <Users className="h-5 w-5 text-muted-foreground" />
+                <div className="flex items-center gap-2 text-base text-muted-foreground">
+                  <Users className="h-5 w-5" />
                   <div className="flex-1">
                     <p className="text-sm text-muted-foreground">Split Between</p>
                     <div className="flex -space-x-2 mt-1">
-                      {bill.items
-                        .flatMap((item) => item.assignedTo)
-                        .filter(
-                          (member, index, self) =>
-                            index === self.findIndex((m) => m.id === member.id)
-                        )
-                        .map((member) => (
-                          <Avatar
-                            key={member.id}
-                            className="ring-2 ring-background"
-                          >
-                            <AvatarImage src={member.avatar} />
-                            <AvatarFallback>{member.name[0]}</AvatarFallback>
-                          </Avatar>
-                        ))}
+                      {bill.items.flatMap((item) => item.assignedTo).length > 0 ? (
+                        bill.items
+                          .flatMap((item) => item.assignedTo)
+                          .filter(
+                            (member, index, self) =>
+                              index === self.findIndex((m) => m.id === member.id)
+                          )
+                          .map((member) => (
+                            <Avatar
+                              key={member.id}
+                              className="ring-2 ring-background"
+                            >
+                              <AvatarImage src={member.avatar} />
+                              <AvatarFallback>{member.name[0]}</AvatarFallback>
+                            </Avatar>
+                          ))
+                      ) : (
+                        <p>No users assigned</p>
+                      )}
                     </div>
                   </div>
                 </div>

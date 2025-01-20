@@ -6,12 +6,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace MainBackend.Controllers;
 
@@ -43,56 +44,56 @@ public class BillController : ControllerBase
     }
 
     [HttpPost("{groupId}")]
-public async Task<IActionResult> CreateBill([FromForm] BillDTO bill, IFormFile image, int groupId)
-{
-    if (bill == null || groupId <= 0)
-        return BadRequest("Invalid bill or groupId.");
-
-    if (image == null || image.Length == 0)
-        return BadRequest("No file uploaded.");
-
-    try
+    public async Task<IActionResult> CreateBill([FromForm] BillDTO bill, IFormFile image, int groupId)
     {
-        BillResponse billId = await billService.CreateBill(bill, groupId);
+        if (bill == null || groupId <= 0)
+            return BadRequest("Invalid bill or groupId.");
 
-        using var memoryStream = new MemoryStream();
-        await image.CopyToAsync(memoryStream);
-        memoryStream.Seek(0, SeekOrigin.Begin);
+        if (image == null || image.Length == 0)
+            return BadRequest("No file uploaded.");
 
-        using var content = new MultipartFormDataContent();
-        content.Add(new StreamContent(memoryStream), "file", image.FileName);
-
-        var fastApiUrl = "https://scan-split-914997496942.europe-west1.run.app/upload-photo";
-        var response = await _httpClient.PostAsync(fastApiUrl, content);
-
-        if (!response.IsSuccessStatusCode)
-            return StatusCode((int)response.StatusCode, "Failed to process receipt.");
-
-        var jsonResponse = await response.Content.ReadAsStringAsync();
-        var receipt = JsonSerializer.Deserialize<Receipt>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        if (receipt == null)
-            return BadRequest("Invalid receipt data.");
-
-        var menuItems = receipt.Items.Select(item => new MenuItem
+        try
         {
-            Name = item.Name,
-            Price = (decimal)item.Price,
-            Quantity = item.Quantity
-        }).ToList();
+            BillResponse billId = await billService.CreateBill(bill, groupId);
 
-        if (receipt.Tip.HasValue && receipt.Tip.Value > 0)
-        {
-            menuItems.Add(new MenuItem { Name = "Tip", Price = (decimal)receipt.Tip.Value, Quantity = 1 });
+            using var memoryStream = new MemoryStream();
+            await image.CopyToAsync(memoryStream);
+            memoryStream.Seek(0, SeekOrigin.Begin);
+
+            using var content = new MultipartFormDataContent();
+            content.Add(new StreamContent(memoryStream), "file", image.FileName);
+
+            var fastApiUrl = "https://scan-split-914997496942.europe-west1.run.app/upload-photo";
+            var response = await _httpClient.PostAsync(fastApiUrl, content);
+
+            if (!response.IsSuccessStatusCode)
+                return StatusCode((int)response.StatusCode, "Failed to process receipt.");
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var receipt = JsonSerializer.Deserialize<Receipt>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            if (receipt == null)
+                return BadRequest("Invalid receipt data.");
+
+            var menuItems = receipt.Items.Select(item => new MenuItem
+            {
+                Name = item.Name,
+                Price = (decimal)item.Price,
+                Quantity = item.Quantity
+            }).ToList();
+
+            if (receipt.Tip.HasValue && receipt.Tip.Value > 0)
+            {
+                menuItems.Add(new MenuItem { Name = "Tip", Price = (decimal)receipt.Tip.Value, Quantity = 1 });
+            }
+
+            return Ok(new { billId, menuItems });
         }
-
-        return Ok(new { billId, menuItems });
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
-    catch (Exception ex)
-    {
-        return StatusCode(500, $"Internal server error: {ex.Message}");
-    }
-}
 
     public class Receipt
     {
@@ -142,6 +143,7 @@ public async Task<IActionResult> CreateBill([FromForm] BillDTO bill, IFormFile i
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
+
     
     [HttpPatch("{idBill})/updata-name")]
     public async Task<IActionResult> UpdateName([FromBody] string name, int idBill)
@@ -154,5 +156,35 @@ public async Task<IActionResult> CreateBill([FromForm] BillDTO bill, IFormFile i
     {
         await billService.UpadateDateBill(date, idBill);
         return Ok();
+     }
+
+    /// <summary>
+    /// Gets details of a specific bill including menu items and assigned users
+    /// </summary>
+    /// <param name="id">The ID of the bill to retrieve</param>
+    /// <returns>The bill details</returns>
+    /// <response code="200">Returns the bill details</response>
+    /// <response code="404">If the bill is not found</response>
+    /// <response code="500">If there was an internal server error</response>
+    [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<BillDetailDTO>> GetBillDetails(int id)
+    {
+        try
+        {
+            var bill = await billService.GetBillDetailsAsync(id);
+            if (bill == null)
+            {
+                return NotFound();
+            }
+            return Ok(bill);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+
     }
 }
