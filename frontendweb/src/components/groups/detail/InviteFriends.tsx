@@ -10,35 +10,41 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useMembers } from '@/hooks/useMembers';
+import { useGroups } from '@/hooks/useGroups';
 
 interface User {
   id: string;
   name: string;
   avatar?: string;
+  username: string;j
 }
 
-export function InviteFriends() {
+export function InviteFriends({ groupId }: { groupId: number }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [invitedUsers, setInvitedUsers] = useState<User[]>([]);
+  const { fetchMemberByLogin } = useMembers();
+  const { addMemberByLogin } = useGroups();
 
-  const mockUsers = [
-    { id: '1', name: 'John Doe', avatar: 'https://via.placeholder.com/150' },
-    { id: '2', name: 'Jane Smith', avatar: 'https://via.placeholder.com/150' },
-    { id: '3', name: 'Alex Johnson', avatar: '' },
-  ];
+  const handleSendInvites = async () => {
+    for (const user of invitedUsers) {
+      await addMemberByLogin(groupId, user.username);
+    }
+  }
 
-  const handleSearch = (term: string) => {
+  const handleSearch = async (term: string) => {
     setSearchTerm(term);
 
     // Simulate a search by filtering mockUsers
-    const results = mockUsers.filter(
-      (user) =>
-        user.name.toLowerCase().includes(term.toLowerCase()) &&
-        !invitedUsers.find((u) => u.id === user.id)
-    );
+    const results = await fetchMemberByLogin(term);
+    if (results) {
+      setSearchResults([results]);
+    }else{
+      setSearchResults([]);
+    }
 
-    setSearchResults(results);
+    // setSearchResults(results);
   };
 
   const handleAddUser = (user: User) => {
@@ -76,7 +82,7 @@ export function InviteFriends() {
             <div className="space-y-2">
               {searchResults.map((user) => (
                 <div
-                  key={user.id}
+                  key={user.username}
                   className="flex items-center justify-between p-2 border rounded-lg hover:bg-accent/10 cursor-pointer"
                   onClick={() => handleAddUser(user)}
                 >
@@ -122,7 +128,7 @@ export function InviteFriends() {
             </div>
           )}
 
-          <Button className="w-full mt-4">Send Invites</Button>
+          <Button className="w-full mt-4" onClick={handleSendInvites}> Add Members</Button>
         </div>
       </DialogContent>
     </Dialog>
