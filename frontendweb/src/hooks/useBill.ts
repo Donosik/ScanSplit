@@ -15,6 +15,8 @@ interface UseBillReturn {
   updateBillPaidBy: (billId: number, paidBy: string) => Promise<void>;
   addMenuItems: (billId: number, items: MenuItem[]) => Promise<void>;
   setCurrentBill: (bill: Bill) => void;
+  updateBillName: (billId: number, name: string) => Promise<void>;
+  updateBillDate: (billId: number, date: Date) => Promise<void>;
 }
 
 export function useBill(): UseBillReturn {
@@ -164,6 +166,44 @@ export function useBill(): UseBillReturn {
     setBill(newBill);
   };
 
+  const updateBillName = async (billId: number, name: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      await billService.updateBillName(billId, name);
+      await fetchBill(billId);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update bill name';
+      setError(errorMessage);
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateBillDate = async (billId: number, date: Date) => {
+    try {
+      setLoading(true);
+      setError(null);
+      await billService.updateBillDate(billId, date);
+      await fetchBill(billId);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update bill date';
+      setError(errorMessage);
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     bill,
     loading,
@@ -176,6 +216,8 @@ export function useBill(): UseBillReturn {
     updateBillPaidBy,
     addMenuItems,
     setCurrentBill,
+    updateBillName,
+    updateBillDate,
   };
 }
 

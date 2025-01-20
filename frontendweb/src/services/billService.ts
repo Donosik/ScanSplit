@@ -88,5 +88,13 @@ export const billService = {
 
   deleteBill: async (billId: number): Promise<void> => {
     await api.delete(`/bill/${billId}`);
+  },
+
+  async updateBillName(billId: number, name: string): Promise<void> {
+    await api.patch(`/bill/${billId}/updata-name`, name);
+  },
+
+  async updateBillDate(billId: number, date: Date): Promise<void> {
+    await api.patch(`/bill/${billId}/updata-date`, date);
   }
 }; 

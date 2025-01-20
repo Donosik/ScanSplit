@@ -12,6 +12,7 @@ import { PaidBy } from '@/components/groups/detail/PaidBy';
 import { EditReceiptDialog } from '@/components/receipts/EditReceiptDialog';
 import { useBill } from '@/hooks/useBill';
 import { PhotoUpload } from '@/components/shared/PhotoUpload';
+import { useMenuItem } from '@/hooks/useMenuItem';
 
 interface ReceiptDetailProps {
   receipt: Bill;
@@ -31,13 +32,15 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
     fetchBill,
     fetchCurrencies,
     setCurrentBill,
+    updateBillName,
+    updateBillDate,
   } = useBill();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MenuItem | undefined>();
   const [currency, setCurrency] = useState(initialReceipt.currency || 'USD');
-
+  const { updateMembers, updateMenuItemDetails, addMenuItem } = useMenuItem();
   useEffect(() => {
     fetchBill(initialReceipt.id);
     fetchCurrencies();
@@ -56,17 +59,21 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
 
   const handleSaveItem = async (newItem: Omit<MenuItem, 'id'>) => {
     if (!bill) return;
-
+    console.log(newItem);
     if (selectedItem) {
-      const updatedItems = bill.items.map((item) =>
-        item.id === selectedItem.id
-          ? { ...newItem, id: selectedItem.id }
-          : item
-      );
-      await updateBill(bill.id, { items: updatedItems });
+      // const updatedItems = bill.items.map((item) =>
+      //   item.id === selectedItem.id
+      //     ? { ...newItem, id: selectedItem.id }
+      //     : item
+      // );
+      selectedItem.assignedTo = newItem.assignedTo;
+      await updateMembers(selectedItem.id, newItem.assignedTo);
+      await updateMenuItemDetails(selectedItem.id, newItem);
+      // await updateBill(bill.id, { items: updatedItems });
     } else {
-      const newItemWithId = { ...newItem, id: Math.random() };
-      await addMenuItems(bill.id, [newItemWithId]);
+      const newItemWithId = { ...newItem, id: 1 };
+      await addMenuItem(bill.id, newItemWithId);
+      bill.items.push(newItemWithId);
     }
     setIsDialogOpen(false);
   };
@@ -80,7 +87,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
 
   const handleUpdateReceipt = async (updates: Partial<Bill>) => {
     if (!bill) return;
-    await updateBill(bill.id, updates);
+    // await updateBill(bill.id, updates);
     if (bill) {
       onUpdate?.(bill);
     }
@@ -89,8 +96,22 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
 
   const handleImageChange = async (file: File) => {
     if (!bill) return;
-    await updateBill(bill.id, { image: URL.createObjectURL(file) });
+    // await updateBill(bill.id, { image: URL.createObjectURL(file) });
     if (bill) {
+      onUpdate?.(bill);
+    }
+  };
+
+  const handleUpdateName = async (newName: string) => {
+    if (bill) {
+      await updateBillName(bill.id, newName);
+      onUpdate?.(bill);
+    }
+  };
+
+  const handleUpdateDate = async (newDate: Date) => {
+    if (bill) {
+      await updateBillDate(bill.id, newDate);
       onUpdate?.(bill);
     }
   };
@@ -323,6 +344,8 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         onSave={handleUpdateReceipt}
+        updateBillName={updateBillName}
+        updateBillDate={updateBillDate}
       />
     </div>
   );
