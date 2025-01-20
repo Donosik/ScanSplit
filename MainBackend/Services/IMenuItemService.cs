@@ -21,4 +21,8 @@ public interface IMenuItemService
     /// <param name="userIds">List of user IDs to assign to the menu item</param>
     /// <returns>The updated menu item with its assigned users, or null if menu item not found</returns>
     Task<MenuItem?> UpdateAssignedUsersAsync(int menuItemId, List<int> userIds);
+    
+    Task UpadateNameMenuItem(string menuItemName, int menuItemId);
+    Task UpadateQuantityMenuItem(int quantity, int idMenuItem);
+    Task UpadatePriceMenuItem(decimal Price, int idMenuItem);
 }
