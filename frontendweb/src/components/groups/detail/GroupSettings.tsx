@@ -5,6 +5,7 @@ import { GroupDetail } from '@/types';
 import { GroupImage } from './GroupImage';
 import { InviteFriends } from './InviteFriends';
 import { GroupMembersList } from './GroupMembersList';
+import { useGroups } from '@/hooks/useGroups';
 
 interface GroupSettingsProps {
   group: GroupDetail;
@@ -14,7 +15,11 @@ interface GroupSettingsProps {
 export default function GroupSettings({ group, onUpdateGroupImage }: GroupSettingsProps) {
   // If you want to show a preview or store the new image locally, track it in state:
   const [currentImageSrc, setCurrentImageSrc] = useState(group.image);
+  const { removeMember, leaveGroup } = useGroups();
 
+  const onRemoveMember = async (login: string) => {
+    await removeMember(group.id, login);
+  };
   // 1. Handle the new file
   const handleChangeImage = (file: File) => {
     // Example: Show a preview instantly by creating a temporary URL
@@ -23,6 +28,10 @@ export default function GroupSettings({ group, onUpdateGroupImage }: GroupSettin
 
     // If you want to upload to server or call parent callback:
     onUpdateGroupImage?.(file);
+  };
+
+  const handleLeaveGroup = async () => {
+    await leaveGroup(group.id);
   };
 
   return (
@@ -41,15 +50,16 @@ export default function GroupSettings({ group, onUpdateGroupImage }: GroupSettin
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h4 className="text-sm font-medium">Members</h4>
-          <InviteFriends />
+          <InviteFriends groupId={group.id} />
         </div>
         <GroupMembersList 
           members={group.members} 
-          onRemoveMember={(id) => console.log('Remove member', id)}
+          onRemoveMember={onRemoveMember}
+
         />
       </div>
 
-      <Button variant="destructive" className="w-full">
+      <Button variant="destructive" className="w-full" onClick={handleLeaveGroup}>
         Leave Group
       </Button>
     </div>

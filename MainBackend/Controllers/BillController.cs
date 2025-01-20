@@ -53,7 +53,7 @@ public async Task<IActionResult> CreateBill([FromForm] BillDTO bill, IFormFile i
 
     try
     {
-        int billId = await billService.CreateBill(bill, groupId);
+        BillResponse billId = await billService.CreateBill(bill, groupId);
 
         using var memoryStream = new MemoryStream();
         await image.CopyToAsync(memoryStream);

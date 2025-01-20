@@ -9,7 +9,8 @@ export const billService = {
 
   getAllCurrencies: async (): Promise<string[]> => {
     const response = await api.get('/bill');
-    return response.data;
+    const currencies = response.data.map((item: { key: string; value: string }) => item.key);
+    return currencies;
   },
 
   createBill: async (groupId: number, formData: FormData): Promise<{ billId: number; menuItems: MenuItem[] }> => {

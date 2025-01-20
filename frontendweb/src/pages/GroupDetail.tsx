@@ -23,8 +23,9 @@ export default function GroupDetail({ group, onBack }: GroupDetailProps) {
   const [isAddingMember, setIsAddingMember] = useState(false);
   const [memberInput, setMemberInput] = useState('');
   const { createBill } = useBill();
-  const { addMemberByLogin, addMemberByPhone, groupService } = useGroups();
+  const { addMemberByLogin, addMemberByPhone } = useGroups();
   const { toast } = useToast();
+  
 
   const handleAddReceipt = async (name: string, file: File, date: string, currency: string) => {
     try {

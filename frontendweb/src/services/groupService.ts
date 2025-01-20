@@ -124,6 +124,12 @@ export const groupService = {
   updateGroupStatus: async (groupId: number, status: string): Promise<void> => {
     await api.patch('', { status, idGroup: groupId });
   },
+  removeMemberFromGroup: async (groupId: number, login: string): Promise<void> => {
+    await api.delete(`/group/${groupId}/remove-user?login=${encodeURIComponent(login)}`);
+  },
+  leaveGroup: async (groupId: number): Promise<void> => {
+    await api.delete(`/group/${groupId}/leave`);
+  },
 
   getGroupMembers: async (groupId: number): Promise<Member[]> => {
     const response = await api.get(`/group/${groupId}/get-users`);
