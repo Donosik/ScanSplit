@@ -1,11 +1,13 @@
-﻿using MainBackend.Database.Entities;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using MainBackend.Database.Entities;
 using MainBackend.Enums;
 
 namespace MainBackend.Services;
 
 public interface IGroupService
 {
-    public Task<int> CreateGroup (string groupName);
+    public Task<int> CreateGroup(string groupName);
     public Task AddUserToGroupByLogin(string login, int idGroup);
 
     public Task AddUserToGroupByPhoneNumber(string phoneNumber, int idGroup);
@@ -19,4 +21,5 @@ public interface IGroupService
     public Task RemoveUserFromGroup(string login, int idGroup);
     Task UpadataNameGroup(string grouplName, int groupId);
     Task UpdateGroupImage(string groupImage, int billId);
+    Task<decimal> GetMySumInGroup(int groupId);
 }

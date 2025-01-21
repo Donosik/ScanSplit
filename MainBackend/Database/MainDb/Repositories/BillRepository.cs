@@ -1,4 +1,6 @@
-﻿using MainBackend.Database.Entities;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using MainBackend.Database.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace MainBackend.Database.Generic.Repositories;
