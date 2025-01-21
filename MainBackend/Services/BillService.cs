@@ -150,31 +150,43 @@ public class BillService: IBillService
 
     public async Task AddPaymentToBill(int billId, int userId)
     {
-        var bill = await uow.BillRepository.GetBillByIdAsync(billId);
+        var bill = await uow.BillRepository.GetBillWithPaymentsByIdAsync(billId);
         if (bill == null)
         {
             throw new KeyNotFoundException("Bill not found.");
         }
-        
-        
         var user = await uow.UserRepository.GetByIdAsync(userId);
         if (user == null)
         {
             throw new KeyNotFoundException("User not found.");
         }
         decimal totalAmount = bill.MenuItems?.Sum(item => item.Price * (item.Quantity ?? 1)) ?? 0;
-        var payment = new Payment
-        {
-            User = user,
-            UserId = user.Id,
-            Amount = totalAmount,
-        };
-        
         bill.Payments ??= new List<Payment>();
-        bill.Payments.Add(payment);
 
-        
-         uow.BillRepository.Update(bill);
+        // Sprawdź, czy istnieje już płatność dla danego `billId`
+        var existingPayment = bill.Payments.FirstOrDefault();
+
+        if (existingPayment != null)
+        {
+            // Jeśli istnieje płatność dla `billId`, zaktualizuj jej dane
+            existingPayment.User = user; // Podmiana użytkownika na nowego
+            existingPayment.UserId = user.Id;
+            existingPayment.Amount = totalAmount;
+        }
+        else
+        {
+            // Jeśli nie istnieje, dodaj nową płatność
+            var payment = new Payment
+            {
+                User = user,
+                UserId = user.Id,
+                Amount = totalAmount,
+            };
+            bill.Payments.Add(payment);
+        }
+
+        // Zaktualizuj rachunek w repozytorium
+        uow.BillRepository.Update(bill);
          await uow.Save();
          
     }
