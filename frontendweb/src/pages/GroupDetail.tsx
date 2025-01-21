@@ -33,6 +33,7 @@ export default function GroupDetail({ group, onBack }: GroupDetailProps) {
       toast({
         title: "Success",
         description: "Receipt added successfully!",
+        variant: "default",
       });
     } catch (error) {
       toast({

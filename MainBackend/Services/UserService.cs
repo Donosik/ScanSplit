@@ -4,6 +4,7 @@ using MainBackend.Database.Entities;
 using MainBackend.Database.Generic.Repositories;
 using MainBackend.Database.MainDb.UoW;
 using MainBackend.DTO;
+using MainBackend.Exceptions;
 
 namespace MainBackend.Services;
 
@@ -105,5 +106,15 @@ public class UserService: IUserService
         using var sha256 = SHA256.Create();
         var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
         return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
+    }
+
+    public async Task UpdateUserImage(string userImage, int userId)
+    {
+        User user=await uow.UserRepository.Get(userId);
+        if (user == null)
+            throw new NotFoundException();
+        user.Image= userImage;
+        uow.UserRepository.Update(user);
+        await uow.Save();
     }
 }

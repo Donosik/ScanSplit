@@ -47,8 +47,8 @@ export const billService = {
     const response = await api.get<{ key: string; value: string }[]>('/bill');
     return response.data;
   },
-  createBill: async (groupId: number, formData: FormData): Promise<{ billId: number; menuItems: MenuItem[] }> => {
-    const response = await api.post(`/bill/${groupId}`, formData, {
+  createBill: async (groupId: number, formData: FormData): Promise<{ billId: BillIdObject; menuItems: MenuItem[] }> => {
+    const response = await api.post<{ billId: BillIdObject; menuItems: MenuItem[] }>(`/bill/${groupId}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

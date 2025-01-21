@@ -209,6 +209,7 @@ MainBackend/obj/Debug/net8.0/MainBackend.GeneratedMSBuildEditorConfig.editorconf
 MainBackend/obj/Debug/net8.0/MainBackend.GeneratedMSBuildEditorConfig.editorconfig
 MainBackend/obj/Debug/net8.0/MainBackend.GeneratedMSBuildEditorConfig.editorconfig
 MainBackend/obj/Debug/net8.0/MainBackend.GeneratedMSBuildEditorConfig.editorconfig
+/config/
 
 MainBackend/bin/Debug/net8.0/appsettings.Development.json
 MainBackend/bin/Debug/net8.0/appsettings.json
@@ -429,3 +430,7 @@ MainBackend/bin/Debug/net8.0/Google.Cloud.Storage.V1.dll
 MainBackend/bin/Debug/net8.0/System.Management.dll
 MainBackend/bin/Debug/net8.0/runtimes/win/lib/net7.0/System.Management.dll
 MainBackend/obj/rider.project.model.nuget.info
+MainBackend/adept-presence-448121-j4-9cd34addee81.json
+.vscode/launch.json
+MainBackend/bin/Debug/net8.0/config/google-cloud-key.json
+MainBackend/config/google-cloud-key.json

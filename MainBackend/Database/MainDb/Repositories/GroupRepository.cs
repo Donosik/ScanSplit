@@ -1,4 +1,6 @@
-﻿using MainBackend.Database.Entities;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using MainBackend.Database.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace MainBackend.Database.Generic.Repositories;
@@ -53,6 +55,11 @@ public class GroupRepository : GenericRepository<Group>, IGroupRepository
     {
         return await GetQuery()
             .FirstOrDefaultAsync(b => b.Id == groupId);
+    }
+
+    public async Task<Group> GetGroupWithBills(int groupId)
+    {
+        return await GetQuery().Include(b => b.Bills).FirstOrDefaultAsync(b => b.Id == groupId);
     }
 
 }

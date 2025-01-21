@@ -1,12 +1,11 @@
 export interface User {
   id: number;
   name: string;
-  lastName: string;
+  lastName?: string;
   username: string;
   email: string;
-  avatar: string;
+  avatar?: string;
   phone?: string;
-  image?: string;
 }
 
 export interface Group {
@@ -58,27 +57,27 @@ export interface ReceiptItem {
 }
 
 export interface Balance {
+  id: number;
   from: string;
   to: string;
   amount: number;
-  status?: 'pending' | 'paid';
+  status: string;
+  date: string;
 }
 
-export enum BillStatus {
-  Pending = 'pending',
-  Settled = 'settled'
-}
+export type BillStatus = 'pending' | 'settled';
 
 export interface Bill {
   id: number;
   name: string;
-  date: string;
   amount: number;
-  currency: string;
-  status: BillStatus;
   paidBy: string;
-  image?: string;
+  date: string;
+  image: string;
+  status: BillStatus;
   items: MenuItem[];
+  groupId: number;
+  currency: string;
 }
 
 export interface MenuItem {
@@ -86,5 +85,5 @@ export interface MenuItem {
   name: string;
   price: number;
   quantity: number;
-  assignedTo: User[];
+  assignedTo: Member[];
 }

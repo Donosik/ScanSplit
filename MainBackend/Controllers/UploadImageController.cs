@@ -32,4 +32,12 @@ public class UploadImageController: ControllerBase
       var imagePath = await _cloudStorageService.UploadImageAsync(stream, file.FileName, contentType);
       return Ok(imagePath);
    }
+
+
+   [HttpGet("signedUrl/{imagePath}")]
+   public async Task<IActionResult> GetImage(string imagePath)
+   {
+      var imageUrl = await _cloudStorageService.GetSignedUrlAsync(imagePath);
+      return Ok(imageUrl);
+   }
 }

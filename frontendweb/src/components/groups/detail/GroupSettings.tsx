@@ -15,15 +15,16 @@ interface GroupSettingsProps {
 export default function GroupSettings({ group, onUpdateGroupImage }: GroupSettingsProps) {
   // If you want to show a preview or store the new image locally, track it in state:
   const [currentImageSrc, setCurrentImageSrc] = useState(group.image);
-  const { removeMember, leaveGroup } = useGroups();
+  const { removeMember, leaveGroup, updateGroupImage } = useGroups();
 
   const onRemoveMember = async (login: string) => {
     await removeMember(group.id, login);
   };
   // 1. Handle the new file
-  const handleChangeImage = (file: File) => {
+  const handleChangeImage = async (file: File) => {
     // Example: Show a preview instantly by creating a temporary URL
-    const imageURL = URL.createObjectURL(file);
+    // const imageURL = URL.createObjectURL(file);
+    const imageURL = await updateGroupImage(group.id, file);
     setCurrentImageSrc(imageURL);
 
     // If you want to upload to server or call parent callback:

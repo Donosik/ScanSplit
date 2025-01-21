@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Bill, BillStatus, MenuItem, User } from '@/types';
 import { billService, BillDetailsResponse } from '@/services/billService';
 import { useToast } from '@/components/ui/use-toast';
-
+import { cloudStorageService } from '@/services/cloudStorageService';
 interface UseBillReturn {
   bill: Bill | null;
   loading: boolean;
@@ -136,53 +136,45 @@ export function useBill(): UseBillReturn {
     await updateBill(billId, { paidBy });
   };
 
-  const createBill = async (groupId: number, file: File, date: string, currency: string) => {
+  const createBill = async (groupId: number, name: string, file: File, date: string, currency: string) => {
     try {
       setLoading(true);
-  
-      // Create bill data object
-      const billData = {
-        date, // Ensure this matches the required format, e.g., ISO string
-        location: {
-          name: 'Default Location', // Default or user-provided values
-          city: 'Default City',
-          country: 'Default Country',
-          address: 'Default Address',
-        },
-        billImage: '', // Handled by backend
-        name,
-        currency,
-      };
-  
-      // Prepare FormData
-      const formData = new FormData();
-      formData.append('Date', billData.date);
-      formData.append('Location.Name', billData.location.name);
-      formData.append('Location.City', billData.location.city);
-      formData.append('Location.Country', billData.location.country);
-      formData.append('Location.Address', billData.location.address);
-      formData.append('BillImage', 'bill-image.jpg'); // Optional or leave out if unnecessary
-      formData.append('Name', billData.name);
-      formData.append('Currency', billData.currency);
-      formData.append('image', file); // File data
 
-      // Make API call
+      // Upload image first
+      const objectImagePath = await cloudStorageService.uploadImage(file);
+
+      // Prepare FormData with the image path
+      const formData = new FormData();
+      formData.append('Date', date);
+      formData.append('Name', name);
+      formData.append('Currency', currency);
+      formData.append('BillImage', objectImagePath);
+      formData.append('Location.Name', 'Default Location');
+      formData.append('Location.City', 'Default City');
+      formData.append('Location.Country', 'Default Country');
+      formData.append('Location.Address', 'Default Address');
+
+      // Create bill with the image path
       const response = await billService.createBill(groupId, formData);
-      const billId = response.billId.billId; 
-      // add menu items
-      const menuitemresponse = await billService.addMenuItemsToBill(billId, response.menuItems);
-      // Handle response
-      if (billId) {
-        toast({
-          title: "Success",
-          description: "Bill created successfully",
-        });
-        await fetchBill(billId);
-        
-        return response;
+      const billId = response.billId.billId;
+
+      if (!billId) {
+        throw new Error('Failed to create bill');
       }
 
-      throw new Error('Failed to create bill');
+      // Add menu items if they exist
+      if (response.menuItems?.length) {
+        await billService.addMenuItemsToBill(billId, response.menuItems);
+      }
+
+      toast({
+        title: "Success",
+        description: "Bill created successfully",
+      });
+
+      await fetchBill(billId);
+      return response;
+
     } catch (error) {
       toast({
         title: "Error",
