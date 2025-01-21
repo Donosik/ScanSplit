@@ -7,6 +7,7 @@ import { Balance, GroupDetail } from '@/types';
 import { BalancesDialog } from './BalancesDialog';
 import { useToast } from '@/hooks/use-toast';
 import { useGroups } from '@/hooks/useGroups';
+import { CloudImage } from '@/components/shared/CloudImage';
 
 interface GroupSummaryProps {
   group: GroupDetail;
@@ -19,9 +20,12 @@ export default function GroupSummary({ group, onUpdateGroup }: GroupSummaryProps
   const { toast } = useToast();
   const [myAmount, setMyAmount] = useState(0);
   const { getMyAmount } = useGroups();
+  const { fetchMembers } = useGroups();
+  const [members, setMembers] = useState<Member[]>([]);
 
   useEffect(() => {
     getMyAmount(group.id).then(setMyAmount);
+    fetchMembers(group.id).then(setMembers);
   }, [group.id]);
 
   const handleMarkAsPaid = (balance: Balance) => {
@@ -81,9 +85,10 @@ export default function GroupSummary({ group, onUpdateGroup }: GroupSummaryProps
           <div className="pt-4 border-t">
             <h4 className="text-sm font-medium mb-3">Members</h4>
             <div className="flex flex-wrap gap-2">
-              {group.members.map((member) => (
+              {members.map((member) => (
                 <Avatar key={member.id} className="ring-2 ring-background">
-                  <AvatarImage src={member.avatar} />
+                  {/* <AvatarImage src={member.avatar} /> */}
+                  <CloudImage objectName={member.avatar} alt={member.name}/>
                   <AvatarFallback>{member.name[0]}</AvatarFallback>
                 </Avatar>
               ))}

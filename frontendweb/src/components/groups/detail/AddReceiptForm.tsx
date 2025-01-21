@@ -4,14 +4,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PhotoUpload } from '@/components/shared/PhotoUpload';
 
-// Optional: If you have a separate ImageUpload component
-// import { ImageUpload } from './ImageUpload';
-
 interface AddReceiptFormProps {
   // Called when the user submits the new receipt
   onSubmit: (name: string, file: File, date: string, currency: string) => void | Promise<void>;
 
-  // Called if user cancels
+  // Called if the user cancels
   onCancel: () => void;
 }
 
@@ -22,7 +19,7 @@ export function AddReceiptForm({ onSubmit, onCancel }: AddReceiptFormProps) {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [currency, setCurrency] = useState('USD');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!file) return;
 
@@ -35,7 +32,22 @@ export function AddReceiptForm({ onSubmit, onCancel }: AddReceiptFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 max-h-[75vh] overflow-y-auto px-4 py-2"
+      style={{
+        scrollbarWidth: 'none', // Hide scrollbar for Firefox
+        msOverflowStyle: 'none', // Hide scrollbar for IE and Edge
+      }}
+    >
+      <style>
+        {`
+          form::-webkit-scrollbar {
+            display: none; /* Hide scrollbar for WebKit browsers */
+          }
+        `}
+      </style>
+
       <div className="space-y-4">
         <div>
           <Label htmlFor="name">Receipt Name</Label>

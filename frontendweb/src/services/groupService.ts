@@ -20,6 +20,16 @@ const getImageUrl = (imageName: string | null | undefined): string => {
   return imageName;
 }
 
+export async function getMembers(groupId: number): Promise<Member[]> {
+  const response = await api.get(`/group/${groupId}/get-users`);
+  return response.data.map((user: any) => ({
+    id: user.id,
+    name: user.name,
+    username: user.login,
+    avatar: getImageUrl(user.image),
+  }));
+}
+
 export async function getMyAmount(groupId: number): Promise<number> {
   const response = await api.get(`/group/${groupId}/mySpendings`);
   return response.data;
@@ -148,7 +158,17 @@ export async function createGroup(name: string, image: File): Promise<Group> {
   };
 }
 
+
 export const groupService = {
+
+  updateGroupName: async (groupId: number, name: string): Promise<void> => {
+    await api.patch(`/Group/${groupId}/updata-name`, name, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  },
+
   addMemberByLogin: async (groupId: number, login: string): Promise<void> => {
     await api.post(`/group/groups/${groupId}/add-user-by-login?login=${encodeURIComponent(login)}`);
   },

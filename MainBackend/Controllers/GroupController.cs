@@ -92,7 +92,7 @@ public class GroupController: ControllerBase
         return Ok();
     }
     
-    [HttpPatch("{idGroup})/updata-name")]
+    [HttpPatch("{idGroup}/updata-name")]
     public async Task<IActionResult> Updataame([FromBody] string name, int idGroup)
     {
         await groupService.UpadataNameGroup(name, idGroup);
