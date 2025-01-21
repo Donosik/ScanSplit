@@ -1,5 +1,6 @@
 import { Bill, BillStatus, MenuItem, User } from '@/types';
 import { api } from './api';
+import internal from 'stream';
 
 export interface CreateBillRequest {
   name: string;
@@ -10,9 +11,11 @@ export interface CreateBillRequest {
   status: BillStatus;
   image?: string;
 }
-
-export interface BillResponse {
+export interface BillIdObject {
   billId: number;
+}
+export interface BillResponse {
+  billId: BillIdObject;
   menuItems: MenuItem[];
 }
 
@@ -62,7 +65,18 @@ export const billService = {
   //   const response = await api.post<BillResponse>(`/bill/${groupId}`, formData);
   //   return response.data;
   // },
-
+  async addMenuItemsToBill(billId: number, menuItems: MenuItem[]) {
+    const payload = menuItems.map(item => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      orderedBy: [],
+      transfers: [],
+      status: 0,
+    }));
+    await api.post(`/bill/${billId}/add-menu-items`, payload);
+  },
   async getBillDetails(billId: number): Promise<BillDetailsResponse> {
     const response = await api.get<BillDetailsResponse>(`/bill/${billId}`);
     return response.data;

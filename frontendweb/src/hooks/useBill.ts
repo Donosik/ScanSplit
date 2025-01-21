@@ -12,7 +12,7 @@ interface UseBillReturn {
   fetchCurrencies: () => Promise<void>;
   updateBill: (billId: number, updates: Partial<Bill>) => Promise<void>;
   updateBillStatus: (billId: number, status: BillStatus) => Promise<void>;
-  updateBillPaidBy: (billId: number, paidBy: string) => Promise<void>;
+  updateBillPaidBy: (billId: number, paidBy: number) => Promise<void>;
   addMenuItems: (billId: number, items: MenuItem[]) => Promise<void>;
   setCurrentBill: (bill: Bill) => void;
   updateBillName: (billId: number, name: string) => Promise<void>;
@@ -136,6 +136,65 @@ export function useBill(): UseBillReturn {
     await updateBill(billId, { paidBy });
   };
 
+  const createBill = async (groupId: number, file: File, date: string, currency: string) => {
+    try {
+      setLoading(true);
+  
+      // Create bill data object
+      const billData = {
+        date, // Ensure this matches the required format, e.g., ISO string
+        location: {
+          name: 'Default Location', // Default or user-provided values
+          city: 'Default City',
+          country: 'Default Country',
+          address: 'Default Address',
+        },
+        billImage: '', // Handled by backend
+        name,
+        currency,
+      };
+  
+      // Prepare FormData
+      const formData = new FormData();
+      formData.append('Date', billData.date);
+      formData.append('Location.Name', billData.location.name);
+      formData.append('Location.City', billData.location.city);
+      formData.append('Location.Country', billData.location.country);
+      formData.append('Location.Address', billData.location.address);
+      formData.append('BillImage', 'bill-image.jpg'); // Optional or leave out if unnecessary
+      formData.append('Name', billData.name);
+      formData.append('Currency', billData.currency);
+      formData.append('image', file); // File data
+
+      // Make API call
+      const response = await billService.createBill(groupId, formData);
+      const billId = response.billId.billId; 
+      // add menu items
+      const menuitemresponse = await billService.addMenuItemsToBill(billId, response.menuItems);
+      // Handle response
+      if (billId) {
+        toast({
+          title: "Success",
+          description: "Bill created successfully",
+        });
+        await fetchBill(billId);
+        
+        return response;
+      }
+
+      throw new Error('Failed to create bill');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create bill",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const addMenuItems = async (billId: number, items: MenuItem[]) => {
     try {
       setLoading(true);
@@ -216,6 +275,7 @@ export function useBill(): UseBillReturn {
     updateBillStatus,
     updateBillPaidBy,
     addMenuItems,
+    createBill,
     setCurrentBill,
     updateBillName,
     updateBillDate,

@@ -79,7 +79,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
     setIsDialogOpen(false);
   };
 
-  const handleChangePaidBy = async (billId: number, newPaidBy: string) => {
+  const handleChangePaidBy = async (billId: number, newPaidBy: number) => {
     await updateBillPaidBy(billId, newPaidBy);
     if (bill) {
       onUpdate?.(bill);

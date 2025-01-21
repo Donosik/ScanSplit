@@ -14,7 +14,7 @@ interface PaidByProps {
   receiptId: number;                 // To identify which receipt we're updating
   currentPaidBy: string;            // The *name* (or username) of who paid
   allMembers: Member[];             // All possible members
-  onChangePaidBy: (receiptId: number, newPaidBy: string) => void;
+  onChangePaidBy: (receiptId: number, newPaidBy: number) => void;
 }
 
 export function PaidBy({
@@ -52,7 +52,7 @@ export function PaidBy({
   // Called when user clicks "Save"
   const handleSave = () => {
     // If no member is selected, we might store empty or keep old value
-    const newPaidBy = selectedMember ? selectedMember.name : '';
+    const newPaidBy = selectedMember ? selectedMember.id : 0;
     onChangePaidBy(receiptId, newPaidBy);
     setIsOpen(false);
   };
