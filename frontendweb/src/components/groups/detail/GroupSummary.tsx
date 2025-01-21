@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Balance, GroupDetail } from '@/types';
 import { BalancesDialog } from './BalancesDialog';
 import { useToast } from '@/hooks/use-toast';
+import { useGroups } from '@/hooks/useGroups';
 
 interface GroupSummaryProps {
   group: GroupDetail;
@@ -16,6 +17,12 @@ export default function GroupSummary({ group, onUpdateGroup }: GroupSummaryProps
   const [isBalancesOpen, setIsBalancesOpen] = useState(false);
   const [balances, setBalances] = useState<Balance[]>(group.balances);
   const { toast } = useToast();
+  const [myAmount, setMyAmount] = useState(0);
+  const { getMyAmount } = useGroups();
+
+  useEffect(() => {
+    getMyAmount(group.id).then(setMyAmount);
+  }, [group.id]);
 
   const handleMarkAsPaid = (balance: Balance) => {
     // Update the local state immediately for better UX
@@ -68,7 +75,7 @@ export default function GroupSummary({ group, onUpdateGroup }: GroupSummaryProps
           <div>
             <p className="text-sm text-muted-foreground">Your Share</p>
             <p className="text-2xl font-bold">
-              ${group.myAmount.toFixed(2)}
+              ${myAmount}
             </p>
           </div>
           <div className="pt-4 border-t">

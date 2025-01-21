@@ -33,6 +33,7 @@ export default function GroupDetail({ group, onBack }: GroupDetailProps) {
       toast({
         title: "Success",
         description: "Receipt added successfully!",
+        variant: "default",
       });
     } catch (error) {
       toast({
@@ -71,6 +72,7 @@ export default function GroupDetail({ group, onBack }: GroupDetailProps) {
       <ReceiptDetail 
         receipt={selectedReceipt}
         onBack={() => setSelectedReceipt(null)}
+        members={group.members}
       />
     );
   }

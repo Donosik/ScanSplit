@@ -10,14 +10,14 @@ import { useToast } from '@/hooks/use-toast';
 import { useMembers } from '@/hooks/useMembers';
 
 interface CreateGroupDialogProps {
-  onCreateGroup: (data: { name: string; image: string; members: Member[] }) => void;
+  onCreateGroup: (data: { name: string; image: File; members: Member[] }) => void;
 }
 
 export function CreateGroupDialog({ onCreateGroup }: CreateGroupDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState<'details' | 'members'>('details');
   const [groupName, setGroupName] = useState('');
-  const [imageSrc, setImageSrc] = useState('');
+  const [imageSrc, setImageSrc] = useState<File | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Member[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<Member[]>([]);
@@ -43,18 +43,27 @@ export function CreateGroupDialog({ onCreateGroup }: CreateGroupDialogProps) {
   };
 
   const handleCreate = () => {
-    onCreateGroup({
-      name: groupName,
-      image: imageSrc,
-      members: selectedMembers,
-    });
+    if (imageSrc) {
+      onCreateGroup({
+        name: groupName,
+        image: imageSrc, // Use the File object directly
+        members: selectedMembers,
+      });
+    } else {
+      toast({
+        title: 'Image required',
+        description: 'Please upload an image for your group',
+        variant: 'destructive',
+      });
+      return;
+    }
     setIsOpen(false);
     resetForm();
   };
 
   const resetForm = () => {
     setGroupName('');
-    setImageSrc('');
+    setImageSrc(null);
     setSelectedMembers([]);
     setSearchTerm('');
     setStep('details');

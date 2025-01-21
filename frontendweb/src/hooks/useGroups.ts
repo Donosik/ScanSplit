@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Group, GroupDetail } from '@/types';
 import * as groupService from '@/services/groupService';
 import { useToast } from '@/components/ui/use-toast';
-
+import { cloudStorageService } from '@/services/cloudStorageService';
 export function useGroups() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
@@ -10,6 +10,7 @@ export function useGroups() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+
 
   const fetchGroups = async () => {
     try {
@@ -28,6 +29,11 @@ export function useGroups() {
       setLoading(false);
     }
   };
+
+  const getMyAmount = async (groupId: number) => {
+    const myAmount = await groupService.getMyAmount(groupId);
+    return myAmount;
+  }
 
   const createGroup = async (name: string, image?: string) => {
     try {
@@ -137,6 +143,17 @@ export function useGroups() {
     }
   };
 
+
+  const updateGroupImage = async (groupId: number, file: File) => {
+    const objectImagePath = await cloudStorageService.uploadImage(file);
+    const signedUrl = await cloudStorageService.getSignedUrl(objectImagePath);
+    // TODO: update the group image in the database
+
+    await groupService.groupService.updateGroupImage(groupId, objectImagePath);
+
+    return signedUrl;
+  };
+
   const clearSelectedGroup = () => {
     setSelectedGroup(null);
     setGroupDetail(null);
@@ -156,10 +173,12 @@ export function useGroups() {
     error,
     createGroup,
     addMemberByLogin,
+    getMyAmount,
     addMemberByPhone,
     updateGroupStatus,
     removeMember,
     leaveGroup,
+    updateGroupImage,
     refreshGroups: fetchGroups,
   };
 }

@@ -5,21 +5,24 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Bill, MenuItem } from '@/types';
+import { Bill, Member, MenuItem } from '@/types';
 import ReceiptItemDialog from '@/components/receipts/ReceiptItemDialog';
 import CurrencySelect from '@/components/receipts/CurrencySelect';
 import { PaidBy } from '@/components/groups/detail/PaidBy';
 import { EditReceiptDialog } from '@/components/receipts/EditReceiptDialog';
 import { useBill } from '@/hooks/useBill';
 import { PhotoUpload } from '@/components/shared/PhotoUpload';
+import { useMenuItem } from '@/hooks/useMenuItem';
+import AvatarWithCloudImage from '@/components/ui/AvatarWithCloudImage';
 
 interface ReceiptDetailProps {
   receipt: Bill;
+  members: Member[] | [];
   onBack: () => void;
   onUpdate?: (receipt: Bill) => void;
 }
 
-export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdate }: ReceiptDetailProps) {
+export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdate, members }: ReceiptDetailProps) {
   const {
     bill,
     loading,
@@ -31,15 +34,22 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
     fetchBill,
     fetchCurrencies,
     setCurrentBill,
+    updateBillName,
+    updateBillDate,
+    changeBillImage,
+    changeBillCoverImage,
+    getMyAmount,
   } = useBill();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MenuItem | undefined>();
   const [currency, setCurrency] = useState(initialReceipt.currency || 'USD');
-
+  const { updateMembers, updateMenuItemDetails, addMenuItem } = useMenuItem();
+  const [myAmount, setMyAmount] = useState(0);
   useEffect(() => {
     fetchBill(initialReceipt.id);
+    getMyAmount(initialReceipt.id).then(setMyAmount);
     fetchCurrencies();
     setCurrentBill(initialReceipt);
   }, [initialReceipt.id]);
@@ -56,23 +66,30 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
 
   const handleSaveItem = async (newItem: Omit<MenuItem, 'id'>) => {
     if (!bill) return;
-
+    console.log(newItem);
     if (selectedItem) {
-      const updatedItems = bill.items.map((item) =>
-        item.id === selectedItem.id
-          ? { ...newItem, id: selectedItem.id }
-          : item
-      );
-      await updateBill(bill.id, { items: updatedItems });
+      // const updatedItems = bill.items.map((item) =>
+      //   item.id === selectedItem.id
+      //     ? { ...newItem, id: selectedItem.id }
+      //     : item
+      // );
+      selectedItem.assignedTo = newItem.assignedTo;
+      await updateMembers(selectedItem.id, newItem.assignedTo);
+      await updateMenuItemDetails(selectedItem.id, newItem);
+      // await updateBill(bill.id, { items: updatedItems });
     } else {
-      const newItemWithId = { ...newItem, id: Math.random() };
-      await addMenuItems(bill.id, [newItemWithId]);
+      const newItemWithId = { ...newItem, id: 1 };
+      await addMenuItem(bill.id, newItemWithId);
+      bill.items.push(newItemWithId);
     }
+    // update the amounts
+    getMyAmount(bill.id).then(setMyAmount);
     setIsDialogOpen(false);
   };
 
-  const handleChangePaidBy = async (billId: number, newPaidBy: string) => {
+  const handleChangePaidBy = async (billId: number, newPaidBy: number) => {
     await updateBillPaidBy(billId, newPaidBy);
+    
     if (bill) {
       onUpdate?.(bill);
     }
@@ -80,7 +97,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
 
   const handleUpdateReceipt = async (updates: Partial<Bill>) => {
     if (!bill) return;
-    await updateBill(bill.id, updates);
+    // await updateBill(bill.id, updates);
     if (bill) {
       onUpdate?.(bill);
     }
@@ -89,8 +106,23 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
 
   const handleImageChange = async (file: File) => {
     if (!bill) return;
-    await updateBill(bill.id, { image: URL.createObjectURL(file) });
+    // await updateBill(bill.id, { image: URL.createObjectURL(file) });
+    await changeBillImage(bill.id, file);
     if (bill) {
+      onUpdate?.(bill);
+    }
+  };
+
+  const handleUpdateName = async (newName: string) => {
+    if (bill) {
+      await updateBillName(bill.id, newName);
+      onUpdate?.(bill);
+    }
+  };
+
+  const handleUpdateDate = async (newDate: Date) => {
+    if (bill) {
+      await updateBillDate(bill.id, newDate);
       onUpdate?.(bill);
     }
   };
@@ -104,6 +136,8 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
   }
 
   const totalItems = bill.items.reduce((sum, item) => sum + item.quantity, 0);
+
+
 // const totalItems = 0;
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -174,16 +208,13 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
                   </div>
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={bill.image} />
-                      // check if bill.paidBy is  not empty 
-                      
-                      {/* FIXME: <AvatarFallback>{bill.paidBy[0] }</AvatarFallback> */ }
+                      <AvatarWithCloudImage objectName={members.find(member => member.username === bill.paidBy)?.avatar} fallbackText={bill.paidBy} />
                     </Avatar>
                     <div className="text-sm">
                       <PaidBy
                         receiptId={bill.id}
                         currentPaidBy={bill.paidBy}
-                        allMembers={bill.items[0]?.assignedTo || []}
+                        allMembers={members}
                         onChangePaidBy={handleChangePaidBy}
                       />
                     </div>
@@ -221,8 +252,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
                                 key={member.id}
                                 className="h-6 w-6 ring-2 ring-background"
                               >
-                                <AvatarImage src={member.avatar} />
-                                <AvatarFallback>{member.name[0]}</AvatarFallback>
+                                <AvatarWithCloudImage objectName={member.avatar} fallbackText={member.name[0]} />
                               </Avatar>
                             ))}
                           </div>
@@ -253,6 +283,14 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
                       {currency} {bill.amount.toFixed(2)}
                     </p>
                   </div>
+                  <DollarSign className="h-5 w-5 text-muted-foreground" />
+                  <div className="flex-1">
+                    <p className="text-sm text-muted-foreground">My Amount</p>
+                    <p className="font-bold">
+                      {currency} {myAmount}
+                    </p>
+                  </div>
+
                 </div>
                 <div className="flex items-center gap-2 text-base text-muted-foreground">
                   <Users className="h-5 w-5" />
@@ -287,7 +325,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
                     variant={bill.status === 'settled' ? 'secondary' : 'default'}
                     onClick={async () => {
                       const newStatus = bill.status === 'settled' ? 'pending' : 'settled';
-                      await updateBillStatus(bill.id, newStatus);
+                      await updateBillStatus(bill.id, newStatus as BillStatus);
                     }}
                   >
                     {bill.status === 'settled' ? (
@@ -312,7 +350,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
       <ReceiptItemDialog
         open={isDialogOpen}
         item={selectedItem}
-        members={bill.items[0]?.assignedTo || []}
+        members={members}
         currency={currency}
         onOpenChange={setIsDialogOpen}
         onSave={handleSaveItem}
@@ -323,6 +361,8 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         onSave={handleUpdateReceipt}
+        updateBillName={updateBillName}
+        updateBillDate={updateBillDate}
       />
     </div>
   );

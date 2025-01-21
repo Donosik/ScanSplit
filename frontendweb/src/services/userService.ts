@@ -34,7 +34,7 @@ export const updatePassword = async (oldPassword: string, newPassword: string): 
   return response.data;
 };
 
-export const updateUser = async (updatedUser: Partial<User>): Promise<User> => {
+export const updateUser = async (updatedUser: Partial<User>, image: string | null): Promise<User> => {
   // Replace with actual API call
     const payload = {
       id: updatedUser.id ?? 0,
@@ -43,8 +43,11 @@ export const updateUser = async (updatedUser: Partial<User>): Promise<User> => {
       lastName: updatedUser.lastName ?? "string",
       phoneNumber: updatedUser.phone ?? "string",
       email: updatedUser.email ?? "string",
-      image: updatedUser.avatar ?? "string", // Ensure this is a valid base64-encoded string or URL
+      image: image ?? "string", // Ensure this is a valid base64-encoded string or URL
     };
+    console.log(payload);
   const response = await api.put('/user', payload);
+  // http://localhost:5136/User/1/ImagePath?newPath=image.jpg
+  const imageResponse = await api.patch(`/user/${updatedUser.id}/ImagePath?newPath=${image}`);
   return response.data;
 };

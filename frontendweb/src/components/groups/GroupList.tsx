@@ -12,14 +12,11 @@ interface GroupListProps {
 }
 
 export default function GroupList({ groups, onSelectGroup }: GroupListProps) {
-  const handleCreateGroup = async (data: { name: string; image: string; members: Member[] }) => {
-    const newGroup = await createGroup({
-      name: data.name,
-      image: data.image,
-    });
+  const handleCreateGroup = async (data: { name: string; image: File; members: Member[] }) => {
+    const newGroup = await createGroup(data.name, data.image);
    // add all the members by login 
    for (const member of data.members) {
-    await groupService.addMemberByLogin(newGroup.id, member.login);
+    await groupService.addMemberByLogin(newGroup.id, member.username);
    }
     groups.push(newGroup);
     onSelectGroup(newGroup.id);

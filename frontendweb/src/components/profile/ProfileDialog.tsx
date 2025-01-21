@@ -31,13 +31,13 @@ export default function ProfileDialog({ open, onOpenChange }: ProfileDialogProps
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     await updateProfile({
+      id: user.id,
       name: formData.get('name') as string,
       lastName: formData.get('lastName') as string,
       username: formData.get('username') as string,
       email: formData.get('email') as string,
       phone: formData.get('phone') as string,
-      avatar: newAvatar ? URL.createObjectURL(newAvatar) : undefined,
-    });
+    }, newAvatar);
     onOpenChange(false);
   };
 
