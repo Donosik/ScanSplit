@@ -1,6 +1,10 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using MainBackend.Database.Entities;
+using MainBackend.Database.Generic.Repositories;
 using MainBackend.Database.MainDb.UoW;
 using MainBackend.Enums;
 using MainBackend.Exceptions;
@@ -12,11 +16,13 @@ public class GroupService: IGroupService
 {
     private readonly IIdentityService identityService;
     private readonly IUoW uow;
+    private readonly IBillService billService;
 
-    public GroupService(IUoW uow, IIdentityService identityService)
+    public GroupService(IUoW uow, IIdentityService identityService,IBillService billService)
     {
         this.identityService = identityService;
         this.uow = uow;
+        this.billService = billService;
     }
 
 
@@ -116,5 +122,19 @@ public class GroupService: IGroupService
         group.Image= groupImage;
         uow.GroupRepository.Update(group);
         await uow.Save();
+    }
+
+    public async Task<decimal> GetMySumInGroup(int groupId)
+    {
+        Group group =await uow.GroupRepository.GetGroupWithBills(groupId);
+        if (group == null)
+            throw new NotFoundException();
+        decimal sum = 0;
+        foreach (var bill in group.Bills)
+        {
+            sum += await billService.GetMySumInBill(bill.Id);
+        }
+
+        return sum;
     }
 }
