@@ -16,6 +16,7 @@ import { PhotoUpload } from '@/components/shared/PhotoUpload';
 import { useMenuItem } from '@/hooks/useMenuItem';
 import AvatarWithCloudImage from '@/components/ui/AvatarWithCloudImage';
 import { useToast } from "@/hooks/use-toast"
+import { useGroups } from '@/hooks/useGroups';
 
 interface ReceiptDetailProps {
   receipt: Bill;
@@ -45,27 +46,44 @@ export default function ReceiptDetail() {
     getMyAmount,
   } = useBill()
   const { toast } = useToast()
-
+  const { fetchMembers} = useGroups();
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState<MenuItem | undefined>()
   const [currency, setCurrency] = useState("USD")
-
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [members, setMembers] = useState<Member[]>([]);
   useEffect(() => {
     if (receiptId) {
-      fetchBill(Number.parseInt(receiptId))
-      fetchCurrencies()
+      fetchBill(Number.parseInt(receiptId));
+      fetchCurrencies();
+      // Ensure groupId is parsed correctly and used to fetch members
+      const parsedGroupId = Number.parseInt(groupId);
+      fetchMembers(parsedGroupId).then(setMembers);
     }
-  }, [receiptId])
-  const { updateMembers, updateMenuItemDetails, addMenuItem } = useMenuItem();
-  const [myAmount, setMyAmount] = useState(0);
+  }, [receiptId, groupId]);
+
   useEffect(() => {
     if (bill) {
-    getMyAmount(initialReceipt.id).then(setMyAmount);
-      setCurrency(bill.currency || "USD")
-      setCurrentBill(bill)
+      setCurrency(bill.currency || "USD");
+      setCurrentBill(bill);
+      getMyAmount(bill.id).then(setMyAmount);
     }
-  }, [bill])
+  }, [bill]);
+
+
+  // update total amount and my amount when items change
+  useEffect(() => {
+    if (bill) {
+      const totalAmount = bill.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      setTotalAmount(totalAmount);
+      getMyAmount(bill.id).then(setMyAmount);
+    }
+  }, [bill]);
+
+  const { updateMembers, updateMenuItemDetails, addMenuItem } = useMenuItem();
+  const [myAmount, setMyAmount] = useState(0);
+  
 
   const handleBack = () => {
     navigate(`/groups/${groupId}`)
@@ -82,24 +100,40 @@ export default function ReceiptDetail() {
   }
 
   const handleSaveItem = async (newItem: Omit<MenuItem, "id">) => {
-    if (!bill) return
+    if (!bill) return;
 
     if (selectedItem) {
-      // const updatedItems = bill.items.map((item) =>
-      //   item.id === selectedItem.id
-      //     ? { ...newItem, id: selectedItem.id }
-      //     : item
-      // );
-      selectedItem.assignedTo = newItem.assignedTo;
-      await updateMembers(selectedItem.id, newItem.assignedTo);
-      await updateMenuItemDetails(selectedItem.id, newItem);
-      // await updateBill(bill.id, { items: updatedItems });
+      const hasChanges = 
+        selectedItem.name !== newItem.name ||
+        selectedItem.price !== newItem.price ||
+        selectedItem.quantity !== newItem.quantity ||
+        JSON.stringify(selectedItem.assignedTo) !== JSON.stringify(newItem.assignedTo);
+
+      if (hasChanges) {
+        // Update assigned members if there are changes
+        if (JSON.stringify(selectedItem.assignedTo) !== JSON.stringify(newItem.assignedTo)) {
+          selectedItem.assignedTo = newItem.assignedTo;
+          try {
+            await updateMembers(selectedItem.id, newItem.assignedTo);
+          } catch (error) {
+            console.error('Error updating members:', error);
+          }
+        }
+
+        // Update menu item details
+        try {
+          await updateMenuItemDetails(selectedItem.id, { ...newItem, id: selectedItem.id });
+        } catch (error) {
+          console.error('Error updating menu item details:', error);
+        }
+      }
     } else {
       const newItemWithId = { ...newItem, id: 1 };
       await addMenuItem(bill.id, newItemWithId);
       bill.items.push(newItemWithId);
     }
-    // update the amounts
+
+    // Update the amounts
     getMyAmount(bill.id).then(setMyAmount);
     setIsDialogOpen(false);
   };
@@ -278,7 +312,7 @@ export default function ReceiptDetail() {
                   <div className="flex-1">
                     <p className="text-sm text-muted-foreground">Total Amount</p>
                     <p className="font-bold">
-                      {currency} {bill.amount.toFixed(2)}
+                      {currency} {totalAmount.toFixed(2)}
                     </p>
                   </div>
                   <DollarSign className="h-5 w-5 text-muted-foreground" />
@@ -351,5 +385,9 @@ export default function ReceiptDetail() {
       />
     </div>
   )
+}
+
+function fetchMembers(arg0: number) {
+  throw new Error('Function not implemented.');
 }
 

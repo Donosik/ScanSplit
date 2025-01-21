@@ -28,7 +28,7 @@ export default function GroupDetail({ group, onBack, onUpdate }: GroupDetailProp
   const { createBill } = useBill();
   const { addMemberByLogin, addMemberByPhone } = useGroups();
   const { toast } = useToast();
-
+  const [selectedReceipt, setSelectedReceipt] = useState<Bill | null>(null);
   const handleSelectReceipt = (receipt: Bill) => {
     navigate(
       AvailableRoutes.RECEIPT_DETAIL

@@ -160,6 +160,20 @@ export function useGroups() {
     setGroupDetail(null);
   };
 
+  const fetchMembers = async (groupId: number) => {
+    try {
+      const members = await groupService.getMembers(groupId);
+      return members;
+    } catch (err) {
+      console.error('Error fetching members:', err);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch members. Please try again.",
+      });
+    }
+  };
+
   const updateGroupName = async (groupId: number, newName: string) => {
     try {
       setLoading(true);
@@ -219,5 +233,6 @@ export function useGroups() {
     leaveGroup,
     updateGroupImage,
     refreshGroups: fetchGroups,
+    fetchMembers,
   };
 }

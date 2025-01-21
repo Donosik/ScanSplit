@@ -30,15 +30,15 @@ export const menuItemService = {
   },
   updateMenuItemName: async (id: number, name: string) => {
     // http://localhost:5136/MenuItem/1/updata-name?menuItemName=test%20endpoint
-    const response = await api.post(`/menuitem/${id}/updata-name?menuItemName=${name}`);
+    const response = await api.patch(`/menuitem/${id}/updata-name?menuItemName=${name}`);
     return response.data;
   },
   updateMenuItemQuantity: async (id: number, quantity: number) => {
-    const response = await api.post(`/menuitem/${id}/updata-quantity?quantity=${quantity}`);
+    const response = await api.patch(`/menuitem/${id}/updata-quantity?quantity=${quantity}`);
     return response.data;
   },
   updateMenuItemPrice: async (id: number, price: number) => {
-    const response = await api.post(`/menuitem/${id}/updata-price?price=${price}`);
+    const response = await api.patch(`/menuitem/${id}/updata-price?price=${price}`);
     return response.data;
   }
 };

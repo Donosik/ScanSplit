@@ -20,6 +20,16 @@ const getImageUrl = (imageName: string | null | undefined): string => {
   return imageName;
 }
 
+export async function getMembers(groupId: number): Promise<Member[]> {
+  const response = await api.get(`/group/${groupId}/get-users`);
+  return response.data.map((user: any) => ({
+    id: user.id,
+    name: user.name,
+    username: user.login,
+    avatar: getImageUrl(user.image),
+  }));
+}
+
 export async function getMyAmount(groupId: number): Promise<number> {
   const response = await api.get(`/group/${groupId}/mySpendings`);
   return response.data;
