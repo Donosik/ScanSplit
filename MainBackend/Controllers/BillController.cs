@@ -147,7 +147,7 @@ public class BillController : ControllerBase
     }
 
     
-    [HttpPatch("{idBill})/updata-name")]
+    [HttpPatch("{idBill}/updata-name")]
     public async Task<IActionResult> UpdateName([FromBody] string name, int idBill)
     {
         await billService.UpadateNameBill(name, idBill);
@@ -226,10 +226,16 @@ public class BillController : ControllerBase
         }
     }
 
-    [HttpPatch("{billId}/ImagePath")]
-    public async Task<IActionResult> UpdateImagePath(int billId, string newPath)
+    [HttpPatch("{billId}/ImagePath/BillImage")]
+    public async Task<IActionResult> UpdateBillImagePath(int billId, string newPath)
     {
         await billService.UpdateBillImage(newPath, billId);
+        return Ok();
+    }
+    [HttpPatch("{billId}/ImagePath/CoverImage")]
+    public async Task<IActionResult> UpdateCoverImagePath(int billId, string newPath)
+    {
+        await billService.UpdateCoverImage(newPath, billId);
         return Ok();
     }
 }

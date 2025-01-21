@@ -22,9 +22,10 @@ export default function GroupSettings({ group, onUpdateGroupImage }: GroupSettin
     await removeMember(group.id, login);
   };
   // 1. Handle the new file
-  const handleChangeImage = (file: File) => {
+  const handleChangeImage = async (file: File) => {
     // Example: Show a preview instantly by creating a temporary URL
-    const imageURL = URL.createObjectURL(file);
+    // const imageURL = URL.createObjectURL(file);
+    const imageURL = await updateGroupImage(group.id, file);
     setCurrentImageSrc(imageURL);
 
     // If you want to upload to server or call parent callback:

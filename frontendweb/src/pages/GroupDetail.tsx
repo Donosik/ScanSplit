@@ -44,6 +44,7 @@ export default function GroupDetail({ group, onBack, onUpdate }: GroupDetailProp
       toast({
         title: "Success",
         description: "Receipt added successfully!",
+        variant: "default",
       });
     } catch (error) {
       toast({
@@ -76,6 +77,16 @@ export default function GroupDetail({ group, onBack, onUpdate }: GroupDetailProp
       // Error handling is done in the hook
     }
   };
+
+  if (selectedReceipt) {
+    return (
+      <ReceiptDetail 
+        receipt={selectedReceipt}
+        onBack={() => setSelectedReceipt(null)}
+        members={group.members}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

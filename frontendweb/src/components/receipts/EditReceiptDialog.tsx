@@ -16,6 +16,8 @@ interface EditReceiptDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (updates: Partial<Receipt>) => void;
+    updateBillName: (billId: number, name: string) => Promise<void>;
+    updateBillDate: (billId: number, date: Date) => Promise<void>;
 }
 
 export function EditReceiptDialog({
@@ -23,6 +25,8 @@ export function EditReceiptDialog({
   open,
   onOpenChange,
   onSave,
+    updateBillName,
+    updateBillDate,
 }: EditReceiptDialogProps) {
   const [name, setName] = useState(receipt.name);
   const [date, setDate] = useState(receipt.date.split('T')[0]);
@@ -33,7 +37,7 @@ export function EditReceiptDialog({
     setDate(receipt.date.split('T')[0]);
   }, [receipt]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const updates: Partial<Receipt> = {
       name,
@@ -43,6 +47,9 @@ export function EditReceiptDialog({
     if (image) {
       updates.image = URL.createObjectURL(image);
     }
+  
+      await updateBillName(receipt.id, name);
+      await updateBillDate(receipt.id, new Date(date));
 
     onSave(updates);
   };

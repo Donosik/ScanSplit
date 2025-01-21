@@ -20,7 +20,10 @@
                 "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
             },
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "SCAN_SPLIT_GOOGLE_APPLICATION_CREDENTIALS": "${workspaceFolder}/config/google-cloud-key.json",
+                "SCAN_SPLIT_BUCKET_NAME": "scan-split-images",
+
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"

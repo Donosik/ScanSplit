@@ -32,7 +32,8 @@ public static class ServiceExtensions
         services.AddScoped<IGroupService, GroupService>();
         services.AddScoped<IBillService, BillService>();
         services.AddScoped<IMenuItemService, MenuItemService>();
-        
+       services.AddScoped<ICloudStorageService, CloudStorageService>(); 
+       
         return services;
     }
 

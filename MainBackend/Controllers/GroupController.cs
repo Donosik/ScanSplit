@@ -1,4 +1,5 @@
-﻿using MainBackend.Enums;
+﻿using System.Threading.Tasks;
+using MainBackend.Enums;
 using MainBackend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -103,5 +104,12 @@ public class GroupController: ControllerBase
     {
         await groupService.UpdateGroupImage(newPath, groupId);
         return Ok();
+    }
+
+    [HttpGet("{groupId}/mySpendings")]
+    public async Task<IActionResult> GetMySpendings(int groupId)
+    {
+        decimal value = await groupService.GetMySumInGroup(groupId);
+        return Ok(value);
     }
 }

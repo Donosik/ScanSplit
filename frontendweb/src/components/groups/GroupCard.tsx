@@ -1,6 +1,7 @@
 import { CalendarDays, Receipt, Users2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Group } from '@/types';
+import { CloudImage } from '../shared/CloudImage';
 
 interface GroupCardProps {
   group: Group;
@@ -14,12 +15,18 @@ export default function GroupCard({ group, onClick }: GroupCardProps) {
       onClick={() => onClick(group.id)}
     >
       <div className="relative aspect-[4/3] xs:aspect-[3/2] sm:aspect-[16/10]">
-        <img
+        {/* <img
           src={group.image || "/placeholder.svg"}
           alt={group.name}
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
           loading="lazy"
+        /> */}
+        <CloudImage
+          objectName={group.image}
+          alt={group.name}
+
         />
+
         <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-background/20" />
         <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4">
           <h3 className="text-lg sm:text-xl font-semibold text-white line-clamp-2">{group.name}</h3>

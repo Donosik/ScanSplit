@@ -1,19 +1,28 @@
-import { useState, useEffect } from "react"
+import { useEffect, useState } from 'react';
 import { ArrowLeft, Check, Clock, DollarSign, PlusCircle, Users, Settings2, Wallet } from "lucide-react"
 import { useParams, useNavigate } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import type { Bill, MenuItem } from "@/types"
-import ReceiptItemDialog from "@/components/receipts/ReceiptItemDialog"
-import CurrencySelect from "@/components/receipts/CurrencySelect"
-import { PaidBy } from "@/components/groups/detail/PaidBy"
-import { EditReceiptDialog } from "@/components/receipts/EditReceiptDialog"
-import { useBill } from "@/hooks/useBill"
-import { PhotoUpload } from "@/components/shared/PhotoUpload"
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Bill, Member, MenuItem } from '@/types';
+import ReceiptItemDialog from '@/components/receipts/ReceiptItemDialog';
+import CurrencySelect from '@/components/receipts/CurrencySelect';
+import { PaidBy } from '@/components/groups/detail/PaidBy';
+import { EditReceiptDialog } from '@/components/receipts/EditReceiptDialog';
+import { useBill } from '@/hooks/useBill';
+import { PhotoUpload } from '@/components/shared/PhotoUpload';
+import { useMenuItem } from '@/hooks/useMenuItem';
+import AvatarWithCloudImage from '@/components/ui/AvatarWithCloudImage';
 import { useToast } from "@/hooks/use-toast"
+
+interface ReceiptDetailProps {
+  receipt: Bill;
+  members: Member[] | [];
+  onBack: () => void;
+  onUpdate?: (receipt: Bill) => void;
+}
 
 export default function ReceiptDetail() {
   const { groupId, receiptId } = useParams<{ groupId: string; receiptId: string }>()
@@ -29,6 +38,11 @@ export default function ReceiptDetail() {
     fetchBill,
     fetchCurrencies,
     setCurrentBill,
+    updateBillName,
+    updateBillDate,
+    changeBillImage,
+    changeBillCoverImage,
+    getMyAmount,
   } = useBill()
   const { toast } = useToast()
 
@@ -43,9 +57,11 @@ export default function ReceiptDetail() {
       fetchCurrencies()
     }
   }, [receiptId])
-
+  const { updateMembers, updateMenuItemDetails, addMenuItem } = useMenuItem();
+  const [myAmount, setMyAmount] = useState(0);
   useEffect(() => {
     if (bill) {
+    getMyAmount(initialReceipt.id).then(setMyAmount);
       setCurrency(bill.currency || "USD")
       setCurrentBill(bill)
     }
@@ -69,16 +85,32 @@ export default function ReceiptDetail() {
     if (!bill) return
 
     if (selectedItem) {
-      const updatedItems = bill.items.map((item) =>
-        item.id === selectedItem.id ? { ...newItem, id: selectedItem.id } : item,
-      )
-      await updateBill(bill.id, { items: updatedItems })
+      // const updatedItems = bill.items.map((item) =>
+      //   item.id === selectedItem.id
+      //     ? { ...newItem, id: selectedItem.id }
+      //     : item
+      // );
+      selectedItem.assignedTo = newItem.assignedTo;
+      await updateMembers(selectedItem.id, newItem.assignedTo);
+      await updateMenuItemDetails(selectedItem.id, newItem);
+      // await updateBill(bill.id, { items: updatedItems });
     } else {
-      const newItemWithId = { ...newItem, id: Math.random() }
-      await addMenuItems(bill.id, [newItemWithId])
+      const newItemWithId = { ...newItem, id: 1 };
+      await addMenuItem(bill.id, newItemWithId);
+      bill.items.push(newItemWithId);
     }
-    setIsDialogOpen(false)
-  }
+    // update the amounts
+    getMyAmount(bill.id).then(setMyAmount);
+    setIsDialogOpen(false);
+  };
+
+  const handleChangePaidBy = async (billId: number, newPaidBy: number) => {
+    await updateBillPaidBy(billId, newPaidBy);
+    
+    if (bill) {
+      onUpdate?.(bill);
+    }
+  };
 
   const handleUpdateReceipt = async (updates: Partial<Bill>) => {
     if (!bill) return
@@ -87,15 +119,27 @@ export default function ReceiptDetail() {
   }
 
   const handleImageChange = async (file: File) => {
-    if (!bill) return
-    await updateBill(bill.id, { image: URL.createObjectURL(file) })
-  }
+    if (!bill) return;
+    // await updateBill(bill.id, { image: URL.createObjectURL(file) });
+    await changeBillImage(bill.id, file);
+    if (bill) {
+      onUpdate?.(bill);
+    }
+  };
 
-  const handleChangePaidBy = async (billId: number, newPaidBy: string) => {
-    await updateBillPaidBy(billId, newPaidBy)
-  }
+  const handleUpdateName = async (newName: string) => {
+    if (bill) {
+      await updateBillName(bill.id, newName);
+      onUpdate?.(bill);
+    }
+  };
 
-  const totalItems = bill?.items.reduce((sum, item) => sum + item.quantity, 0) || 0
+  const handleUpdateDate = async (newDate: Date) => {
+    if (bill) {
+      await updateBillDate(bill.id, newDate);
+      onUpdate?.(bill);
+    }
+  };
 
   if (!bill || loading) {
     return (
@@ -105,6 +149,10 @@ export default function ReceiptDetail() {
     )
   }
 
+  const totalItems = bill.items.reduce((sum, item) => sum + item.quantity, 0);
+
+
+// const totalItems = 0;
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50">
@@ -160,14 +208,13 @@ export default function ReceiptDetail() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={bill.image} />
-                      <AvatarFallback>{bill.paidBy?.[0] || "?"}</AvatarFallback>
+                      <AvatarWithCloudImage objectName={members.find(member => member.username === bill.paidBy)?.avatar} fallbackText={bill.paidBy} />
                     </Avatar>
                     <div className="text-sm">
                       <PaidBy
                         receiptId={bill.id}
                         currentPaidBy={bill.paidBy}
-                        allMembers={bill.items.flatMap((item) => item.assignedTo) || []}
+                        allMembers={members}
                         onChangePaidBy={handleChangePaidBy}
                       />
                     </div>
@@ -199,9 +246,11 @@ export default function ReceiptDetail() {
                           <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
                           <div className="flex flex-wrap gap-1 mt-2">
                             {item.assignedTo.map((member) => (
-                              <Avatar key={member.id} className="h-6 w-6 ring-2 ring-background">
-                                <AvatarImage src={member.avatar} />
-                                <AvatarFallback>{member.name[0]}</AvatarFallback>
+                              <Avatar
+                                key={member.id}
+                                className="h-6 w-6 ring-2 ring-background"
+                              >
+                                <AvatarWithCloudImage objectName={member.avatar} fallbackText={member.name[0]} />
                               </Avatar>
                             ))}
                           </div>
@@ -224,11 +273,22 @@ export default function ReceiptDetail() {
                 <h3 className="font-semibold">Receipt Summary</h3>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Spent</p>
-                  <p className="text-2xl font-bold">
-                    {currency} {bill.amount.toFixed(2)}
-                  </p>
+                <div className="flex items-center gap-2 text-lg">
+                  <DollarSign className="h-5 w-5 text-muted-foreground" />
+                  <div className="flex-1">
+                    <p className="text-sm text-muted-foreground">Total Amount</p>
+                    <p className="font-bold">
+                      {currency} {bill.amount.toFixed(2)}
+                    </p>
+                  </div>
+                  <DollarSign className="h-5 w-5 text-muted-foreground" />
+                  <div className="flex-1">
+                    <p className="text-sm text-muted-foreground">My Amount</p>
+                    <p className="font-bold">
+                      {currency} {myAmount}
+                    </p>
+                  </div>
+
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Split Between</p>
@@ -249,10 +309,8 @@ export default function ReceiptDetail() {
                     className="w-full"
                     variant={bill.status === "settled" ? "secondary" : "default"}
                     onClick={async () => {
-                      const newStatus = bill.status === "settled" ? "pending" : "settled"
-                      await updateBillStatus(bill.id, newStatus)
-                      // Optionally, you can refetch the bill data here to ensure the UI is up-to-date
-                      // await fetchBill(bill.id);
+                      const newStatus = bill.status === 'settled' ? 'pending' : 'settled';
+                      await updateBillStatus(bill.id, newStatus as BillStatus);
                     }}
                   >
                     {bill.status === "settled" ? (
@@ -278,7 +336,7 @@ export default function ReceiptDetail() {
       <ReceiptItemDialog
         open={isDialogOpen}
         item={selectedItem}
-        members={bill.items[0]?.assignedTo || []}
+        members={members}
         currency={currency}
         onOpenChange={setIsDialogOpen}
         onSave={handleSaveItem}
@@ -288,6 +346,8 @@ export default function ReceiptDetail() {
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         onSave={handleUpdateReceipt}
+        updateBillName={updateBillName}
+        updateBillDate={updateBillDate}
       />
     </div>
   )
