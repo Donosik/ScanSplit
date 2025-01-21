@@ -98,4 +98,10 @@ public class GroupController: ControllerBase
         return Ok();
     }
  
+    [HttpPatch("{groupId}/ImagePath")]
+    public async Task<IActionResult> UpdateImagePath(int groupId, string newPath)
+    {
+        await groupService.UpdateGroupImage(newPath, groupId);
+        return Ok();
+    }
 }

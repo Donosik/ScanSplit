@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MainBackend.Exceptions;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace MainBackend.Services;
@@ -192,6 +193,16 @@ public class BillService: IBillService
             .Sum(item => item.Price * (item.Quantity ?? 1)) ?? 0);
 
         return totalSum;
+    }
+
+    public async Task UpdateBillImage(string billImage, int billId)
+    {
+        Bill bill=await uow.BillRepository.Get(billId);
+        if (bill == null)
+            throw new NotFoundException();
+        bill.BillImage= billImage;
+        uow.BillRepository.Update(bill);
+        await uow.Save();
     }
 
 }
