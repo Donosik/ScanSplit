@@ -122,24 +122,24 @@ export async function getGroupById(id: number): Promise<GroupDetail> {
   };
 }
 
-export async function createGroup(group: Partial<Group>): Promise<Group> {
-  const response = await api.post('/group/create', group.name);
+export async function createGroup(name: string, image: File): Promise<Group> {
+  const response = await api.post('/group/create', name);
   const id = response.data.id;
 
   let imagePath = '';
-  if (group.image && group.image instanceof File) {
-    imagePath = await cloudStorageService.uploadImage(group.image);
-    await api.patch(`/group/${id}/update-image`, { imagePath });
+  if (image && image instanceof File) {
+    imagePath = await cloudStorageService.uploadImage(image);
+    await groupService.updateGroupImage(id, imagePath);
   }
 
   return {
     id,
-    name: group.name || '',
+    name: name || '',
     date: new Date().toISOString(),
     members: 1,
     receipts: 0,
     totalAmount: 0,
-    image: getImageUrl(imagePath),
+    image: imagePath,
   };
 }
 
@@ -159,9 +159,10 @@ export const groupService = {
   leaveGroup: async (groupId: number): Promise<void> => {
     await api.delete(`/group/${groupId}/leave`);
   },
-  updateGroupImage: async (groupId: number, file: File): Promise<void> => {
-    const imagePath = await cloudStorageService.uploadImage(file);
-    await api.patch(`/group/${groupId}/update-image`, { imagePath });
+  updateGroupImage: async (groupId: number, imagePath: string): Promise<void> => {
+    // const imagePath = await cloudStorageService.uploadImage(file);
+    //http://localhost:5136/Group/2/ImagePath?newPath=path.jpg
+    await api.patch(`/group/${groupId}/ImagePath?newPath=${imagePath}`);
   },
   getGroupMembers: async (groupId: number): Promise<Member[]> => {
     const response = await api.get(`/group/${groupId}/get-users`);

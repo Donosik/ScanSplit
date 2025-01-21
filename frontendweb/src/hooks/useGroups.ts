@@ -144,7 +144,7 @@ export function useGroups() {
     const signedUrl = await cloudStorageService.getSignedUrl(objectImagePath);
     // TODO: update the group image in the database
 
-    // await groupService.groupService.updateGroupImage(groupId, objectImagePath);
+    await groupService.groupService.updateGroupImage(groupId, objectImagePath);
 
     return signedUrl;
   };
