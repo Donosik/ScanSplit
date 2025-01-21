@@ -8,6 +8,7 @@ public interface IBillRepository : IGenericRepository<Bill>
     Task AddMenuItemsToBillAsync(Bill bill, List<MenuItem> menuItems);
 
     public Task<Bill?> GetBillDetails(int billId);
+    Task<Bill?> GetBillWithOredrByByIdAsync(int billId);
     Task SaveChangesAsync();
 
 }

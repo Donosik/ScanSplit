@@ -178,4 +178,20 @@ public class BillService: IBillService
          
     }
 
+    public async Task<decimal> GetMySumInBill(int billId)
+    {
+        var bill = await uow.BillRepository.GetBillWithOredrByByIdAsync(billId);
+        if (bill == null)
+        {
+            throw new KeyNotFoundException("Bill not found.");
+        }
+        var userId = identityService.GetLoggedUserId();
+        
+        decimal totalSum = (decimal)(bill.MenuItems?
+            .Where(item => item.OrderedBy.Any(user => user.Id == userId))
+            .Sum(item => item.Price * (item.Quantity ?? 1)) ?? 0);
+
+        return totalSum;
+    }
+
 }
