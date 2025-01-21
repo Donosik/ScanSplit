@@ -21,5 +21,7 @@ public interface IBillService
     
     Task AddPaymentToBill(int billId, int userId);
     Task <decimal> GetMySumInBill(int billId);
+    
+    Task UpdateBillImage(string billImage, int billId);
   
 }

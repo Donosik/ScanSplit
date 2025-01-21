@@ -3,6 +3,7 @@ using System.Threading.Tasks.Dataflow;
 using MainBackend.Database.Entities;
 using MainBackend.Database.MainDb.UoW;
 using MainBackend.Enums;
+using MainBackend.Exceptions;
 using Group = MainBackend.Database.Entities.Group;
 
 namespace MainBackend.Services;
@@ -103,6 +104,16 @@ public class GroupService: IGroupService
     public async  Task UpadataNameGroup(string grouplName, int groupId){
         var group = await uow.GroupRepository.GetGroupByIdAsync(groupId);
         group.Name = grouplName;
+        uow.GroupRepository.Update(group);
+        await uow.Save();
+    }
+
+    public async Task UpdateGroupImage(string groupImage, int billId)
+    {
+        Group group=await uow.GroupRepository.Get(billId);
+        if (group == null)
+            throw new NotFoundException();
+        group.Image= groupImage;
         uow.GroupRepository.Update(group);
         await uow.Save();
     }

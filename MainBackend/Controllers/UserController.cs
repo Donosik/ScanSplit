@@ -67,4 +67,11 @@ public class UserController: ControllerBase
         }
         return Ok(groups);
     }
+    
+    [HttpPatch("{userId}/ImagePath")]
+    public async Task<IActionResult> UpdateImagePath(int userId, string newPath)
+    {
+        await userService.UpdateUserImage(newPath, userId);
+        return Ok();
+    }
 }

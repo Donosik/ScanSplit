@@ -18,4 +18,5 @@ public interface IGroupService
 
     public Task RemoveUserFromGroup(string login, int idGroup);
     Task UpadataNameGroup(string grouplName, int groupId);
+    Task UpdateGroupImage(string groupImage, int billId);
 }
