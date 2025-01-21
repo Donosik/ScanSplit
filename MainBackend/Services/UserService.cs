@@ -74,7 +74,8 @@ public class UserService: IUserService
             Users = group.Users,
             Bills = group.Bills,
             Transfers = group.Transfers,
-            Status = group.Status
+            Status = group.Status,
+            Image = group.Image
         });
     }
 
