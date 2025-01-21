@@ -207,6 +207,21 @@ export function useBill(): UseBillReturn {
     }
   };
 
+  const getMyAmount = async (billId: number) => {
+    try {
+      const myAmount = await billService.getMyAmount(billId);
+      return myAmount;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to get my amount';
+      setError(errorMessage);
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    }
+  }
+
   const changeBillCoverImage = async (billId: number, file: File) => {
     try {
       setLoading(true);
@@ -311,6 +326,7 @@ export function useBill(): UseBillReturn {
     setCurrentBill,
     updateBillName,
     updateBillDate,
+    getMyAmount,
     changeBillImage,
     changeBillCoverImage,
   };

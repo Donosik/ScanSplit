@@ -81,6 +81,11 @@ export const billService = {
     const response = await api.get<BillDetailsResponse>(`/bill/${billId}`);
     return response.data;
   },
+  async getMyAmount(billId: number): Promise<number> {
+    const response = await api.get(`/bill/${billId}/mysum`);
+    console.log(response.data.totalSum);
+    return response.data.totalSum;
+  },
 
   async updateBillImage(billId: number, imagePath: string): Promise<void> {
     // http://localhost:5136/Bill/2/ImagePath/BillImage?newPath=image.jpg

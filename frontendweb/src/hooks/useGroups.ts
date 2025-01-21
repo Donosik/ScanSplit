@@ -30,6 +30,11 @@ export function useGroups() {
     }
   };
 
+  const getMyAmount = async (groupId: number) => {
+    const myAmount = await groupService.getMyAmount(groupId);
+    return myAmount;
+  }
+
   const createGroup = async (name: string, image?: string) => {
     try {
       setLoading(true);
@@ -168,6 +173,7 @@ export function useGroups() {
     error,
     createGroup,
     addMemberByLogin,
+    getMyAmount,
     addMemberByPhone,
     updateGroupStatus,
     removeMember,

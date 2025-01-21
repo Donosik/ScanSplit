@@ -37,6 +37,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
     updateBillDate,
     changeBillImage,
     changeBillCoverImage,
+    getMyAmount,
   } = useBill();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -44,8 +45,10 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
   const [selectedItem, setSelectedItem] = useState<MenuItem | undefined>();
   const [currency, setCurrency] = useState(initialReceipt.currency || 'USD');
   const { updateMembers, updateMenuItemDetails, addMenuItem } = useMenuItem();
+  const [myAmount, setMyAmount] = useState(0);
   useEffect(() => {
     fetchBill(initialReceipt.id);
+    getMyAmount(initialReceipt.id).then(setMyAmount);
     fetchCurrencies();
     setCurrentBill(initialReceipt);
   }, [initialReceipt.id]);
@@ -78,6 +81,8 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
       await addMenuItem(bill.id, newItemWithId);
       bill.items.push(newItemWithId);
     }
+    // update the amounts
+    getMyAmount(bill.id).then(setMyAmount);
     setIsDialogOpen(false);
   };
 
@@ -129,6 +134,8 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
   }
 
   const totalItems = bill.items.reduce((sum, item) => sum + item.quantity, 0);
+
+
 // const totalItems = 0;
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -278,6 +285,14 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
                       {currency} {bill.amount.toFixed(2)}
                     </p>
                   </div>
+                  <DollarSign className="h-5 w-5 text-muted-foreground" />
+                  <div className="flex-1">
+                    <p className="text-sm text-muted-foreground">My Amount</p>
+                    <p className="font-bold">
+                      {currency} {myAmount}
+                    </p>
+                  </div>
+
                 </div>
                 <div className="flex items-center gap-2 text-base text-muted-foreground">
                   <Users className="h-5 w-5" />

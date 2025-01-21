@@ -20,6 +20,11 @@ const getImageUrl = (imageName: string | null | undefined): string => {
   return imageName;
 }
 
+export async function getMyAmount(groupId: number): Promise<number> {
+  const response = await api.get(`/group/${groupId}/mySpendings`);
+  return response.data;
+}
+
 export async function getGroups(): Promise<Group[]> {
   const response = await api.get('/user/groups');
   
