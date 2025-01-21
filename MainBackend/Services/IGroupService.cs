@@ -17,4 +17,5 @@ public interface IGroupService
     public Task RemoveSelfFromGroup(int idGroup);
 
     public Task RemoveUserFromGroup(string login, int idGroup);
+    Task UpadataNameGroup(string grouplName, int groupId);
 }

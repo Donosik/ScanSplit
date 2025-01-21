@@ -48,5 +48,11 @@ public class GroupRepository : GenericRepository<Group>, IGroupRepository
                 group.Users.Remove(user);
         }
     }
+   
+    public async Task<Group?> GetGroupByIdAsync(int groupId)
+    {
+        return await GetQuery()
+            .FirstOrDefaultAsync(b => b.Id == groupId);
+    }
 
 }

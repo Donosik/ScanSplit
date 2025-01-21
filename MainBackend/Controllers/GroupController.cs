@@ -90,4 +90,12 @@ public class GroupController: ControllerBase
         await groupService.DeleteGroup(idGroup);
         return Ok();
     }
+    
+    [HttpPatch("{idGroup})/updata-name")]
+    public async Task<IActionResult> Updataame([FromBody] string name, int idGroup)
+    {
+        await groupService.UpadataNameGroup(name, idGroup);
+        return Ok();
+    }
+ 
 }
