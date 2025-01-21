@@ -1,4 +1,5 @@
-﻿using MainBackend.Database.Entities;
+﻿using System;
+using MainBackend.Database.Entities;
 using MainBackend.DTO;
 using MainBackend.Enums;
 using System.Collections.Generic;
@@ -21,5 +22,8 @@ public interface IBillService
     
     Task AddPaymentToBill(int billId, int userId);
     Task <decimal> GetMySumInBill(int billId);
+    
+    Task UpdateBillImage(string billImage, int billId);
+    Task UpdateCoverImage(string billImage, int billId);
   
 }

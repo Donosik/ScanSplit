@@ -225,4 +225,17 @@ public class BillController : ControllerBase
             return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
         }
     }
+
+    [HttpPatch("{billId}/ImagePath/BillImage")]
+    public async Task<IActionResult> UpdateBillImagePath(int billId, string newPath)
+    {
+        await billService.UpdateBillImage(newPath, billId);
+        return Ok();
+    }
+    [HttpPatch("{billId}/ImagePath/CoverImage")]
+    public async Task<IActionResult> UpdateCoverImagePath(int billId, string newPath)
+    {
+        await billService.UpdateCoverImage(newPath, billId);
+        return Ok();
+    }
 }

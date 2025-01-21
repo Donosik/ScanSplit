@@ -1,5 +1,6 @@
 import { Bill, BillStatus, MenuItem, User } from '@/types';
 import { api } from './api';
+import internal from 'stream';
 
 export interface CreateBillRequest {
   name: string;
@@ -10,9 +11,11 @@ export interface CreateBillRequest {
   status: BillStatus;
   image?: string;
 }
-
-export interface BillResponse {
+export interface BillIdObject {
   billId: number;
+}
+export interface BillResponse {
+  billId: BillIdObject;
   menuItems: MenuItem[];
 }
 
@@ -44,8 +47,8 @@ export const billService = {
     const response = await api.get<{ key: string; value: string }[]>('/bill');
     return response.data;
   },
-  createBill: async (groupId: number, formData: FormData): Promise<{ billId: number; menuItems: MenuItem[] }> => {
-    const response = await api.post(`/bill/${groupId}`, formData, {
+  createBill: async (groupId: number, formData: FormData): Promise<{ billId: BillIdObject; menuItems: MenuItem[] }> => {
+    const response = await api.post<{ billId: BillIdObject; menuItems: MenuItem[] }>(`/bill/${groupId}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -62,10 +65,37 @@ export const billService = {
   //   const response = await api.post<BillResponse>(`/bill/${groupId}`, formData);
   //   return response.data;
   // },
-
+  async addMenuItemsToBill(billId: number, menuItems: MenuItem[]) {
+    const payload = menuItems.map(item => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      orderedBy: [],
+      transfers: [],
+      status: 0,
+    }));
+    await api.post(`/bill/${billId}/add-menu-items`, payload);
+  },
   async getBillDetails(billId: number): Promise<BillDetailsResponse> {
     const response = await api.get<BillDetailsResponse>(`/bill/${billId}`);
     return response.data;
+  },
+  async getMyAmount(billId: number): Promise<number> {
+    const response = await api.get(`/bill/${billId}/mysum`);
+    console.log(response.data.totalSum);
+    return response.data.totalSum;
+  },
+
+  async updateBillImage(billId: number, imagePath: string): Promise<void> {
+    // http://localhost:5136/Bill/2/ImagePath/BillImage?newPath=image.jpg
+    await api.patch(`/bill/${billId}/ImagePath/BillImage?newPath=${imagePath}`);
+  },
+
+  async updateBillCoverImage(billId: number, imagePath: string): Promise<void> {
+    // http://localhost:5136/Bill/2/ImagePath/CoverImage?newPath=image.jpg
+    //curl -X 'PATCH' \
+    await api.patch(`/bill/${billId}/ImagePath/CoverImage?newPath=${imagePath}`);
   },
 
   async addMenuItems(billId: number, menuItems: MenuItem[]): Promise<void> {
@@ -85,8 +115,9 @@ export const billService = {
     await api.patch(`/bill/${billId}/status`, { status });
   },
 
-  updateBillPaidBy: async (billId: number, paidBy: string): Promise<void> => {
-    await api.patch(`/bill/${billId}/paid-by`, { paidBy });
+  updateBillPaidBy: async (billId: number, paidBy: number): Promise<void> => {
+    // http://localhost:5136/Bill/4/payments?userId=1
+    await api.post(`/bill/${billId}/payments?userId=${paidBy}`);
   },
 
   updateBill: async (billId: number, updates: Partial<Bill>): Promise<void> => {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Check, Clock, DollarSign, PlusCircle, Users, Settings2 } from 'lucide-react';
+import { ArrowLeft, Check, Clock, DollarSign, PlusCircle, Users, Settings2, Wallet } from "lucide-react"
+import { useParams, useNavigate } from "react-router-dom"
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -13,6 +14,9 @@ import { EditReceiptDialog } from '@/components/receipts/EditReceiptDialog';
 import { useBill } from '@/hooks/useBill';
 import { PhotoUpload } from '@/components/shared/PhotoUpload';
 import { useMenuItem } from '@/hooks/useMenuItem';
+import AvatarWithCloudImage from '@/components/ui/AvatarWithCloudImage';
+import { useToast } from "@/hooks/use-toast"
+import { useGroups } from '@/hooks/useGroups';
 
 interface ReceiptDetailProps {
   receipt: Bill;
@@ -21,7 +25,9 @@ interface ReceiptDetailProps {
   onUpdate?: (receipt: Bill) => void;
 }
 
-export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdate, members }: ReceiptDetailProps) {
+export default function ReceiptDetail() {
+  const { groupId, receiptId } = useParams<{ groupId: string; receiptId: string }>()
+  const navigate = useNavigate()
   const {
     bill,
     loading,
@@ -35,69 +41,121 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
     setCurrentBill,
     updateBillName,
     updateBillDate,
-  } = useBill();
-
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<MenuItem | undefined>();
-  const [currency, setCurrency] = useState(initialReceipt.currency || 'USD');
-  const { updateMembers, updateMenuItemDetails, addMenuItem } = useMenuItem();
+    changeBillImage,
+    changeBillCoverImage,
+    getMyAmount,
+  } = useBill()
+  const { toast } = useToast()
+  const { fetchMembers} = useGroups();
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [selectedItem, setSelectedItem] = useState<MenuItem | undefined>()
+  const [currency, setCurrency] = useState("USD")
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [members, setMembers] = useState<Member[]>([]);
   useEffect(() => {
-    fetchBill(initialReceipt.id);
-    fetchCurrencies();
-    setCurrentBill(initialReceipt);
-  }, [initialReceipt.id]);
+    if (receiptId) {
+      fetchBill(Number.parseInt(receiptId));
+      fetchCurrencies();
+      // Ensure groupId is parsed correctly and used to fetch members
+      const parsedGroupId = Number.parseInt(groupId);
+      fetchMembers(parsedGroupId).then(setMembers);
+    }
+  }, [receiptId, groupId]);
 
-  const handleEditItem = (item: MenuItem) => {
-    setSelectedItem(item);
-    setIsDialogOpen(true);
-  };
+  useEffect(() => {
+    if (bill) {
+      setCurrency(bill.currency || "USD");
+      setCurrentBill(bill);
+      getMyAmount(bill.id).then(setMyAmount);
+    }
+  }, [bill]);
+
+
+  // update total amount and my amount when items change
+  useEffect(() => {
+    if (bill) {
+      const totalAmount = bill.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      setTotalAmount(totalAmount);
+      getMyAmount(bill.id).then(setMyAmount);
+    }
+  }, [bill]);
+
+  const { updateMembers, updateMenuItemDetails, addMenuItem } = useMenuItem();
+  const [myAmount, setMyAmount] = useState(0);
+  
+
+  const handleBack = () => {
+    navigate(`/groups/${groupId}`)
+  }
 
   const handleAddItem = () => {
-    setSelectedItem(undefined);
-    setIsDialogOpen(true);
-  };
+    setSelectedItem(undefined)
+    setIsDialogOpen(true)
+  }
 
-  const handleSaveItem = async (newItem: Omit<MenuItem, 'id'>) => {
+  const handleEditItem = (item: MenuItem) => {
+    setSelectedItem(item)
+    setIsDialogOpen(true)
+  }
+
+  const handleSaveItem = async (newItem: Omit<MenuItem, "id">) => {
     if (!bill) return;
-    console.log(newItem);
+
     if (selectedItem) {
-      // const updatedItems = bill.items.map((item) =>
-      //   item.id === selectedItem.id
-      //     ? { ...newItem, id: selectedItem.id }
-      //     : item
-      // );
-      selectedItem.assignedTo = newItem.assignedTo;
-      await updateMembers(selectedItem.id, newItem.assignedTo);
-      await updateMenuItemDetails(selectedItem.id, newItem);
-      // await updateBill(bill.id, { items: updatedItems });
+      const hasChanges = 
+        selectedItem.name !== newItem.name ||
+        selectedItem.price !== newItem.price ||
+        selectedItem.quantity !== newItem.quantity ||
+        JSON.stringify(selectedItem.assignedTo) !== JSON.stringify(newItem.assignedTo);
+
+      if (hasChanges) {
+        // Update assigned members if there are changes
+        if (JSON.stringify(selectedItem.assignedTo) !== JSON.stringify(newItem.assignedTo)) {
+          selectedItem.assignedTo = newItem.assignedTo;
+          try {
+            await updateMembers(selectedItem.id, newItem.assignedTo);
+          } catch (error) {
+            console.error('Error updating members:', error);
+          }
+        }
+
+        // Update menu item details
+        try {
+          await updateMenuItemDetails(selectedItem.id, { ...newItem, id: selectedItem.id });
+        } catch (error) {
+          console.error('Error updating menu item details:', error);
+        }
+      }
     } else {
       const newItemWithId = { ...newItem, id: 1 };
       await addMenuItem(bill.id, newItemWithId);
       bill.items.push(newItemWithId);
     }
+
+    // Update the amounts
+    getMyAmount(bill.id).then(setMyAmount);
     setIsDialogOpen(false);
   };
 
-  const handleChangePaidBy = async (billId: number, newPaidBy: string) => {
+  const handleChangePaidBy = async (billId: number, newPaidBy: number) => {
     await updateBillPaidBy(billId, newPaidBy);
+    
     if (bill) {
       onUpdate?.(bill);
     }
   };
 
   const handleUpdateReceipt = async (updates: Partial<Bill>) => {
-    if (!bill) return;
-    // await updateBill(bill.id, updates);
-    if (bill) {
-      onUpdate?.(bill);
-    }
-    setIsEditDialogOpen(false);
-  };
+    if (!bill) return
+    await updateBill(bill.id, updates)
+    setIsEditDialogOpen(false)
+  }
 
   const handleImageChange = async (file: File) => {
     if (!bill) return;
     // await updateBill(bill.id, { image: URL.createObjectURL(file) });
+    await changeBillImage(bill.id, file);
     if (bill) {
       onUpdate?.(bill);
     }
@@ -122,10 +180,12 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
       <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
       </div>
-    );
+    )
   }
 
   const totalItems = bill.items.reduce((sum, item) => sum + item.quantity, 0);
+
+
 // const totalItems = 0;
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -133,37 +193,23 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
         <div className="max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="rounded-full hover:bg-accent"
-                onClick={onBack}
-              >
+              <Button variant="ghost" size="icon" onClick={handleBack}>
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <h1 className="text-xl font-semibold truncate">{bill.name}</h1>
             </div>
             <div className="flex items-center gap-4">
-              <CurrencySelect 
-                value={currency} 
+              <CurrencySelect
+                value={currency}
                 onValueChange={setCurrency}
-                currencies={currencies.map(currency => currency.value)}
+                currencies={currencies.map((cur) => cur.value)}
               />
-              <Button
-                variant="outline"
-                size="icon"
-                className="rounded-full"
-                onClick={() => setIsEditDialogOpen(true)}
-              >
+              <Button variant="outline" size="icon" onClick={() => setIsEditDialogOpen(true)}>
                 <Settings2 className="h-4 w-4" />
               </Button>
-              <Badge variant={bill.status === 'settled' ? 'default' : 'secondary'}>
-                {bill.status === 'settled' ? (
-                  <Check className="mr-1 h-3 w-3" />
-                ) : (
-                  <Clock className="mr-1 h-3 w-3" />
-                )}
-                {bill.status === 'settled' ? 'Settled' : 'Pending'}
+              <Badge variant={bill.status === "settled" ? "default" : "secondary"}>
+                {bill.status === "settled" ? <Check className="mr-1 h-3 w-3" /> : <Clock className="mr-1 h-3 w-3" />}
+                {bill.status === "settled" ? "Settled" : "Pending"}
               </Badge>
             </div>
           </div>
@@ -187,19 +233,16 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
                   <div>
                     <h2 className="text-2xl font-bold">{bill.name}</h2>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(bill.date).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
+                      {new Date(bill.date).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
                       })}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={bill.image} />
-                      // check if bill.paidBy is  not empty 
-                      
-                      {/* FIXME: <AvatarFallback>{bill.paidBy[0] }</AvatarFallback> */ }
+                      <AvatarWithCloudImage objectName={members.find(member => member.username === bill.paidBy)?.avatar} fallbackText={bill.paidBy} />
                     </Avatar>
                     <div className="text-sm">
                       <PaidBy
@@ -234,17 +277,14 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
                       >
                         <div className="space-y-1">
                           <p className="font-medium">{item.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Quantity: {item.quantity}
-                          </p>
+                          <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
                           <div className="flex flex-wrap gap-1 mt-2">
                             {item.assignedTo.map((member) => (
                               <Avatar
                                 key={member.id}
                                 className="h-6 w-6 ring-2 ring-background"
                               >
-                                <AvatarImage src={member.avatar} />
-                                <AvatarFallback>{member.name[0]}</AvatarFallback>
+                                <AvatarWithCloudImage objectName={member.avatar} fallbackText={member.name[0]} />
                               </Avatar>
                             ))}
                           </div>
@@ -263,7 +303,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
           {/* Summary Section */}
           <div className="space-y-6">
             <Card>
-              <CardHeader className="pb-3">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <h3 className="font-semibold">Receipt Summary</h3>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -272,47 +312,42 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
                   <div className="flex-1">
                     <p className="text-sm text-muted-foreground">Total Amount</p>
                     <p className="font-bold">
-                      {currency} {bill.amount.toFixed(2)}
+                      {currency} {totalAmount.toFixed(2)}
                     </p>
                   </div>
-                </div>
-                <div className="flex items-center gap-2 text-base text-muted-foreground">
-                  <Users className="h-5 w-5" />
+                  <DollarSign className="h-5 w-5 text-muted-foreground" />
                   <div className="flex-1">
-                    <p className="text-sm text-muted-foreground">Split Between</p>
-                    <div className="flex -space-x-2 mt-1">
-                      {bill.items.flatMap((item) => item.assignedTo).length > 0 ? (
-                        bill.items
-                          .flatMap((item) => item.assignedTo)
-                          .filter(
-                            (member, index, self) =>
-                              index === self.findIndex((m) => m.id === member.id)
-                          )
-                          .map((member) => (
-                            <Avatar
-                              key={member.id}
-                              className="ring-2 ring-background"
-                            >
-                              <AvatarImage src={member.avatar} />
-                              <AvatarFallback>{member.name[0]}</AvatarFallback>
-                            </Avatar>
-                          ))
-                      ) : (
-                        <p>No users assigned</p>
-                      )}
-                    </div>
+                    <p className="text-sm text-muted-foreground">My Amount</p>
+                    <p className="font-bold">
+                      {currency} {myAmount}
+                    </p>
+                  </div>
+
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Split Between</p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {bill.items
+                      .flatMap((item) => item.assignedTo)
+                      .filter((member, index, self) => index === self.findIndex((m) => m.id === member.id))
+                      .map((member) => (
+                        <Avatar key={member.id} className="ring-2 ring-background">
+                          <AvatarImage src={member.avatar} />
+                          <AvatarFallback>{member.name[0]}</AvatarFallback>
+                        </Avatar>
+                      ))}
                   </div>
                 </div>
                 <div className="pt-4 border-t">
-                  <Button 
-                    className="w-full" 
-                    variant={bill.status === 'settled' ? 'secondary' : 'default'}
+                  <Button
+                    className="w-full"
+                    variant={bill.status === "settled" ? "secondary" : "default"}
                     onClick={async () => {
                       const newStatus = bill.status === 'settled' ? 'pending' : 'settled';
                       await updateBillStatus(bill.id, newStatus as BillStatus);
                     }}
                   >
-                    {bill.status === 'settled' ? (
+                    {bill.status === "settled" ? (
                       <>
                         <Clock className="mr-2 h-4 w-4" />
                         Mark as Pending
@@ -331,6 +366,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
         </div>
       </main>
 
+      {/* Dialogs */}
       <ReceiptItemDialog
         open={isDialogOpen}
         item={selectedItem}
@@ -339,7 +375,6 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
         onOpenChange={setIsDialogOpen}
         onSave={handleSaveItem}
       />
-
       <EditReceiptDialog
         receipt={bill}
         open={isEditDialogOpen}
@@ -349,5 +384,10 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
         updateBillDate={updateBillDate}
       />
     </div>
-  );
+  )
 }
+
+function fetchMembers(arg0: number) {
+  throw new Error('Function not implemented.');
+}
+

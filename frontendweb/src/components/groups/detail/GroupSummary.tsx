@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -6,6 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Balance, GroupDetail } from '@/types';
 import { BalancesDialog } from './BalancesDialog';
 import { useToast } from '@/hooks/use-toast';
+import { useGroups } from '@/hooks/useGroups';
+import { CloudImage } from '@/components/shared/CloudImage';
 
 interface GroupSummaryProps {
   group: GroupDetail;
@@ -16,6 +18,15 @@ export default function GroupSummary({ group, onUpdateGroup }: GroupSummaryProps
   const [isBalancesOpen, setIsBalancesOpen] = useState(false);
   const [balances, setBalances] = useState<Balance[]>(group.balances);
   const { toast } = useToast();
+  const [myAmount, setMyAmount] = useState(0);
+  const { getMyAmount } = useGroups();
+  const { fetchMembers } = useGroups();
+  const [members, setMembers] = useState<Member[]>([]);
+
+  useEffect(() => {
+    getMyAmount(group.id).then(setMyAmount);
+    fetchMembers(group.id).then(setMembers);
+  }, [group.id]);
 
   const handleMarkAsPaid = (balance: Balance) => {
     // Update the local state immediately for better UX
@@ -68,15 +79,16 @@ export default function GroupSummary({ group, onUpdateGroup }: GroupSummaryProps
           <div>
             <p className="text-sm text-muted-foreground">Your Share</p>
             <p className="text-2xl font-bold">
-              ${group.myAmount.toFixed(2)}
+              ${myAmount}
             </p>
           </div>
           <div className="pt-4 border-t">
             <h4 className="text-sm font-medium mb-3">Members</h4>
             <div className="flex flex-wrap gap-2">
-              {group.members.map((member) => (
+              {members.map((member) => (
                 <Avatar key={member.id} className="ring-2 ring-background">
-                  <AvatarImage src={member.avatar} />
+                  {/* <AvatarImage src={member.avatar} /> */}
+                  <CloudImage objectName={member.avatar} alt={member.name}/>
                   <AvatarFallback>{member.name[0]}</AvatarFallback>
                 </Avatar>
               ))}

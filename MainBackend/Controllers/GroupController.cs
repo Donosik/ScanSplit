@@ -1,4 +1,5 @@
-﻿using MainBackend.Enums;
+﻿using System.Threading.Tasks;
+using MainBackend.Enums;
 using MainBackend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -91,11 +92,24 @@ public class GroupController: ControllerBase
         return Ok();
     }
     
-    [HttpPatch("{idGroup})/updata-name")]
+    [HttpPatch("{idGroup}/updata-name")]
     public async Task<IActionResult> Updataame([FromBody] string name, int idGroup)
     {
         await groupService.UpadataNameGroup(name, idGroup);
         return Ok();
     }
  
+    [HttpPatch("{groupId}/ImagePath")]
+    public async Task<IActionResult> UpdateImagePath(int groupId, string newPath)
+    {
+        await groupService.UpdateGroupImage(newPath, groupId);
+        return Ok();
+    }
+
+    [HttpGet("{groupId}/mySpendings")]
+    public async Task<IActionResult> GetMySpendings(int groupId)
+    {
+        decimal value = await groupService.GetMySumInGroup(groupId);
+        return Ok(value);
+    }
 }

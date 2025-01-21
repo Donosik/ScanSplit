@@ -12,7 +12,7 @@ export const menuItemService = {
   },
   addMenuItem: async (billId: number, item: MenuItem) => {
     const payload = [{
-        id: 1234,
+        id: Math.floor(Math.random() * 1000000), // replace with random int
         name: item.name,
         price: item.price,
         quantity: item.quantity,
@@ -26,6 +26,19 @@ export const menuItemService = {
   },
   updateMenuItemDetails: async (id: number, item: MenuItem) => {
     const response = await api.post(`/menuitem/${id}`, item);
+    return response.data;
+  },
+  updateMenuItemName: async (id: number, name: string) => {
+    // http://localhost:5136/MenuItem/1/updata-name?menuItemName=test%20endpoint
+    const response = await api.patch(`/menuitem/${id}/updata-name?menuItemName=${name}`);
+    return response.data;
+  },
+  updateMenuItemQuantity: async (id: number, quantity: number) => {
+    const response = await api.patch(`/menuitem/${id}/updata-quantity?quantity=${quantity}`);
+    return response.data;
+  },
+  updateMenuItemPrice: async (id: number, price: number) => {
+    const response = await api.patch(`/menuitem/${id}/updata-price?price=${price}`);
     return response.data;
   }
 };
