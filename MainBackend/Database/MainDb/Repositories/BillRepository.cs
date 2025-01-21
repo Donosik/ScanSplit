@@ -28,6 +28,14 @@ public class BillRepository: GenericRepository<Bill>, IBillRepository
             .Include(b => b.MenuItems)
             .FirstOrDefaultAsync(b => b.Id == billId);
     }
+    
+    public async Task<Bill?> GetBillWithOredrByByIdAsync(int billId)
+    {
+        return await GetQuery()
+            .Include(b => b.MenuItems)
+            .ThenInclude(mi => mi.OrderedBy)
+            .FirstOrDefaultAsync(b => b.Id == billId);
+    }
 
     public async Task AddMenuItemsToBillAsync(Bill bill, List<MenuItem> menuItems)
     {

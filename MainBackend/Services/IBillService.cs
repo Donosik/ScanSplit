@@ -20,5 +20,6 @@ public interface IBillService
     Task<BillDetailDTO> GetBillDetailsAsync(int billId);
     
     Task AddPaymentToBill(int billId, int userId);
+    Task <decimal> GetMySumInBill(int billId);
   
 }
