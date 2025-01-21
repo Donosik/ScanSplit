@@ -13,6 +13,7 @@ import { EditReceiptDialog } from '@/components/receipts/EditReceiptDialog';
 import { useBill } from '@/hooks/useBill';
 import { PhotoUpload } from '@/components/shared/PhotoUpload';
 import { useMenuItem } from '@/hooks/useMenuItem';
+import AvatarWithCloudImage from '@/components/ui/AvatarWithCloudImage';
 
 interface ReceiptDetailProps {
   receipt: Bill;
@@ -88,6 +89,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
 
   const handleChangePaidBy = async (billId: number, newPaidBy: number) => {
     await updateBillPaidBy(billId, newPaidBy);
+    
     if (bill) {
       onUpdate?.(bill);
     }
@@ -206,10 +208,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
                   </div>
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={bill.image} />
-                      // check if bill.paidBy is  not empty 
-                      
-                      {/* FIXME: <AvatarFallback>{bill.paidBy[0] }</AvatarFallback> */ }
+                      <AvatarWithCloudImage objectName={members.find(member => member.username === bill.paidBy)?.avatar} fallbackText={bill.paidBy} />
                     </Avatar>
                     <div className="text-sm">
                       <PaidBy
@@ -253,8 +252,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
                                 key={member.id}
                                 className="h-6 w-6 ring-2 ring-background"
                               >
-                                <AvatarImage src={member.avatar} />
-                                <AvatarFallback>{member.name[0]}</AvatarFallback>
+                                <AvatarWithCloudImage objectName={member.avatar} fallbackText={member.name[0]} />
                               </Avatar>
                             ))}
                           </div>

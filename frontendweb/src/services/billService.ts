@@ -115,8 +115,9 @@ export const billService = {
     await api.patch(`/bill/${billId}/status`, { status });
   },
 
-  updateBillPaidBy: async (billId: number, paidBy: string): Promise<void> => {
-    await api.patch(`/bill/${billId}/paid-by`, { paidBy });
+  updateBillPaidBy: async (billId: number, paidBy: number): Promise<void> => {
+    // http://localhost:5136/Bill/4/payments?userId=1
+    await api.post(`/bill/${billId}/payments?userId=${paidBy}`);
   },
 
   updateBill: async (billId: number, updates: Partial<Bill>): Promise<void> => {

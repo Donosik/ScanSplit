@@ -132,8 +132,24 @@ export function useBill(): UseBillReturn {
     await updateBill(billId, { status });
   };
 
-  const updateBillPaidBy = async (billId: number, paidBy: string) => {
-    await updateBill(billId, { paidBy });
+  const updateBillPaidBy = async (billId: number, paidBy: number) => {
+    try {
+      await billService.updateBillPaidBy(billId, paidBy);
+      // fetch the bill to reflect who paid in the UI
+      await fetchBill(billId);
+      if (bill) {
+        setBill({ ...bill, paidBy: bill.paidBy });
+      }
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update bill paid by';
+      setError(errorMessage);
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    }
   };
 
   const createBill = async (groupId: number, name: string, file: File, date: string, currency: string) => {

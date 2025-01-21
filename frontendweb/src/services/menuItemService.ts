@@ -12,7 +12,7 @@ export const menuItemService = {
   },
   addMenuItem: async (billId: number, item: MenuItem) => {
     const payload = [{
-        id: 1234,
+        id: Math.floor(Math.random() * 1000000), // replace with random int
         name: item.name,
         price: item.price,
         quantity: item.quantity,
