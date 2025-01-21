@@ -99,5 +99,11 @@ public class GroupService: IGroupService
         uow.GroupRepository.Delete(group);
         await uow.Save();
     }
-
+    
+    public async  Task UpadataNameGroup(string grouplName, int groupId){
+        var group = await uow.GroupRepository.GetGroupByIdAsync(groupId);
+        group.Name = grouplName;
+        uow.GroupRepository.Update(group);
+        await uow.Save();
+    }
 }

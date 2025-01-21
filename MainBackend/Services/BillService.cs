@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace MainBackend.Services;
 
@@ -145,4 +146,52 @@ public class BillService: IBillService
         }).ToList();
 
     }
+
+    public async Task AddPaymentToBill(int billId, int userId)
+    {
+        var bill = await uow.BillRepository.GetBillByIdAsync(billId);
+        if (bill == null)
+        {
+            throw new KeyNotFoundException("Bill not found.");
+        }
+        
+        
+        var user = await uow.UserRepository.GetByIdAsync(userId);
+        if (user == null)
+        {
+            throw new KeyNotFoundException("User not found.");
+        }
+        decimal totalAmount = bill.MenuItems?.Sum(item => item.Price * (item.Quantity ?? 1)) ?? 0;
+        var payment = new Payment
+        {
+            User = user,
+            UserId = user.Id,
+            Amount = totalAmount,
+        };
+        
+        bill.Payments ??= new List<Payment>();
+        bill.Payments.Add(payment);
+
+        
+         uow.BillRepository.Update(bill);
+         await uow.Save();
+         
+    }
+
+    public async Task<decimal> GetMySumInBill(int billId)
+    {
+        var bill = await uow.BillRepository.GetBillWithOredrByByIdAsync(billId);
+        if (bill == null)
+        {
+            throw new KeyNotFoundException("Bill not found.");
+        }
+        var userId = identityService.GetLoggedUserId();
+        
+        decimal totalSum = (decimal)(bill.MenuItems?
+            .Where(item => item.OrderedBy.Any(user => user.Id == userId))
+            .Sum(item => item.Price * (item.Quantity ?? 1)) ?? 0);
+
+        return totalSum;
+    }
+
 }
