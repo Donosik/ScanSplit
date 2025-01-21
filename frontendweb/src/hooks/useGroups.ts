@@ -3,6 +3,7 @@ import { Group, GroupDetail } from '@/types';
 import * as groupService from '@/services/groupService';
 import { useToast } from '@/components/ui/use-toast';
 
+
 export function useGroups() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
@@ -87,6 +88,7 @@ export function useGroups() {
     }
   };
 
+ 
   const updateGroupStatus = async (groupId: number, status: string) => {
     try {
       await groupService.groupService.updateGroupStatus(groupId, status);
@@ -142,6 +144,43 @@ export function useGroups() {
     setGroupDetail(null);
   };
 
+  const updateGroupName = async (groupId: number, newName: string) => {
+    try {
+      setLoading(true);
+
+      // Call the API method to update the group name
+      await groupService.groupService.updateGroupName(groupId, newName);
+
+      toast({
+        title: "Success",
+        description: "Group name updated successfully!",
+      });
+
+      // Update the group name in the state
+      setGroups((prevGroups) =>
+        prevGroups.map((group) =>
+          group.id === groupId ? { ...group, name: newName } : group
+        )
+      );
+
+      // Update groupDetail if the updated group is the currently selected group
+      if (selectedGroup === groupId) {
+        setGroupDetail((prev) => prev ? { ...prev, name: newName } : null);
+      }
+    } catch (err) {
+      console.error('Error updating group name:', err);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update group name. Please try again.",
+      });
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
   useEffect(() => {
     fetchGroups();
   }, []);
@@ -158,6 +197,7 @@ export function useGroups() {
     addMemberByLogin,
     addMemberByPhone,
     updateGroupStatus,
+    updateGroupName,
     removeMember,
     leaveGroup,
     refreshGroups: fetchGroups,

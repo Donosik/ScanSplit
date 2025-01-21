@@ -15,7 +15,8 @@ interface GroupSettingsProps {
 export default function GroupSettings({ group, onUpdateGroupImage }: GroupSettingsProps) {
   // If you want to show a preview or store the new image locally, track it in state:
   const [currentImageSrc, setCurrentImageSrc] = useState(group.image);
-  const { removeMember, leaveGroup } = useGroups();
+  const { removeMember, leaveGroup, updateGroupName } = useGroups();
+  const [groupName, setGroupName] = useState(group.name);
 
   const onRemoveMember = async (login: string) => {
     await removeMember(group.id, login);
@@ -34,10 +35,33 @@ export default function GroupSettings({ group, onUpdateGroupImage }: GroupSettin
     await leaveGroup(group.id);
   };
 
+  // Handle saving the updated group name
+  const handleGroupNameChange = async () => {
+    if (groupName.trim() === group.name) {
+      // If the name hasn't changed, don't make a request
+      return;
+    }
+
+    try {
+      await updateGroupName(group.id, groupName);
+      // Optionally display success feedback (handled by the hook in toast)
+    } catch (err) {
+      console.error('Failed to update group name:', err);
+    }
+  };
+
+
   return (
     <div className="space-y-6 py-4">
-      {/* Group name input */}
-      <Input defaultValue={group.name} placeholder="Group Name" />
+       {/* Group name input and Save button */}
+       <div className="flex items-center gap-4">
+        <Input
+          value={groupName}
+          onChange={(e) => setGroupName(e.target.value)} // Update groupName state
+          placeholder="Group Name"
+        />
+        <Button onClick={handleGroupNameChange}>Save</Button> {/* Save button */}
+      </div>
 
       {/* Group image with upload */}
       <GroupImage 

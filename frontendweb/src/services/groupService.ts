@@ -141,7 +141,17 @@ export async function createGroup(group: Partial<Group>): Promise<Group> {
   };
 }
 
+
 export const groupService = {
+
+  updateGroupName: async (groupId: number, name: string): Promise<void> => {
+    await api.patch(`/Group/${groupId}/updata-name`, name, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  },
+
   addMemberByLogin: async (groupId: number, login: string): Promise<void> => {
     // Use the query string for the login parameter
     await api.post(`/group/groups/${groupId}/add-user-by-login?login=${encodeURIComponent(login)}`);
