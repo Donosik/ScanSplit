@@ -11,4 +11,6 @@ public class GroupDTO
         public ICollection<Bill> Bills { get; set; }
         public ICollection<Transfer> Transfers { get; set; }
         public GroupStatus Status { get; set; }
+        
+        public string? Image { get; set; }
 }
