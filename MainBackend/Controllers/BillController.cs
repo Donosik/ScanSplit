@@ -142,6 +142,8 @@ public class BillController : ControllerBase
         {
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
+        
+        
     }
 
     
@@ -186,5 +188,22 @@ public class BillController : ControllerBase
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
 
+    }
+
+    [HttpPost("{billId}/payments")]
+    public async Task<IActionResult> AddPayment(int billId, int userId)
+    { try{
+        await billService.AddPaymentToBill(billId, userId);
+
+        return Ok(new { message = "Payment added successfully" });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
+        }
     }
 }

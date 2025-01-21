@@ -18,5 +18,7 @@ public interface IBillService
     Task UpadateDateBill(DateTime date, int billId);
 
     Task<BillDetailDTO> GetBillDetailsAsync(int billId);
-
+    
+    Task AddPaymentToBill(int billId, int userId);
+  
 }
