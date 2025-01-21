@@ -38,7 +38,8 @@ public class GroupRepository : GenericRepository<Group>, IGroupRepository
             Login = u.Login,
             LastName = u.LastName,
             Password = "",
-            PhoneNumber = u.PhoneNumber
+            PhoneNumber = u.PhoneNumber,
+            Image = u.Image
         })).ToListAsync();
     }
     public async Task DeleteUserFromGroup(int groupId, int userIdToRemove)
