@@ -112,4 +112,11 @@ public class GroupController: ControllerBase
         decimal value = await groupService.GetMySumInGroup(groupId);
         return Ok(value);
     }
+    
+    [HttpGet("{groupId}/allGroupSpendings")]
+    public async Task<IActionResult> GetAllGroupSpendings(int groupId)
+    {
+        decimal value = await groupService.GetSumInGroup(groupId);
+        return Ok(value);
+    }
 }

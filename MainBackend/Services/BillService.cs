@@ -77,6 +77,27 @@ public class BillService: IBillService
         uow.BillRepository.Update(bill);
         await uow.Save();
 }
+
+    public async Task<decimal> GetBillSum(int billId)
+    {
+        try
+        {
+            var bill = await uow.BillRepository.GetBillDetails(billId);
+            if (bill == null)
+            {
+                throw new KeyNotFoundException($"Bill with ID {billId} not found.");
+            }
+
+            // Calculate total amount from menu items
+            decimal totalAmount = bill.MenuItems?.Sum(item => item.Price * (item.Quantity ?? 1)) ?? 0;
+            return totalAmount;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error retrieving bill details: {ex.Message}", ex);
+        }
+        
+    }
     public async Task<BillDetailDTO> GetBillDetailsAsync(int billId)
     {
         try
@@ -109,9 +130,9 @@ public class BillService: IBillService
             };
         }
         catch (Exception ex)
-        {
-            throw new Exception($"Error retrieving bill details: {ex.Message}", ex);
-        }
+                 {
+                     throw new Exception($"Error retrieving bill details: {ex.Message}", ex);
+                 }
     }
 
     private string GetPaidByInfo(Bill bill)

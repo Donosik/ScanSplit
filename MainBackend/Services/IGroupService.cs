@@ -22,4 +22,5 @@ public interface IGroupService
     Task UpadataNameGroup(string grouplName, int groupId);
     Task UpdateGroupImage(string groupImage, int billId);
     Task<decimal> GetMySumInGroup(int groupId);
+    Task<decimal> GetSumInGroup(int groupId);
 }
