@@ -31,6 +31,14 @@ public class BillRepository: GenericRepository<Bill>, IBillRepository
             .FirstOrDefaultAsync(b => b.Id == billId);
     }
     
+    
+    public async Task<Bill?> GetBillWithPaymentsByIdAsync(int billId)
+    {
+        return await GetQuery()
+            .Include(b => b.MenuItems)
+            .Include(b => b.Payments)
+            .FirstOrDefaultAsync(b => b.Id == billId);
+    }
     public async Task<Bill?> GetBillWithOredrByByIdAsync(int billId)
     {
         return await GetQuery()

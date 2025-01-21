@@ -137,4 +137,18 @@ public class GroupService: IGroupService
 
         return sum;
     }
+    
+    public async Task<decimal> GetSumInGroup(int groupId)
+    {
+        Group group =await uow.GroupRepository.GetGroupWithBills(groupId);
+        if (group == null)
+            throw new NotFoundException();
+        decimal sum = 0;
+        foreach (var bill in group.Bills)
+        {
+            sum += await billService.GetBillSum(bill.Id);
+        }
+
+        return sum;
+    }
 }
