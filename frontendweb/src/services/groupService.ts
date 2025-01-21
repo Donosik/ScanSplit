@@ -1,14 +1,43 @@
-import { Balance, Group, GroupDetail, Member, MenuItem, Receipt } from '@/types';
+import { Balance, Bill, Group, GroupDetail, Member, MenuItem, Receipt } from '@/types';
 import { api } from './api';
 import { menuItemService } from './menuItemService';
+import { cloudStorageService } from './cloudStorageService';
+
 const calculateBillAmount = (bill: any) => {
   return bill.menuItems.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0);
 }
+
+const getImageUrl = (imageName: string | null | undefined): string => {
+  if (!imageName) {
+    return "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9";
+  }
+
+  // Check if it's a valid image file extension
+  if (!imageName.match(/\.(jpg|jpeg|png|gif|bmp|tiff|ico|webp)$/i)) {
+    return "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9";
+  }
+
+  return imageName;
+}
+
+export async function getMembers(groupId: number): Promise<Member[]> {
+  const response = await api.get(`/group/${groupId}/get-users`);
+  return response.data.map((user: any) => ({
+    id: user.id,
+    name: user.name,
+    username: user.login,
+    avatar: getImageUrl(user.image),
+  }));
+}
+
+export async function getMyAmount(groupId: number): Promise<number> {
+  const response = await api.get(`/group/${groupId}/mySpendings`);
+  return response.data;
+}
+
 export async function getGroups(): Promise<Group[]> {
   const response = await api.get('/user/groups');
-  // fetch details for each group like in getGroupById
-
-    
+  
   return response.data.map((group: any) => ({
     id: group.id,
     name: group.name,
@@ -16,7 +45,7 @@ export async function getGroups(): Promise<Group[]> {
     members: group.users?.length || 0,
     receipts: group.bills?.length || 0,
     totalAmount: group.bills?.reduce((sum: number, bill: any) => sum + calculateBillAmount(bill), 0) || 0,
-    image: group.image || 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9', // Default image
+    image: getImageUrl(group.image),
   }));
 }
 
@@ -29,25 +58,15 @@ const convertMenuItemAssignedTo = (assignedTo: any) => {
     name: user.name,
     lastName: user.lastName,
     phoneNumber: user.phoneNumber,
-    email: user.email,  
+    email: user.email,
     username: user.username,
-    avatar: user.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`,
+    avatar: getImageUrl(user.image),
   }));
 }
 
 const convertBillItems = async (items: any, members: Member[]) => {
   let billItems: MenuItem[] = [];
-  // if (billItems) {
-  //   billItems = items.map((item: any) => ({
-  //     id: item.id,
-  //     name: item.name,
-  //     price: item.price,
-  //     quantity: item.quantity,
-  //     assignedTo: members,
-  //   }));
-  // }
 
-  // We will loop through the items and call loadMenuItemDetail
   for (const item of items) {
     const menuItemDetail = await menuItemService.getMenuItemDetail(item.id);
     billItems.push({
@@ -80,9 +99,9 @@ export async function getGroupById(id: number): Promise<GroupDetail> {
     id: user.id,
     name: user.name,
     username: user.login,
-    avatar: user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`, // Fallback avatar
+    avatar: getImageUrl(user.image),
   })) || [];
-
+  console.log(backendGroup.bills);  
   // Map bills to receipts
   const receipts: Bill[] = await Promise.all(backendGroup.bills?.map(async (bill: any) => ({
     id: bill.id,
@@ -90,24 +109,21 @@ export async function getGroupById(id: number): Promise<GroupDetail> {
     amount: calculateBillAmount(bill),
     paidBy: bill.paidBy,
     date: bill.date,
-    image: bill.image,
+    image: getImageUrl(bill.billImage),
+    coverImage: getImageUrl(bill.coverImage),
     status: bill.status,
     items: await convertBillItems(bill.menuItems, members),
     groupId: bill.groupId,
     currency: bill.currency,
   })) || []);
 
-  console.log("Printing receipts");
-  console.log(receipts);
-
   return {
     id: backendGroup.id,
     name: backendGroup.name,
     date: backendGroup.date || new Date().toISOString(),
-    image: backendGroup.image,
+    image: getImageUrl(backendGroup.image),
     totalAmount: receipts.reduce((sum, receipt) => sum + receipt.amount, 0),
     myAmount: receipts.reduce((sum, receipt) => {
-      // Calculate user's share in each receipt
       const userItems = receipt.items?.filter(item => 
         item.assignedTo?.some(member => member.id === backendGroup.currentUserId)
       ) || [];
@@ -121,35 +137,44 @@ export async function getGroupById(id: number): Promise<GroupDetail> {
   };
 }
 
-export async function createGroup(group: Partial<Group>): Promise<Group> {
-  const response = await api.post('/group/create', group.name);
+export async function createGroup(name: string, image: File): Promise<Group> {
+  const response = await api.post('/group/create', name);
   const id = response.data.id;
 
-  // If image is provided, we should implement image upload here
-  if (group.image) {
-    // TODO: Implement image upload when backend endpoint is ready
+  let imagePath = '';
+  if (image && image instanceof File) {
+    imagePath = await cloudStorageService.uploadImage(image);
+    await groupService.updateGroupImage(id, imagePath);
   }
 
   return {
     id,
-    name: group.name || '',
+    name: name || '',
     date: new Date().toISOString(),
-    members: 1, // Initially only creator
+    members: 1,
     receipts: 0,
     totalAmount: 0,
-    image: group.image || '',
+    image: imagePath,
   };
 }
 
+
 export const groupService = {
+
+  updateGroupName: async (groupId: number, name: string): Promise<void> => {
+    await api.patch(`/Group/${groupId}/updata-name`, name, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  },
+
   addMemberByLogin: async (groupId: number, login: string): Promise<void> => {
-    // Use the query string for the login parameter
     await api.post(`/group/groups/${groupId}/add-user-by-login?login=${encodeURIComponent(login)}`);
   },
   addMemberByPhone: async (groupId: number, phoneNumber: string): Promise<void> => {
     await api.post(`/group/groups/${groupId}/add-user-by-phone?phoneNumber=${encodeURIComponent(phoneNumber)}`);
   },
-
   updateGroupStatus: async (groupId: number, status: string): Promise<void> => {
     await api.patch('', { status, idGroup: groupId });
   },
@@ -159,14 +184,18 @@ export const groupService = {
   leaveGroup: async (groupId: number): Promise<void> => {
     await api.delete(`/group/${groupId}/leave`);
   },
-
+  updateGroupImage: async (groupId: number, imagePath: string): Promise<void> => {
+    // const imagePath = await cloudStorageService.uploadImage(file);
+    //http://localhost:5136/Group/2/ImagePath?newPath=path.jpg
+    await api.patch(`/group/${groupId}/ImagePath?newPath=${imagePath}`);
+  },
   getGroupMembers: async (groupId: number): Promise<Member[]> => {
     const response = await api.get(`/group/${groupId}/get-users`);
     return response.data.map((user: any) => ({
       id: user.id,
       name: user.name,
       username: user.username,
-      avatar: user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`,
+      avatar: getImageUrl(user.image),
     }));
   },
 };

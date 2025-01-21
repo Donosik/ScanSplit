@@ -147,7 +147,7 @@ public class BillController : ControllerBase
     }
 
     
-    [HttpPatch("{idBill})/updata-name")]
+    [HttpPatch("{idBill}/updata-name")]
     public async Task<IActionResult> UpdateName([FromBody] string name, int idBill)
     {
         await billService.UpadateNameBill(name, idBill);

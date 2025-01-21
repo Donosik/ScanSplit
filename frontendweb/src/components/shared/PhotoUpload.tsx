@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, X, Image as ImageIcon, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { CloudImage } from './CloudImage';
 
 interface PhotoUploadProps {
   currentImage?: string;
@@ -21,7 +22,7 @@ export function PhotoUpload({
   showRemove = true,
   variant = 'default',
 }: PhotoUploadProps) {
-  const [previewUrl, setPreviewUrl] = useState<string>(currentImage || '');
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -63,106 +64,84 @@ export function PhotoUpload({
   };
 
   const handleRemove = () => {
-    setPreviewUrl('');
+    setPreviewUrl(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
   return (
-    <div className={cn('relative group', variantClasses[variant], className)}>
+    <div
+      className={cn(
+        'relative group border-2 border-dashed rounded-lg transition-colors',
+        isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/25',
+        aspectRatioClasses[aspectRatio],
+        variantClasses[variant],
+        className
+      )}
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+    >
+      <AnimatePresence>
+        {previewUrl || currentImage ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0"
+          >
+            {previewUrl ? (
+              <img
+                src={previewUrl}
+                alt="Preview"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <CloudImage
+                objectName={currentImage}
+                alt="Uploaded image"
+                className="w-full h-full"
+                fallbackUrl="/placeholder-image.jpg"
+              />
+            )}
+            {showRemove && (
+              <Button
+                variant="destructive"
+                size="icon"
+                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={handleRemove}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground"
+          >
+            {variant === 'avatar' ? (
+              <Camera className="w-6 h-6" />
+            ) : (
+              <>
+                <Upload className="w-6 h-6" />
+                <span className="text-sm">Drop image here or click to upload</span>
+              </>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        className="hidden"
-        onChange={(e) => {
-          if (e.target.files?.length) {
-            handleFileChange(e.target.files[0]);
-          }
-        }}
+        onChange={(e) => e.target.files?.[0] && handleFileChange(e.target.files[0])}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
       />
-
-      <div
-        className={cn(
-          'relative overflow-hidden rounded-lg transition-all',
-          aspectRatioClasses[aspectRatio],
-          isDragging
-            ? 'border-2 border-primary'
-            : previewUrl
-            ? 'border-none' // No border if there's a preview image
-            : 'border-2 border-dashed border-muted-foreground/25 hover:border-primary/50',
-          variantClasses[variant]
-        )}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-      >
-        <AnimatePresence>
-          {previewUrl ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-              className="relative h-full w-full"
-            >
-              <img
-                src={previewUrl}
-                alt="Preview"
-                className="h-full w-full object-cover"
-              />
-              <div className="absolute inset-0 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100" />
-              <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 transition-opacity group-hover:opacity-100">
-                <Button
-                  size="sm"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Camera className="h-4 w-4 mr-2" />
-                  Change Photo
-                </Button>
-                {showRemove && (
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={handleRemove}
-                  >
-                    <X className="h-4 w-4 mr-2" />
-                    Remove
-                  </Button>
-                )}
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground"
-            >
-              <div className="rounded-full bg-muted p-4">
-                {variant === 'avatar' ? (
-                  <Camera className="h-6 w-6" />
-                ) : (
-                  <ImageIcon className="h-6 w-6" />
-                )}
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-medium">
-                  Drop your image here or{' '}
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="text-primary underline underline-offset-4 hover:text-primary/80"
-                  >
-                    browse
-                  </button>
-                </p>
-                <p className="text-xs">Supports JPG, PNG, GIF</p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Group, GroupDetail } from '@/types';
 import * as groupService from '@/services/groupService';
 import { useToast } from '@/components/ui/use-toast';
-
+import { cloudStorageService } from '@/services/cloudStorageService';
 export function useGroups() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
@@ -10,6 +10,7 @@ export function useGroups() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+
 
   const fetchGroups = async () => {
     try {
@@ -28,6 +29,11 @@ export function useGroups() {
       setLoading(false);
     }
   };
+
+  const getMyAmount = async (groupId: number) => {
+    const myAmount = await groupService.getMyAmount(groupId);
+    return myAmount;
+  }
 
   const createGroup = async (name: string, image?: string) => {
     try {
@@ -87,6 +93,7 @@ export function useGroups() {
     }
   };
 
+ 
   const updateGroupStatus = async (groupId: number, status: string) => {
     try {
       await groupService.groupService.updateGroupStatus(groupId, status);
@@ -137,10 +144,72 @@ export function useGroups() {
     }
   };
 
+
+  const updateGroupImage = async (groupId: number, file: File) => {
+    const objectImagePath = await cloudStorageService.uploadImage(file);
+    const signedUrl = await cloudStorageService.getSignedUrl(objectImagePath);
+    // TODO: update the group image in the database
+
+    await groupService.groupService.updateGroupImage(groupId, objectImagePath);
+
+    return signedUrl;
+  };
+
   const clearSelectedGroup = () => {
     setSelectedGroup(null);
     setGroupDetail(null);
   };
+
+  const fetchMembers = async (groupId: number) => {
+    try {
+      const members = await groupService.getMembers(groupId);
+      return members;
+    } catch (err) {
+      console.error('Error fetching members:', err);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch members. Please try again.",
+      });
+    }
+  };
+
+  const updateGroupName = async (groupId: number, newName: string) => {
+    try {
+      setLoading(true);
+
+      // Call the API method to update the group name
+      await groupService.groupService.updateGroupName(groupId, newName);
+
+      toast({
+        title: "Success",
+        description: "Group name updated successfully!",
+      });
+
+      // Update the group name in the state
+      setGroups((prevGroups) =>
+        prevGroups.map((group) =>
+          group.id === groupId ? { ...group, name: newName } : group
+        )
+      );
+
+      // Update groupDetail if the updated group is the currently selected group
+      if (selectedGroup === groupId) {
+        setGroupDetail((prev) => prev ? { ...prev, name: newName } : null);
+      }
+    } catch (err) {
+      console.error('Error updating group name:', err);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update group name. Please try again.",
+      });
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+  
 
   useEffect(() => {
     fetchGroups();
@@ -156,10 +225,14 @@ export function useGroups() {
     error,
     createGroup,
     addMemberByLogin,
+    getMyAmount,
     addMemberByPhone,
     updateGroupStatus,
+    updateGroupName,
     removeMember,
     leaveGroup,
+    updateGroupImage,
     refreshGroups: fetchGroups,
+    fetchMembers,
   };
 }

@@ -5,6 +5,8 @@ import Register from '@/pages/register/Register';
 import PrivateRoute from '@/utils/auth/PrivateRoute';
 import Landing from '@/pages/landing/Landing';
 import Home from '@/pages/Home';
+import GroupDetail from '@/pages/GroupDetail';
+import ReceiptDetail from '@/pages/ReceiptDetail';
 
 export function Router() {
   return (
@@ -15,6 +17,8 @@ export function Router() {
         <Route path={AvailableRoutes.REGISTER} element={<Register />} />
         <Route element={<PrivateRoute />}>
           <Route path={AvailableRoutes.HOME} element={<Home />} />
+          <Route path={AvailableRoutes.GROUP_DETAIL} element={<Home />} />
+          <Route path={AvailableRoutes.RECEIPT_DETAIL} element={<Home />} />
         </Route>
         <Route path="*" element={<Landing />} />
       </Routes>

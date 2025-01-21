@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import GroupHeader from '@/components/groups/detail/GroupHeader';
 import ReceiptList from '@/components/groups/detail/ReceiptList';
 import GroupSummary from '@/components/groups/detail/GroupSummary';
-import ReceiptDetail from './ReceiptDetail';
-import { GroupDetail as GroupDetailType, Receipt, Bill } from '@/types';
+import { GroupDetail as GroupDetailType, Bill } from '@/types';
 import { useBill } from '@/hooks/useBill';
 import { useGroups } from '@/hooks/useGroups';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -12,27 +13,38 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AvailableRoutes } from '@/utils/router/availableRoutes';
 
 interface GroupDetailProps {
   group: GroupDetailType;
   onBack: () => void;
+  onUpdate: () => void;
 }
 
-export default function GroupDetail({ group, onBack }: GroupDetailProps) {
-  const [selectedReceipt, setSelectedReceipt] = useState<Bill | null>(null);
+export default function GroupDetail({ group, onBack, onUpdate }: GroupDetailProps) {
+  const navigate = useNavigate();
   const [isAddingMember, setIsAddingMember] = useState(false);
   const [memberInput, setMemberInput] = useState('');
   const { createBill } = useBill();
   const { addMemberByLogin, addMemberByPhone } = useGroups();
   const { toast } = useToast();
-  
+  const [selectedReceipt, setSelectedReceipt] = useState<Bill | null>(null);
+  const handleSelectReceipt = (receipt: Bill) => {
+    navigate(
+      AvailableRoutes.RECEIPT_DETAIL
+        .replace(':groupId', group.id.toString())
+        .replace(':receiptId', receipt.id.toString())
+    );
+  };
 
   const handleAddReceipt = async (name: string, file: File, date: string, currency: string) => {
     try {
       await createBill(group.id, name, file, date, currency);
+      onUpdate(); // Refresh group data after adding receipt
       toast({
         title: "Success",
         description: "Receipt added successfully!",
+        variant: "default",
       });
     } catch (error) {
       toast({
@@ -71,6 +83,7 @@ export default function GroupDetail({ group, onBack }: GroupDetailProps) {
       <ReceiptDetail 
         receipt={selectedReceipt}
         onBack={() => setSelectedReceipt(null)}
+        members={group.members}
       />
     );
   }
@@ -87,8 +100,8 @@ export default function GroupDetail({ group, onBack }: GroupDetailProps) {
         <div className="h-full grid grid-cols-1 lg:grid-cols-3 gap-6 p-4 sm:p-6 lg:p-8">
           <div className="lg:col-span-2">
             <ReceiptList 
-              receipts={group.receipts as Bill[]} 
-              onSelectReceipt={(receipt: Bill) => setSelectedReceipt(receipt)}
+              receipts={group.receipts} 
+              onSelectReceipt={handleSelectReceipt}
               onAddReceipt={handleAddReceipt}
             />
           </div>
