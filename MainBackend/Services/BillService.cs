@@ -204,5 +204,15 @@ public class BillService: IBillService
         uow.BillRepository.Update(bill);
         await uow.Save();
     }
+    
+    public async Task UpdateCoverImage(string billImage, int billId)
+    {
+        Bill bill=await uow.BillRepository.Get(billId);
+        if (bill == null)
+            throw new NotFoundException();
+        bill.CoverImage= billImage;
+        uow.BillRepository.Update(bill);
+        await uow.Save();
+    }
 
 }
