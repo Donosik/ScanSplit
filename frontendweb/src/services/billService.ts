@@ -82,6 +82,17 @@ export const billService = {
     return response.data;
   },
 
+  async updateBillImage(billId: number, imagePath: string): Promise<void> {
+    // http://localhost:5136/Bill/2/ImagePath/BillImage?newPath=image.jpg
+    await api.patch(`/bill/${billId}/ImagePath/BillImage?newPath=${imagePath}`);
+  },
+
+  async updateBillCoverImage(billId: number, imagePath: string): Promise<void> {
+    // http://localhost:5136/Bill/2/ImagePath/CoverImage?newPath=image.jpg
+    //curl -X 'PATCH' \
+    await api.patch(`/bill/${billId}/ImagePath/CoverImage?newPath=${imagePath}`);
+  },
+
   async addMenuItems(billId: number, menuItems: MenuItem[]): Promise<void> {
     if (menuItems == null || !menuItems.length) {
       throw new Error("No menu items provided.");

@@ -12,6 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Bill } from '@/types';
 import { useState } from 'react';
 import { AddReceiptForm } from './AddReceiptForm';
+import { CloudImage } from '@/components/shared/CloudImage';
 
 interface ReceiptListProps {
   receipts: Bill[];
@@ -60,8 +61,8 @@ export default function ReceiptList({ receipts, onSelectReceipt, onAddReceipt }:
             >
               <div className="flex flex-col sm:flex-row">
                 <div className="w-full sm:w-64 h-48 sm:h-auto">
-                  <img
-                    src={receipt.image || "/placeholder.svg"}
+                  <CloudImage
+                    objectName={receipt.image}
                     alt={receipt.name}
                     className="h-full w-full object-cover"
                   />

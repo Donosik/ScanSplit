@@ -78,6 +78,7 @@ export interface Bill {
   items: MenuItem[];
   groupId: number;
   currency: string;
+  coverImage: string;
 }
 
 export interface MenuItem {

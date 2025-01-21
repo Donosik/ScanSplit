@@ -35,6 +35,8 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
     setCurrentBill,
     updateBillName,
     updateBillDate,
+    changeBillImage,
+    changeBillCoverImage,
   } = useBill();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -98,6 +100,7 @@ export default function ReceiptDetail({ receipt: initialReceipt, onBack, onUpdat
   const handleImageChange = async (file: File) => {
     if (!bill) return;
     // await updateBill(bill.id, { image: URL.createObjectURL(file) });
+    await changeBillImage(bill.id, file);
     if (bill) {
       onUpdate?.(bill);
     }

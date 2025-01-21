@@ -187,6 +187,46 @@ export function useBill(): UseBillReturn {
     }
   };
 
+  const changeBillImage = async (billId: number, file: File) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const imagePath = await cloudStorageService.uploadImage(file);
+      await billService.updateBillImage(billId, imagePath);
+      setBill(prev => prev ? { ...prev, image: imagePath } : null);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update bill image';
+      setError(errorMessage);
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const changeBillCoverImage = async (billId: number, file: File) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const imagePath = await cloudStorageService.uploadImage(file);
+      await billService.updateBillCoverImage(billId, imagePath);
+      setBill(prev => prev ? { ...prev, coverImage: imagePath } : null);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update bill image';
+      setError(errorMessage);
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const addMenuItems = async (billId: number, items: MenuItem[]) => {
     try {
       setLoading(true);
@@ -271,6 +311,8 @@ export function useBill(): UseBillReturn {
     setCurrentBill,
     updateBillName,
     updateBillDate,
+    changeBillImage,
+    changeBillCoverImage,
   };
 }
 

@@ -86,7 +86,7 @@ export async function getGroupById(id: number): Promise<GroupDetail> {
     username: user.login,
     avatar: getImageUrl(user.image),
   })) || [];
-
+  console.log(backendGroup.bills);  
   // Map bills to receipts
   const receipts: Bill[] = await Promise.all(backendGroup.bills?.map(async (bill: any) => ({
     id: bill.id,
@@ -94,7 +94,8 @@ export async function getGroupById(id: number): Promise<GroupDetail> {
     amount: calculateBillAmount(bill),
     paidBy: bill.paidBy,
     date: bill.date,
-    image: getImageUrl(bill.image),
+    image: getImageUrl(bill.billImage),
+    coverImage: getImageUrl(bill.coverImage),
     status: bill.status,
     items: await convertBillItems(bill.menuItems, members),
     groupId: bill.groupId,
