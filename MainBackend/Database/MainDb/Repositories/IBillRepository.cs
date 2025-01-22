@@ -13,6 +13,8 @@ public interface IBillRepository : IGenericRepository<Bill>
     Task<Bill?> GetBillWithOredrByByIdAsync(int billId);
 
     Task<Bill?> GetBillWithPaymentsByIdAsync(int billId);
+    
+    
     Task SaveChangesAsync();
 
 }
