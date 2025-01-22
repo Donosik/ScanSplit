@@ -63,4 +63,16 @@ public class GroupRepository : GenericRepository<Group>, IGroupRepository
         return await GetQuery().Include(b => b.Bills).FirstOrDefaultAsync(b => b.Id == groupId);
     }
 
+    public async Task<Group?> GetGroupByIdAsyncAllInfo(int groupId)
+    {
+        return await GetQuery()
+            .Include(g => g.Users) // Załadowanie użytkowników w grupie
+            .Include(g => g.Bills)
+            .ThenInclude(b => b.MenuItems) // Załadowanie elementów menu związanych z rachunkami
+            .Include(g => g.Bills)
+            .ThenInclude(b => b.Payments) // Załadowanie płatności związanych z rachunkami
+            .Include(g => g.Bills)
+            .FirstOrDefaultAsync(g => g.Id == groupId);
+    }
+
 }

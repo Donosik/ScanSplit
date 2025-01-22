@@ -26,5 +26,4 @@ public interface IBillService
     Task UpdateBillImage(string billImage, int billId);
     Task UpdateCoverImage(string billImage, int billId);
     Task<decimal> GetBillSum(int billId);
-
 }

@@ -11,4 +11,6 @@ public interface IGroupRepository : IGenericRepository<Group>
     Task DeleteUserFromGroup(int groupId, int userIdToRemove);
     Task<Group?> GetGroupByIdAsync(int groupId);
     Task<Group> GetGroupWithBills(int groupId);
+    
+    Task<Group?> GetGroupByIdAsyncAllInfo(int groupId);
 }
