@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AvailableRoutes } from '@/utils/router/availableRoutes';
+import GroupBalancesDisplay from '@/components/groups/detail/GroupBalancesDisplay';
 
 interface GroupDetailProps {
   group: GroupDetailType;
@@ -107,6 +108,7 @@ export default function GroupDetail({ group, onBack, onUpdate }: GroupDetailProp
           </div>
           <div>
             <GroupSummary group={group} />
+            {/* <GroupBalancesDisplay groupId={group.id} members={group.members} /> */}
           </div>
         </div>
       </main>

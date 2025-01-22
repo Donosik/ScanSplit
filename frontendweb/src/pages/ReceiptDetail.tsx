@@ -265,7 +265,9 @@ export default function ReceiptDetail() {
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Add Item
                 </Button>
+
               </CardHeader>
+                <p className="text-sm text-muted-foreground text-left px-6">If no one is assigned to an item it is split between all members</p>
               <CardContent>
                 <ScrollArea className="h-[400px] pr-4">
                   <div className="space-y-4">

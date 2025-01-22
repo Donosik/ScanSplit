@@ -8,13 +8,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface GroupBalancesProps {
   balances: Balance[];
   onMarkAsPaid?: (balance: Balance) => void;
+  currency: string;
 }
 
-export function GroupBalances({ balances, onMarkAsPaid }: GroupBalancesProps) {
+export function GroupBalances({ balances, onMarkAsPaid, currency }: GroupBalancesProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <h3 className="font-semibold">Balances & Reimbursements</h3>
+        <h3 className="font-semibold">Who owes who?</h3>
       </CardHeader>
       <CardContent className="space-y-4">
         <AnimatePresence>
@@ -41,7 +42,7 @@ export function GroupBalances({ balances, onMarkAsPaid }: GroupBalancesProps) {
               </div>
               <div className="flex items-center gap-3">
                 <span className="font-mono font-medium">
-                  ${balance.amount.toFixed(2)}
+                  {currency} {balance.amount.toFixed(2)}
                 </span>
                 {onMarkAsPaid && balance.status !== 'paid' && (
                   <Button
@@ -69,6 +70,17 @@ export function GroupBalances({ balances, onMarkAsPaid }: GroupBalancesProps) {
             No balances to show
           </div>
         )}
+        {/* {balances.map((balance, index) => (
+          <div key={index} className="flex items-center justify-between">
+            <div>
+              <span className="font-medium">Payer ID: {balance.PayerId}</span>
+              <span className="font-medium">Recipient ID: {balance.RecipientId}</span>
+            </div>
+            <div>
+              <span className="font-medium">Amount: ${balance.Amount.toFixed(2)}</span>
+            </div>
+          </div>
+        ))} */}
       </CardContent>
     </Card>
   );

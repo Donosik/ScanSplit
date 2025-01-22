@@ -15,7 +15,7 @@ interface GroupSettingsProps {
 export default function GroupSettings({ group, onUpdateGroupImage }: GroupSettingsProps) {
   // If you want to show a preview or store the new image locally, track it in state:
   const [currentImageSrc, setCurrentImageSrc] = useState(group.image);
-  const { removeMember, leaveGroup, updateGroupName } = useGroups();
+  const { removeMember, leaveGroup, updateGroupName, updateGroupImage } = useGroups();
   const [groupName, setGroupName] = useState(group.name);
 
   const onRemoveMember = async (login: string) => {

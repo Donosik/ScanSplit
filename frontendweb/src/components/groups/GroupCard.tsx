@@ -14,7 +14,7 @@ export default function GroupCard({ group, onClick }: GroupCardProps) {
       className="overflow-hidden hover:shadow-xl transition-all duration-200 cursor-pointer group h-full flex flex-col"
       onClick={() => onClick(group.id)}
     >
-      <div className="relative aspect-[4/3] xs:aspect-[3/2] sm:aspect-[16/10]">
+      <div className="relative aspect-[4/3] h-64">
         {/* <img
           src={group.image || "/placeholder.svg"}
           alt={group.name}
@@ -24,10 +24,10 @@ export default function GroupCard({ group, onClick }: GroupCardProps) {
         <CloudImage
           objectName={group.image}
           alt={group.name}
-
+          className="absolute inset-0 w-full h-full object-cover"
+          fallbackUrl="/placeholder-image.jpg"
         />
-
-        <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-background/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-background/50" />
         <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4">
           <h3 className="text-lg sm:text-xl font-semibold text-white line-clamp-2">{group.name}</h3>
           <p className="text-white/90 flex items-center gap-1 text-xs sm:text-sm mt-1">

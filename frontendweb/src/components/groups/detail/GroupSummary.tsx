@@ -100,8 +100,8 @@ export default function GroupSummary({ group, onUpdateGroup }: GroupSummaryProps
       <BalancesDialog
         open={isBalancesOpen}
         onOpenChange={setIsBalancesOpen}
-        balances={balances}
-        onMarkAsPaid={handleMarkAsPaid}
+        groupId={group.id}
+        // onMarkAsPaid={handleMarkAsPaid}
       />
     </div>
   );

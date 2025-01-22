@@ -7,22 +7,20 @@ import {
 } from '@/components/ui/dialog';
 import { GroupBalances } from './GroupBalances';
 import { Balance } from '@/types';
+import { useBalances } from '@/hooks/useBalances';
 
 interface BalancesDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  balances: Balance[];
-  onMarkAsPaid?: (balance: Balance) => void;
+  groupId: number; // Pass groupId to fetch balances
 }
 
 export function BalancesDialog({
   open,
   onOpenChange,
-  balances,
-  onMarkAsPaid,
+  groupId,
 }: BalancesDialogProps) {
-  const pendingBalances = balances.filter(b => b.status !== 'paid');
-  const paidBalances = balances.filter(b => b.status === 'paid');
+  const { balances, loading, error, currency } = useBalances(groupId);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -34,21 +32,13 @@ export function BalancesDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="py-4 space-y-6">
-          {pendingBalances.length > 0 && (
-            <div>
-              <h4 className="text-sm font-medium mb-3">Pending Payments</h4>
-              <GroupBalances balances={pendingBalances} onMarkAsPaid={onMarkAsPaid} />
-            </div>
-          )}
-          {paidBalances.length > 0 && (
-            <div>
-              <h4 className="text-sm font-medium mb-3">Completed Payments</h4>
-              <GroupBalances balances={paidBalances} />
-            </div>
-          )}
-          {balances.length === 0 && (
+          {loading && <div>Loading balances...</div>}
+          {error && <div className="text-red-500">{error}</div>}
+          {balances.length > 0 ? (
+            <GroupBalances balances={balances} currency={currency} />
+          ) : (
             <div className="text-center text-muted-foreground py-8">
-              Settle all receipts to see balances!
+              No balances to show
             </div>
           )}
         </div>
