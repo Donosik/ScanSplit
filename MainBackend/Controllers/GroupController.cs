@@ -15,10 +15,12 @@ namespace MainBackend.Controllers;
 public class GroupController: ControllerBase
 {
     private readonly IGroupService groupService;
+    private readonly IGroupSettlementService settlementService;
 
-    public GroupController(IGroupService groupService)
+    public GroupController(IGroupService groupService,IGroupSettlementService settlementService)
     {
         this.groupService = groupService;
+        this.settlementService = settlementService;
     }
     
     [HttpPost("create")]
@@ -118,5 +120,20 @@ public class GroupController: ControllerBase
     {
         decimal value = await groupService.GetSumInGroup(groupId);
         return Ok(value);
+    }
+    
+    
+    [HttpGet("{groupId}/settlements")]
+    public async Task<IActionResult> GetSettlements(int groupId)
+    {
+        try
+        {
+            var settlements = await settlementService.CalculateSettlementsAsync(groupId);
+            return Ok(settlements);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 }
