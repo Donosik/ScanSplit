@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import GroupCard from './GroupCard';
-import { Group } from '@/types';
+import { Group, Member } from '@/types';
 import { createGroup, groupService} from '@/services/groupService';
 import { CreateGroupDialog } from './CreateGroupDialog';
 
@@ -16,6 +16,7 @@ export default function GroupList({ groups, onSelectGroup }: GroupListProps) {
     const newGroup = await createGroup(data.name, data.image);
    // add all the members by login 
    for (const member of data.members) {
+    console.log(member);
     await groupService.addMemberByLogin(newGroup.id, member.username);
    }
     groups.push(newGroup);

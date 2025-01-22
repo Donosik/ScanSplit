@@ -30,6 +30,10 @@ export default function GroupDetail({ group, onBack, onUpdate }: GroupDetailProp
   const { addMemberByLogin, addMemberByPhone } = useGroups();
   const { toast } = useToast();
   const [selectedReceipt, setSelectedReceipt] = useState<Bill | null>(null);
+
+  // Get the currency from the first receipt or default to USD
+  const groupCurrency = group.receipts.length > 0 ? group.receipts[0].currency : 'USD';
+
   const handleSelectReceipt = (receipt: Bill) => {
     navigate(
       AvailableRoutes.RECEIPT_DETAIL
@@ -79,16 +83,6 @@ export default function GroupDetail({ group, onBack, onUpdate }: GroupDetailProp
     }
   };
 
-  if (selectedReceipt) {
-    return (
-      <ReceiptDetail 
-        receipt={selectedReceipt}
-        onBack={() => setSelectedReceipt(null)}
-        members={group.members}
-      />
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <GroupHeader 
@@ -104,6 +98,7 @@ export default function GroupDetail({ group, onBack, onUpdate }: GroupDetailProp
               receipts={group.receipts} 
               onSelectReceipt={handleSelectReceipt}
               onAddReceipt={handleAddReceipt}
+              defaultCurrency={groupCurrency}
             />
           </div>
           <div>

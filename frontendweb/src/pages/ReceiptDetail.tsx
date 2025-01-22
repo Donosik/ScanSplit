@@ -54,12 +54,16 @@ export default function ReceiptDetail() {
   const [totalAmount, setTotalAmount] = useState(0);
   const [members, setMembers] = useState<Member[]>([]);
   useEffect(() => {
-    if (receiptId) {
+    if (receiptId && groupId) {
       fetchBill(Number.parseInt(receiptId));
       fetchCurrencies();
       // Ensure groupId is parsed correctly and used to fetch members
       const parsedGroupId = Number.parseInt(groupId);
-      fetchMembers(parsedGroupId).then(setMembers);
+      fetchMembers(parsedGroupId).then((members) => {
+        if (members) {
+          setMembers(members);
+        }
+      });
     }
   }, [receiptId, groupId]);
 
@@ -123,6 +127,8 @@ export default function ReceiptDetail() {
         // Update menu item details
         try {
           await updateMenuItemDetails(selectedItem.id, { ...newItem, id: selectedItem.id });
+          // Refresh the bill data after updating
+          await fetchBill(bill.id);
         } catch (error) {
           console.error('Error updating menu item details:', error);
         }
@@ -130,7 +136,8 @@ export default function ReceiptDetail() {
     } else {
       const newItemWithId = { ...newItem, id: 1 };
       await addMenuItem(bill.id, newItemWithId);
-      bill.items.push(newItemWithId);
+      // Refresh the bill data after adding
+      await fetchBill(bill.id);
     }
 
     // Update the amounts
@@ -140,38 +147,33 @@ export default function ReceiptDetail() {
 
   const handleChangePaidBy = async (billId: number, newPaidBy: number) => {
     await updateBillPaidBy(billId, newPaidBy);
-    
-    if (bill) {
-      onUpdate?.(bill);
-    }
+    // The view will be refreshed by the updateBillPaidBy function which already calls fetchBill
   };
 
   const handleUpdateReceipt = async (updates: Partial<Bill>) => {
     if (!bill) return
     await updateBill(bill.id, updates)
+    await fetchBill(bill.id); // Refresh the view
     setIsEditDialogOpen(false)
   }
 
   const handleImageChange = async (file: File) => {
     if (!bill) return;
-    // await updateBill(bill.id, { image: URL.createObjectURL(file) });
     await changeBillImage(bill.id, file);
-    if (bill) {
-      onUpdate?.(bill);
-    }
+    await fetchBill(bill.id); // Refresh the view
   };
 
   const handleUpdateName = async (newName: string) => {
     if (bill) {
       await updateBillName(bill.id, newName);
-      onUpdate?.(bill);
+      await fetchBill(bill.id); // Refresh the view
     }
   };
 
   const handleUpdateDate = async (newDate: Date) => {
     if (bill) {
       await updateBillDate(bill.id, newDate);
-      onUpdate?.(bill);
+      await fetchBill(bill.id); // Refresh the view
     }
   };
 
@@ -207,10 +209,10 @@ export default function ReceiptDetail() {
               <Button variant="outline" size="icon" onClick={() => setIsEditDialogOpen(true)}>
                 <Settings2 className="h-4 w-4" />
               </Button>
-              <Badge variant={bill.status === "settled" ? "default" : "secondary"}>
+              {/* <Badge variant={bill.status === "settled" ? "default" : "secondary"}>
                 {bill.status === "settled" ? <Check className="mr-1 h-3 w-3" /> : <Clock className="mr-1 h-3 w-3" />}
                 {bill.status === "settled" ? "Settled" : "Pending"}
-              </Badge>
+              </Badge> */}
             </div>
           </div>
         </div>
@@ -261,10 +263,10 @@ export default function ReceiptDetail() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <h3 className="text-lg font-semibold">Items ({totalItems || 0})</h3>
-                <Button onClick={handleAddItem}>
+                {/* <Button onClick={handleAddItem}>
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Add Item
-                </Button>
+                </Button> */}
 
               </CardHeader>
                 <p className="text-sm text-muted-foreground text-left px-6">If no one is assigned to an item it is split between all members</p>
@@ -334,14 +336,13 @@ export default function ReceiptDetail() {
                       .filter((member, index, self) => index === self.findIndex((m) => m.id === member.id))
                       .map((member) => (
                         <Avatar key={member.id} className="ring-2 ring-background">
-                          <AvatarImage src={member.avatar} />
-                          <AvatarFallback>{member.name[0]}</AvatarFallback>
+                          <AvatarWithCloudImage objectName={member.avatar} fallbackText={member.name[0]} />
                         </Avatar>
                       ))}
                   </div>
                 </div>
-                <div className="pt-4 border-t">
-                  <Button
+                {/* <div className="pt-4 border-t"> */}
+                  {/* <Button
                     className="w-full"
                     variant={bill.status === "settled" ? "secondary" : "default"}
                     onClick={async () => {
@@ -360,8 +361,8 @@ export default function ReceiptDetail() {
                         Mark as Settled
                       </>
                     )}
-                  </Button>
-                </div>
+                  </Button> */}
+                {/* </div> */}
               </CardContent>
             </Card>
           </div>

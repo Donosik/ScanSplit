@@ -18,9 +18,10 @@ interface ReceiptListProps {
   receipts: Bill[];
   onSelectReceipt: (receipt: Bill) => void;
   onAddReceipt: (name: string, file: File, date: string, currency: string) => Promise<void>;
+  defaultCurrency?: string;
 }
 
-export default function ReceiptList({ receipts, onSelectReceipt, onAddReceipt }: ReceiptListProps) {
+export default function ReceiptList({ receipts, onSelectReceipt, onAddReceipt, defaultCurrency = 'USD' }: ReceiptListProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleAddReceipt = async (name: string, file: File, date: string, currency: string) => {
@@ -46,6 +47,7 @@ export default function ReceiptList({ receipts, onSelectReceipt, onAddReceipt }:
             <AddReceiptForm
               onSubmit={handleAddReceipt}
               onCancel={() => setIsDialogOpen(false)}
+              defaultCurrency={defaultCurrency}
             />
           </DialogContent>
         </Dialog>
@@ -72,11 +74,11 @@ export default function ReceiptList({ receipts, onSelectReceipt, onAddReceipt }:
                     <div>
                       <h3 className="text-xl font-semibold mb-2">{receipt.name}</h3>
                       <p className="text-base text-muted-foreground">
-                        Paid by {receipt.paidBy}
+                        {/* TODO: Fix this  Paid by {receipt.paidBy} */}
                       </p>
                     </div>
                     <p className="text-2xl font-semibold mt-2 sm:mt-0">
-                      ${receipt.amount.toFixed(2)}
+                    {receipt.currency} {receipt.amount.toFixed(2)}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 text-base text-muted-foreground">

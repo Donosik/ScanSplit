@@ -9,7 +9,13 @@ export const getMembers = async (): Promise<Member[]> => {
 export const getMemberByLogin = async (login: string): Promise<Member | null> => {
     try {
         const response = await api.get(`/user/${login}`);
-        return response.data;
+        const properMember: Member = {
+          id: response.data.id,
+          name: response.data.name,
+          username: response.data.login,
+          avatar: response.data.avatar,
+        };
+        return properMember;
     } catch (error) {
         console.error('Failed to get member by login:', error);
         return null;

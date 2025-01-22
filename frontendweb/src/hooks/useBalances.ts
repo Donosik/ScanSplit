@@ -46,16 +46,18 @@ export function useBalances(groupId: number) {
     //   };
     // });
     // map to type Balance
+    console.log(balances);
     const balancesWithNames = balances.map((balance: any) => {
       return {
         id: Math.random(),
-        from: members.find((member: Member) => member.id === balance.PayerId)?.name || '',
-        to: members.find((member: Member) => member.id === balance.RecipientId)?.name || '',
-        amount: balance.Amount,
+        from: members.find((member: Member) => member.id === balance.payerId)?.name || '',
+        to: members.find((member: Member) => member.id === balance.recipientId)?.name || '',
+        amount: balance.amount,
         status: 'pending',
         date: new Date().toISOString(),
       };
     });
+    console.log(balancesWithNames);
     return balancesWithNames;
   };
 

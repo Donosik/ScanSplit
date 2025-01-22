@@ -3,7 +3,7 @@ import { Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Balance, GroupDetail } from '@/types';
+import { Balance, GroupDetail, Member } from '@/types';
 import { BalancesDialog } from './BalancesDialog';
 import { useToast } from '@/hooks/use-toast';
 import { useGroups } from '@/hooks/useGroups';
@@ -25,7 +25,11 @@ export default function GroupSummary({ group, onUpdateGroup }: GroupSummaryProps
 
   useEffect(() => {
     getMyAmount(group.id).then(setMyAmount);
-    fetchMembers(group.id).then(setMembers);
+    fetchMembers(group.id).then((fetchedMembers) => {
+      if (fetchedMembers) {
+        setMembers(fetchedMembers);
+      }
+    });
   }, [group.id]);
 
   const handleMarkAsPaid = (balance: Balance) => {
@@ -50,7 +54,7 @@ export default function GroupSummary({ group, onUpdateGroup }: GroupSummaryProps
     // Show success toast
     toast({
       title: "Balance marked as paid",
-      description: `${balance.from} → ${balance.to}: $${balance.amount.toFixed(2)}`,
+      description: `${balance.from} → ${balance.to}: ${group.currency} ${balance.amount.toFixed(2)}`,
     });
   };
 
@@ -73,13 +77,13 @@ export default function GroupSummary({ group, onUpdateGroup }: GroupSummaryProps
           <div>
             <p className="text-sm text-muted-foreground">Total Spent</p>
             <p className="text-2xl font-bold">
-              ${group.totalAmount.toFixed(2)}
+              {group.currency} {group.totalAmount.toFixed(2)}
             </p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Your Share</p>
             <p className="text-2xl font-bold">
-              ${myAmount}
+              {group.currency} {myAmount}
             </p>
           </div>
           <div className="pt-4 border-t">
@@ -101,7 +105,7 @@ export default function GroupSummary({ group, onUpdateGroup }: GroupSummaryProps
         open={isBalancesOpen}
         onOpenChange={setIsBalancesOpen}
         groupId={group.id}
-        // onMarkAsPaid={handleMarkAsPaid}
+        currency={group.currency}
       />
     </div>
   );

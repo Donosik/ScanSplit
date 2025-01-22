@@ -10,14 +10,17 @@ interface AddReceiptFormProps {
 
   // Called if the user cancels
   onCancel: () => void;
+
+  // Default currency from the group
+  defaultCurrency?: string;
 }
 
-export function AddReceiptForm({ onSubmit, onCancel }: AddReceiptFormProps) {
+export function AddReceiptForm({ onSubmit, onCancel, defaultCurrency = 'USD' }: AddReceiptFormProps) {
   const [name, setName] = useState('');
   const [file, setFile] = useState<File>();
   const [loading, setLoading] = useState(false);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [currency, setCurrency] = useState('USD');
+  const [currency, setCurrency] = useState(defaultCurrency);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

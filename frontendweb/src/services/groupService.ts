@@ -117,6 +117,9 @@ export async function getGroupById(id: number): Promise<GroupDetail> {
     currency: bill.currency,
   })) || []);
 
+  // Get the currency from the first bill, or default to USD
+  const groupCurrency = receipts.length > 0 ? receipts[0].currency : 'USD';
+
   return {
     id: backendGroup.id,
     name: backendGroup.name,
@@ -134,6 +137,7 @@ export async function getGroupById(id: number): Promise<GroupDetail> {
     members,
     receipts,
     balances: transfers,
+    currency: groupCurrency,
   };
 }
 
@@ -147,6 +151,8 @@ export async function createGroup(name: string, image: File): Promise<Group> {
     await groupService.updateGroupImage(id, imagePath);
   }
 
+  const signedUrl = await cloudStorageService.getSignedUrl(imagePath);
+
   return {
     id,
     name: name || '',
@@ -154,7 +160,7 @@ export async function createGroup(name: string, image: File): Promise<Group> {
     members: 1,
     receipts: 0,
     totalAmount: 0,
-    image: imagePath,
+    image: signedUrl,
   };
 }
 

@@ -27,7 +27,9 @@ export interface BillDetailsResponse {
   amount: number;
   status: string;
   currency: string;
-  paidBy: string; 
+  paidBy: string;
+  groupId: number;
+  coverImage: string;
   items: {
     id: number;
     name: string;

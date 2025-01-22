@@ -69,6 +69,7 @@ public class GroupRepository : GenericRepository<Group>, IGroupRepository
             .Include(g => g.Users) // Załadowanie użytkowników w grupie
             .Include(g => g.Bills)
             .ThenInclude(b => b.MenuItems) // Załadowanie elementów menu związanych z rachunkami
+            .ThenInclude(mi => mi.OrderedBy)
             .Include(g => g.Bills)
             .ThenInclude(b => b.Payments) // Załadowanie płatności związanych z rachunkami
             .Include(g => g.Bills)

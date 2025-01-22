@@ -28,6 +28,7 @@ export interface GroupDetail {
   members: Member[];
   receipts: Receipt[];
   balances: Balance[];
+  currency: string;
 }
 
 export interface Member {
@@ -46,6 +47,9 @@ export interface Receipt {
   image: string;
   status: 'pending' | 'settled';
   items: ReceiptItem[];
+  groupId: number;
+  currency: string;
+  coverImage: string;
 }
 
 export interface ReceiptItem {

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Bill, BillStatus, MenuItem, User } from '@/types';
-import { billService, BillDetailsResponse } from '@/services/billService';
+import { billService, BillDetailsResponse, BillResponse } from '@/services/billService';
 import { useToast } from '@/components/ui/use-toast';
 import { cloudStorageService } from '@/services/cloudStorageService';
+
 interface UseBillReturn {
   bill: Bill | null;
   loading: boolean;
@@ -17,6 +18,10 @@ interface UseBillReturn {
   setCurrentBill: (bill: Bill) => void;
   updateBillName: (billId: number, name: string) => Promise<void>;
   updateBillDate: (billId: number, date: Date) => Promise<void>;
+  getMyAmount: (billId: number) => Promise<number>;
+  changeBillImage: (billId: number, file: File) => Promise<void>;
+  changeBillCoverImage: (billId: number, file: File) => Promise<void>;
+  createBill: (groupId: number, name: string, file: File, date: string, currency: string) => Promise<BillResponse>;
 }
 
 export function useBill(): UseBillReturn {
@@ -74,7 +79,9 @@ export function useBill(): UseBillReturn {
         status: response.status.toLowerCase() as BillStatus,
         paidBy: response.paidBy || 'Not assigned',
         image: response.image || '/default-receipt.png',
-        items: convertItems(response.items)
+        items: convertItems(response.items),
+        groupId: response.groupId || 0,
+        coverImage: response.coverImage || '/default-cover.png'
       };
       console.log(transformedBill);
 
@@ -169,7 +176,7 @@ export function useBill(): UseBillReturn {
       formData.append('Location.City', 'Default City');
       formData.append('Location.Country', 'Default Country');
       formData.append('Location.Address', 'Default Address');
-
+      formData.append('image', file);
       // Create bill with the image path
       const response = await billService.createBill(groupId, formData);
       const billId = response.billId.billId;
@@ -223,10 +230,10 @@ export function useBill(): UseBillReturn {
     }
   };
 
-  const getMyAmount = async (billId: number) => {
+  const getMyAmount = async (billId: number): Promise<number> => {
     try {
       const myAmount = await billService.getMyAmount(billId);
-      return myAmount;
+      return myAmount || 0; // Return 0 if undefined
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to get my amount';
       setError(errorMessage);
@@ -235,6 +242,7 @@ export function useBill(): UseBillReturn {
         description: errorMessage,
         variant: 'destructive',
       });
+      return 0; // Return 0 on error
     }
   }
 

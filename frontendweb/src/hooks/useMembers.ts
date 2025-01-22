@@ -12,6 +12,7 @@ export function useMembers() {
 
   const fetchMemberByLogin = async (login: string) => {
     const member = await getMemberByLogin(login);
+    
     return member;
   };
 

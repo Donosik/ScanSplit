@@ -77,8 +77,8 @@ export function CreateGroupDialog({ onCreateGroup }: CreateGroupDialogProps) {
   };
 
   const handleImageChange = (file: File) => {
-    const url = URL.createObjectURL(file);
-    setImageSrc(url);
+    // const url = URL.createObjectURL(file);
+    setImageSrc(file);
   };
 
   const handleSearch = async (term: string) => {
@@ -100,7 +100,11 @@ export function CreateGroupDialog({ onCreateGroup }: CreateGroupDialogProps) {
     // setSearchResults(results.filter((member) => !selectedMembers.some((m) => m.id === member.id)));
   };
 
+
   const handleAddMember = (member: Member) => {
+    console.log('handleAddMember');
+    console.log(member);
+
     setSelectedMembers([...selectedMembers, member]);
     setSearchResults([]);
     setSearchTerm('');

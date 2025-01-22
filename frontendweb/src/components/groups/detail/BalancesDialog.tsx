@@ -13,14 +13,16 @@ interface BalancesDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   groupId: number; // Pass groupId to fetch balances
+  currency: string; // Add currency prop
 }
 
 export function BalancesDialog({
   open,
   onOpenChange,
   groupId,
+  currency,
 }: BalancesDialogProps) {
-  const { balances, loading, error, currency } = useBalances(groupId);
+  const { balances, loading, error } = useBalances(groupId);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
