@@ -63,7 +63,7 @@ public class BillController : ControllerBase
             using var content = new MultipartFormDataContent();
             content.Add(new StreamContent(memoryStream), "file", image.FileName);
 
-            var fastApiUrl = "https://scan-split-914997496942.europe-west1.run.app/upload-photo";
+            var fastApiUrl = "https://path-to-ai-backend.com:80";
             var response = await _httpClient.PostAsync(fastApiUrl, content);
 
             if (!response.IsSuccessStatusCode)
