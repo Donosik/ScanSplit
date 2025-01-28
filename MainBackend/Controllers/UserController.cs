@@ -1,4 +1,6 @@
-﻿using MainBackend.DTO;
+﻿using System;
+using System.Threading.Tasks;
+using MainBackend.DTO;
 using MainBackend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +32,18 @@ public class UserController: ControllerBase
         
         return Ok(await userService.GetMe());
     }
-    
+
+    [HttpGet("{login}")]
+    public async Task<IActionResult> GetUserByLogin(string login)
+    {
+        
+        var user = await userService.GetUserByLogin(login);
+        if (user == null)
+        {
+            return NotFound($"User with login '{login}' not found.");
+        }
+        return Ok(user);
+    }
     [HttpPut("")]
     public async Task<IActionResult> UpdateMe([FromBody] UserDTO userDto)
     {
@@ -42,6 +55,20 @@ public class UserController: ControllerBase
     public async Task<IActionResult> UpdatePassword([FromBody] string password)
     {
         await userService.UpdatePassword(password);
+        return Ok();
+    }
+    
+    [HttpGet("groups")]
+    public async Task<IActionResult> GetMyGroups()
+    {
+        var groups = await userService.GetGroupsForUser();
+        return Ok(groups);
+    }
+    
+    [HttpPatch("{userId}/ImagePath")]
+    public async Task<IActionResult> UpdateImagePath(int userId, string newPath)
+    {
+        await userService.UpdateUserImage(newPath, userId);
         return Ok();
     }
 }

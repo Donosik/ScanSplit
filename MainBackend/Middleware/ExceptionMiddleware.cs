@@ -55,6 +55,10 @@ public class ExceptionMiddleware
                 code = HttpStatusCode.Unauthorized;
                 message = "User not logged in";
                 break;
+            case NotFoundException:
+                code = HttpStatusCode.NotFound;
+                message = "Object not found";
+                break;
             default:
                 code=HttpStatusCode.InternalServerError;
                 message = "Internal Server Error";

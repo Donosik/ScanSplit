@@ -1,8 +1,8 @@
 import style from './Input.module.css'
-import {forwardRef} from "react";
+import {forwardRef, InputHTMLAttributes} from "react";
 import ErrorMessage from "../errorMessage/ErrorMessage.tsx";
 
-interface InputProps
+interface InputProps extends InputHTMLAttributes<HTMLInputElement>
 {
     label: string,
     name: string,
@@ -11,25 +11,25 @@ interface InputProps
     error?: string,
 }
 
-export default forwardRef<HTMLInputElement, InputProps>
-(function Input({label, name, type = "text", placeholder, error, ...rest}: InputProps, ref)
-{
+export default forwardRef<HTMLInputElement, InputProps>(
+    function Input({label, name, type = "text", placeholder, error, ...rest}: InputProps, ref)
+    {
 
-    return (
-        <div className={style.container}>
-            <label htmlFor={name} className={style.label}>
-                {label}
-            </label>
-            <input ref={ref}
-                   id={name}
-                   name={name}
-                   type={type}
-                   className={`${style.input} ${error ? style.errorInput : ''}`}
-                   placeholder={placeholder}
-                   aria-invalid={error ? 'true' : 'false'}
-                   {...rest}
-            />
-            <ErrorMessage error={error}/>
-        </div>
-    )
-})
+        return (
+            <div className={style.container}>
+                <label htmlFor={name} className={style.label}>
+                    {label}
+                </label>
+                <input ref={ref}
+                       id={name}
+                       name={name}
+                       type={type}
+                       className={`${style.input} ${error ? style.errorInput : ''}`}
+                       placeholder={placeholder}
+                       aria-invalid={error ? 'true' : 'false'}
+                       {...rest}
+                />
+                <ErrorMessage error={error}/>
+            </div>
+        )
+    })

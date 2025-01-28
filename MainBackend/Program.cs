@@ -1,5 +1,7 @@
+using System.Text.Json.Serialization;
 using MainBackend.Database.DB.Context;
 using MainBackend.Extensions;
+using MainBackend.Helpers;
 using MainBackend.Middleware;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,13 +12,22 @@ builder.Services.AddDbContext<MainDb>(options =>
 
 builder.Services.AddAllScopes();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new CurrencyJsonConverter());
+    options.JsonSerializerOptions.ReferenceHandler=ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.WriteIndented=true;
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddJwtBearerToSwagger();
 
 builder.Services.AddJwt(builder.Configuration);
 
+builder.Services.AddHttpClient();
+
+
 builder.Services.AddCors();
+
 
 var app = builder.Build();
 

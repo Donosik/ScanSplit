@@ -3,6 +3,7 @@ using MainBackend.Database.Generic.Repositories;
 using MainBackend.Database.MainDb.UoW;
 using MainBackend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -30,7 +31,11 @@ public static class ServiceExtensions
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IGroupService, GroupService>();
-        
+        services.AddScoped<IBillService, BillService>();
+        services.AddScoped<IMenuItemService, MenuItemService>();
+       services.AddScoped<ICloudStorageService, CloudStorageService>(); 
+       services.AddScoped<IGroupSettlementService, GroupSettlementService>();
+       
         return services;
     }
 

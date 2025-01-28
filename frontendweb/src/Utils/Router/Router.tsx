@@ -1,26 +1,27 @@
-import {BrowserRouter, Route, Routes} from "react-router-dom";
-import AddNewBill from "../../pages/addNewBill/AddNewBill.tsx";
-import {NotFound} from "../../pages/notfound/NotFound.tsx";
-import {LoggedLayout} from "../../pages/loggedLayout/LoggedLayout.tsx";
-import {AvailableRoutes} from "./AvailableRoutes.ts";
-import Login from "../../pages/login/Login.tsx";
-import PrivateRoute from "../auth/PrivateRoute.tsx";
-import Register from "../../pages/register/Register.tsx";
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { AvailableRoutes } from './availableRoutes';
+import Login from '@/pages/login/Login';
+import Register from '@/pages/register/Register';
+import PrivateRoute from '@/utils/auth/PrivateRoute';
+import Landing from '@/pages/landing/Landing';
+import Home from '@/pages/Home';
+import GroupDetail from '@/pages/GroupDetail';
+import ReceiptDetail from '@/pages/ReceiptDetail';
 
-export function Router()
-{
-    return (
-        <BrowserRouter>
-            <Routes>
-                <Route path={AvailableRoutes.LOGIN} element={<Login/>}/>
-                <Route path={AvailableRoutes.REGISTER} element={<Register/>}/>
-                <Route element={<PrivateRoute/>}>
-                    <Route element={<LoggedLayout/>}>
-                        <Route path={AvailableRoutes.HOME} element={<AddNewBill/>}/>
-                    </Route>
-                    <Route path={"*"} element={<NotFound/>}/>
-                </Route>
-            </Routes>
-        </BrowserRouter>
-    );
+export function Router() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path={AvailableRoutes.LANDING} element={<Landing />} />
+        <Route path={AvailableRoutes.LOGIN} element={<Login />} />
+        <Route path={AvailableRoutes.REGISTER} element={<Register />} />
+        <Route element={<PrivateRoute />}>
+          <Route path={AvailableRoutes.HOME} element={<Home />} />
+          <Route path={AvailableRoutes.GROUP_DETAIL} element={<Home />} />
+          <Route path={AvailableRoutes.RECEIPT_DETAIL} element={<Home />} />
+        </Route>
+        <Route path="*" element={<Landing />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }

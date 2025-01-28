@@ -8,6 +8,7 @@ namespace MainBackend.Database.Entities
         public int Id { get; set; }
         public string Name { get; set; }
         public decimal Price { get; set; }
-        public virtual ICollection<User> OrderedBy { get; set; }
+        public int? Quantity { get; set; }
+        public virtual ICollection<User> OrderedBy { get; set; } = new List<User>(); // Pusta lista domyślnie
     }
 }

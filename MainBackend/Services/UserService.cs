@@ -4,6 +4,7 @@ using MainBackend.Database.Entities;
 using MainBackend.Database.Generic.Repositories;
 using MainBackend.Database.MainDb.UoW;
 using MainBackend.DTO;
+using MainBackend.Exceptions;
 
 namespace MainBackend.Services;
 
@@ -36,8 +37,46 @@ public class UserService: IUserService
         userDto.Email = user.EmailAddress;
         userDto.Login = user.Login;
         userDto.Id = user.Id;
-        
+        userDto.Image = user.Image;
        return userDto;
+    }
+
+    public  async Task<UserDTO> GetUserByLogin(string login)
+    {
+        var user = await uow.UserRepository.GetByLogin(login);
+
+        if (user == null)
+        {
+            return null; // Można też rzucić wyjątek, jeśli to bardziej pasuje do architektury
+        }
+        Console.WriteLine($"User details: {System.Text.Json.JsonSerializer.Serialize(user)}");
+        return new UserDTO
+        {
+            PhoneNumber = user.PhoneNumber,
+            Name = user.Name,
+            LastName = user.LastName,
+            Email = user.EmailAddress,
+            Login = user.Login,
+            Id = user.Id,
+            Image = user.Image
+        };
+    }
+    
+    public async Task<IEnumerable<GroupDTO>> GetGroupsForUser()
+    {
+        var userId = identityService.GetLoggedUserId();
+        var groups = await uow.UserRepository.GetUserGroups(userId);
+        
+        return groups.Select(group => new GroupDTO
+        {
+            Id = group.Id,
+            Name = group.Name,
+            Users = group.Users,
+            Bills = group.Bills,
+            Transfers = group.Transfers,
+            Status = group.Status,
+            Image = group.Image
+        });
     }
 
     public async Task UpdateMe(UserDTO userDto)
@@ -68,5 +107,15 @@ public class UserService: IUserService
         using var sha256 = SHA256.Create();
         var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
         return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
+    }
+
+    public async Task UpdateUserImage(string userImage, int userId)
+    {
+        User user=await uow.UserRepository.Get(userId);
+        if (user == null)
+            throw new NotFoundException();
+        user.Image= userImage;
+        uow.UserRepository.Update(user);
+        await uow.Save();
     }
 }

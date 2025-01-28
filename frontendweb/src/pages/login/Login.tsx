@@ -1,15 +1,18 @@
-import {useAuth} from "../../utils/auth/useAuth.ts";
-import LoginForm from "./loginForm/LoginForm.tsx";
-import style from "./Login.module.css"
+import { useAuth } from '@/utils/auth/useAuth';
+import LoginForm from './loginForm/LoginForm';
+import AuthHeader from '@/components/auth/AuthHeader';
 
+export default function Login() {
+  const { login, error, isLoading } = useAuth();
 
-export default function Login()
-{
-    const {login,error}=useAuth()
-
-    return (
-        <div className={style.container}>
-            <LoginForm onSubmit={login} error={error}/>
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <AuthHeader />
+      <main className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <LoginForm onSubmit={login} error={error} isLoading={isLoading} />
         </div>
-    )
+      </main>
+    </div>
+  );
 }

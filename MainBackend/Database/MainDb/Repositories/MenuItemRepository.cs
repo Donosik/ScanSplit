@@ -13,4 +13,18 @@ public class MenuItemRepository : GenericRepository<MenuItem>, IMenuItemReposito
     }
 
 
+    public async Task<MenuItem?> FindByMenuId(int itemId)
+    {
+        // include connected users
+       return await GetQuery()
+           .Include(x => x.OrderedBy)
+           .FirstOrDefaultAsync(x => x.Id == itemId); 
+    }
+
+    public async Task<MenuItem?> GetMenuItemByIdAsync(int menuItemid)
+    {
+        return await GetQuery()
+            .FirstOrDefaultAsync(b => b.Id == menuItemid);
+    }
+
 }
